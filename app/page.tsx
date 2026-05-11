@@ -405,7 +405,7 @@ md:w-[390px]
 
       </section>
 
-      {/* PREMIUM FITSTREAK GALLERY */}
+      {/* PREMIUM Elite GALLERY */}
 <section className="relative py-24 overflow-hidden">
 
   {/* BACKGROUND GLOW */}
@@ -421,23 +421,10 @@ md:w-[390px]
       <div>
 
         <p className="text-orange-500 uppercase tracking-[0.35em] text-sm font-semibold">
-          FitStreak Gallery
+          Elite Gallery
         </p>
 
-        <h2 className="mt-4 text-4xl md:text-6xl font-black leading-tight">
-
-          The
-          <span className="text-orange-500"> Movement</span>
-
-        </h2>
-
-        <p className="mt-6 text-gray-400 text-lg leading-relaxed max-w-3xl">
-
-          Every workout, every streak, every challenge accepted
-          contributes towards supporting para-athletes and
-          building India’s sports future.
-
-        </p>
+        
 
       </div>
 
@@ -445,7 +432,7 @@ md:w-[390px]
       <div className="px-6 py-4 rounded-2xl border border-orange-500/20 bg-orange-500/10 backdrop-blur-xl">
 
         <p className="text-orange-400 uppercase tracking-[0.25em] text-xs">
-          Powered By Discipline
+          Powered By #KheloYouth
         </p>
 
       </div>
