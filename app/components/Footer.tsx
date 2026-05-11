@@ -1,11 +1,11 @@
 "use client";
 
 import {
-  Instagram,
-  Linkedin,
-  Facebook,
-  Twitter,
-} from "lucide-react";
+  FaInstagram,
+  FaLinkedin,
+  FaXTwitter,
+  FaFacebookF,
+} from "react-icons/fa6";
 
 export default function Footer() {
   return (
@@ -47,14 +47,13 @@ export default function Footer() {
 
             {/* INSTAGRAM */}
             <a
-              href="https://www.instagram.com/elitegamesfederation"
+              href="https://www.instagram.com/elitegamesfederation/"
               target="_blank"
               rel="noopener noreferrer"
               className="group flex items-center gap-4 p-5 rounded-3xl bg-white/[0.03] border border-white/10 hover:border-orange-500/40 hover:bg-orange-500/10 transition-all duration-300"
             >
-
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-400 flex items-center justify-center shadow-[0_0_30px_rgba(255,115,0,0.45)]">
-                <Instagram size={24} className="text-white" />
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-400 flex items-center justify-center shadow-[0_0_30px_rgba(255,115,0,0.4)]">
+                <FaInstagram size={24} className="text-white" />
               </div>
 
               <div>
@@ -66,7 +65,6 @@ export default function Footer() {
                   @elitegamesfederation
                 </p>
               </div>
-
             </a>
 
             {/* LINKEDIN */}
@@ -76,9 +74,8 @@ export default function Footer() {
               rel="noopener noreferrer"
               className="group flex items-center gap-4 p-5 rounded-3xl bg-white/[0.03] border border-white/10 hover:border-orange-500/40 hover:bg-orange-500/10 transition-all duration-300"
             >
-
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-400 flex items-center justify-center shadow-[0_0_30px_rgba(255,115,0,0.45)]">
-                <Linkedin size={24} className="text-white" />
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-400 flex items-center justify-center shadow-[0_0_30px_rgba(255,115,0,0.4)]">
+                <FaLinkedin size={24} className="text-white" />
               </div>
 
               <div>
@@ -90,7 +87,6 @@ export default function Footer() {
                   Elite Games Federation
                 </p>
               </div>
-
             </a>
 
             {/* FACEBOOK */}
@@ -100,9 +96,8 @@ export default function Footer() {
               rel="noopener noreferrer"
               className="group flex items-center gap-4 p-5 rounded-3xl bg-white/[0.03] border border-white/10 hover:border-orange-500/40 hover:bg-orange-500/10 transition-all duration-300"
             >
-
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-400 flex items-center justify-center shadow-[0_0_30px_rgba(255,115,0,0.45)]">
-                <Facebook size={24} className="text-white" />
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-400 flex items-center justify-center shadow-[0_0_30px_rgba(255,115,0,0.4)]">
+                <FaFacebookF size={22} className="text-white" />
               </div>
 
               <div>
@@ -114,7 +109,6 @@ export default function Footer() {
                   Elite Games Federation
                 </p>
               </div>
-
             </a>
 
             {/* X / TWITTER */}
@@ -124,9 +118,8 @@ export default function Footer() {
               rel="noopener noreferrer"
               className="group flex items-center gap-4 p-5 rounded-3xl bg-white/[0.03] border border-white/10 hover:border-orange-500/40 hover:bg-orange-500/10 transition-all duration-300"
             >
-
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-400 flex items-center justify-center shadow-[0_0_30px_rgba(255,115,0,0.45)]">
-                <Twitter size={24} className="text-white" />
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-400 flex items-center justify-center shadow-[0_0_30px_rgba(255,115,0,0.4)]">
+                <FaXTwitter size={24} className="text-white" />
               </div>
 
               <div>
@@ -138,7 +131,6 @@ export default function Footer() {
                   @kheloyouth
                 </p>
               </div>
-
             </a>
 
           </div>
