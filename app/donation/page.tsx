@@ -294,7 +294,7 @@ export default function DonationPage() {
 
           <div className="rounded-[30px] overflow-hidden border border-white/10">
             <img
-              src="https://images.unsplash.com/photo-1544717305-2782549b5136?q=80&w=1200&auto=format&fit=crop"
+              src="donationdrive2.png"
               alt="Support"
               className="w-full h-[350px] object-cover hover:scale-110 transition duration-700"
             />
@@ -302,7 +302,7 @@ export default function DonationPage() {
 
           <div className="rounded-[30px] overflow-hidden border border-white/10">
             <img
-              src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=1200&auto=format&fit=crop"
+              src="donationdrive3.png"
               alt="Sports"
               className="w-full h-[350px] object-cover hover:scale-110 transition duration-700"
             />
