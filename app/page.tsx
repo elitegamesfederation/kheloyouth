@@ -405,6 +405,162 @@ md:w-[390px]
 
       </section>
 
+      {/* PREMIUM FITSTREAK GALLERY */}
+<section className="relative py-24 overflow-hidden">
+
+  {/* BACKGROUND GLOW */}
+  <div className="absolute top-0 left-0 w-[450px] h-[450px] bg-orange-500/10 blur-[140px] rounded-full"></div>
+
+  <div className="absolute bottom-0 right-0 w-[450px] h-[450px] bg-orange-500/10 blur-[140px] rounded-full"></div>
+
+  <div className="relative z-10 max-w-7xl mx-auto px-5 md:px-6">
+
+    {/* TOP */}
+    <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+
+      <div>
+
+        <p className="text-orange-500 uppercase tracking-[0.35em] text-sm font-semibold">
+          FitStreak Gallery
+        </p>
+
+        <h2 className="mt-4 text-4xl md:text-6xl font-black leading-tight">
+
+          The
+          <span className="text-orange-500"> Movement</span>
+
+        </h2>
+
+        <p className="mt-6 text-gray-400 text-lg leading-relaxed max-w-3xl">
+
+          Every workout, every streak, every challenge accepted
+          contributes towards supporting para-athletes and
+          building India’s sports future.
+
+        </p>
+
+      </div>
+
+      {/* BADGE */}
+      <div className="px-6 py-4 rounded-2xl border border-orange-500/20 bg-orange-500/10 backdrop-blur-xl">
+
+        <p className="text-orange-400 uppercase tracking-[0.25em] text-xs">
+          Powered By Discipline
+        </p>
+
+      </div>
+
+    </div>
+
+    {/* GALLERY GRID */}
+    <div className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+      {/* IMAGE 1 */}
+      <div className="group relative overflow-hidden rounded-[32px] h-[500px] border border-white/10">
+
+        <img
+          src="/fitgallery1.jpg"
+          alt="FitStreak Workout"
+          className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition duration-700"
+        />
+
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
+
+        <div className="absolute bottom-0 p-6">
+
+          <p className="text-orange-400 uppercase tracking-[0.3em] text-xs">
+            Outdoor Workout
+          </p>
+
+          <h3 className="mt-3 text-2xl font-black">
+            Morning Discipline
+          </h3>
+
+        </div>
+
+      </div>
+
+      {/* IMAGE 2 */}
+      <div className="group relative overflow-hidden rounded-[32px] h-[500px] border border-white/10">
+
+        <img
+          src="/fitgallery2.jpg"
+          alt="Cycling"
+          className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition duration-700"
+        />
+
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
+
+        <div className="absolute bottom-0 p-6">
+
+          <p className="text-orange-400 uppercase tracking-[0.3em] text-xs">
+            Cycling
+          </p>
+
+          <h3 className="mt-3 text-2xl font-black">
+            Every KM Matters
+          </h3>
+
+        </div>
+
+      </div>
+
+      {/* IMAGE 3 */}
+      <div className="group relative overflow-hidden rounded-[32px] h-[500px] border border-white/10">
+
+        <img
+          src="/fitgallery3.jpg"
+          alt="Running"
+          className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition duration-700"
+        />
+
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
+
+        <div className="absolute bottom-0 p-6">
+
+          <p className="text-orange-400 uppercase tracking-[0.3em] text-xs">
+            Running
+          </p>
+
+          <h3 className="mt-3 text-2xl font-black">
+            Chase Greatness
+          </h3>
+
+        </div>
+
+      </div>
+
+      {/* IMAGE 4 */}
+      <div className="group relative overflow-hidden rounded-[32px] h-[500px] border border-white/10">
+
+        <img
+          src="/fitgallery4.jpg"
+          alt="Transformation"
+          className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition duration-700"
+        />
+
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
+
+        <div className="absolute bottom-0 p-6">
+
+          <p className="text-orange-400 uppercase tracking-[0.3em] text-xs">
+            Transformation
+          </p>
+
+          <h3 className="mt-3 text-2xl font-black">
+            Build Your Legacy
+          </h3>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
       <Footer />
 
     </main>
