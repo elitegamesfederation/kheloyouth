@@ -203,6 +203,11 @@ export default function Home() {
               FitStreak
             </p>
 
+<h1 className="text-6xl font-black leading-none"></h1>
+<p className="text-orange-500 uppercase tracking-[0.4em] text-sm font-semibold mb-6">
+  Inspired by the Fit India Movement
+</p>
+
             <h2 className="mt-6 text-6xl font-black leading-tight">
               Track Every
               <span className="text-orange-500"> Move</span>
@@ -232,8 +237,8 @@ export default function Home() {
               <div className="w-full h-full rounded-[40px] bg-black overflow-hidden relative">
 
                 <img
-                  src="https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=1200&auto=format&fit=crop"
-                  alt="FitStreak"
+                  src="/fitstreak-stats.png"
+                  alt="FitStreak Cycling Stats"
                   className="w-full h-full object-cover opacity-70"
                 />
 
