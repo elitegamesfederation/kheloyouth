@@ -3,7 +3,7 @@ import Footer from "../components/Footer";
 
 export default function FitStreakPrivacyPolicy() {
   return (
-    <main className="min-h-screen bg-black text-white overflow-hidden">
+    <main className="min-h-screen pt-40 md:pt-0 bg-black text-white overflow-hidden">
 
       {/* BACKGROUND EFFECTS */}
       <div className="fixed inset-0 -z-10">

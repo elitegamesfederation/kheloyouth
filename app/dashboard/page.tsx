@@ -538,7 +538,7 @@ export default function DashboardPage() {
 
   return (
 
-    <main className="min-h-screen bg-black text-white">
+    <main className="min-h-screen pt-40 md:pt-0 bg-black text-white">
 
       <Navbar />
 

@@ -10,7 +10,7 @@ export default function Home() {
         <Navbar />
 
       {/* HERO SECTION */}
-      <section className="relative min-h-screen flex items-center pt-40 md:pt-0">
+      <section className="relative min-h-screen pt-40 md:pt-0 flex items-center pt-40 md:pt-0">
 
         {/* BACKGROUND GLOW */}
         <div className="absolute top-20 right-0 w-[500px] h-[500px] bg-orange-500/20 blur-[140px] rounded-full"></div>

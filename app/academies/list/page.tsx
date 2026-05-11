@@ -26,7 +26,7 @@ const academies = [
 
 export default function AcademiesListPage() {
   return (
-    <main className="min-h-screen bg-black text-white overflow-hidden">
+    <main className="min-h-screen pt-40 md:pt-0 bg-black text-white overflow-hidden">
 
       <Navbar />
 
