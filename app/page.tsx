@@ -156,8 +156,8 @@ export default function Home() {
     <p className="mt-8 text-gray-400 text-lg leading-relaxed max-w-4xl">
 
       A powerful podcast initiative by Elite Games Federation dedicated to
-      inspiring youth through real stories of athletes, para-athletes,
-      creators, and changemakers who fought against all odds and never gave up.
+      inspiring youth through real stories of para-athletes
+      who fought against all odds and never gave up.
 
     </p>
 
