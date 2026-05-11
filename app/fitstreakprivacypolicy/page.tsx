@@ -20,7 +20,7 @@ export default function FitStreakPrivacyPolicy() {
       <Navbar />
 
       {/* HERO SECTION */}
-      <section className="relative py-24 px-6">
+<section className="relative pt-40 pb-24 px-6">
 
         <div className="max-w-6xl mx-auto text-center">
 
