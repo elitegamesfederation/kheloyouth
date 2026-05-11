@@ -131,7 +131,7 @@ export default function Home() {
 
       </section>
 
-      {/* PODCAST SERIES SECTION */}
+  {/* PODCAST SERIES SECTION */}
 <section className="relative max-w-7xl mx-auto px-5 md:px-6 py-24 overflow-hidden">
 
   {/* BACKGROUND GLOW */}
@@ -163,59 +163,60 @@ export default function Home() {
 
   </div>
 
-  {/* MAIN FEATURE */}
-  <div className="relative z-10 mt-16 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+  {/* MAIN LAYOUT */}
+  <div className="relative z-10 mt-16 grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
 
-    {/* LEFT IMAGE */}
-    <div className="relative overflow-hidden rounded-[40px] border border-white/10 bg-zinc-900 h-[620px] group">
+    {/* LEFT SIDE */}
+    <div>
 
-      <img
-        src="/surajpodcast.png"
-        alt="Suraj Gaiwal Podcast"
-        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-700"
-      />
+      {/* IMAGE CARD */}
+      <div className="relative overflow-hidden rounded-[40px] border border-white/10 bg-zinc-900 h-[620px] group">
 
-      {/* OVERLAY */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent"></div>
+        <img
+          src="/surajpodcast.png"
+          alt="Suraj Gaiwal Podcast"
+          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-700"
+        />
 
-      {/* LIVE BADGE */}
-      <div className="absolute top-6 left-6 flex items-center gap-3 px-5 py-3 rounded-full bg-black/60 backdrop-blur-xl border border-white/10">
+        {/* OVERLAY */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent"></div>
 
-        <div className="w-3 h-3 rounded-full bg-red-500 animate-pulse"></div>
+        {/* LIVE BADGE */}
+        <div className="absolute top-6 left-6 flex items-center gap-3 px-5 py-3 rounded-full bg-black/60 backdrop-blur-xl border border-white/10">
 
-        <p className="text-white text-sm uppercase tracking-[0.25em]">
-          Under Production
-        </p>
+          <div className="w-3 h-3 rounded-full bg-red-500 animate-pulse"></div>
+
+          <p className="text-white text-sm uppercase tracking-[0.25em]">
+            Under Production
+          </p>
+
+        </div>
+
+        {/* TEXT */}
+        <div className="absolute bottom-0 p-8 md:p-10">
+
+          <p className="text-orange-500 uppercase tracking-[0.3em] text-sm font-semibold">
+            Featured Episode
+          </p>
+
+          <h3 className="mt-4 text-4xl font-black leading-tight">
+            Suraj Gaiwal
+          </h3>
+
+          <p className="mt-5 text-gray-300 leading-relaxed text-lg">
+
+            A para bodybuilder who lost his limbs in a life-changing
+            accident, yet rebuilt his life through discipline, fitness,
+            bodybuilding, and unstoppable mental strength.
+
+          </p>
+
+        </div>
 
       </div>
 
-      {/* TEXT */}
-      <div className="absolute bottom-0 p-8 md:p-10">
-
-        <p className="text-orange-500 uppercase tracking-[0.3em] text-sm font-semibold">
-          Featured Episode
-        </p>
-
-        <h3 className="mt-4 text-4xl font-black leading-tight">
-
-          Suraj Gaiwal
-
-        </h3>
-
-        <p className="mt-5 text-gray-300 leading-relaxed text-lg">
-
-          A para bodybuilder who lost his limbs in a life-changing
-          accident, yet rebuilt his life through discipline, fitness,
-          bodybuilding, and unstoppable mental strength.
-
-        </p>
-
-      </div>
-
-    </div>
-
-{/* STATS */}
-      <div className="grid grid-cols-2 gap-5">
+      {/* STATS BELOW IMAGE */}
+      <div className="mt-8 grid grid-cols-2 gap-5">
 
         <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
 
@@ -267,25 +268,25 @@ export default function Home() {
 
       </div>
 
-    {/* RIGHT CONTENT */}
+    </div>
+
+    {/* RIGHT SIDE */}
     <div>
 
-      
-
-      {/* ABOUT */}
-      <div className="mt-10 rounded-[36px] border border-white/10 bg-zinc-900/70 backdrop-blur-xl p-8">
+      {/* ABOUT CARD */}
+      <div className="rounded-[36px] border border-white/10 bg-zinc-900/70 backdrop-blur-xl p-8 md:p-10">
 
         <p className="text-orange-500 uppercase tracking-[0.3em] text-sm font-semibold">
           About The Initiative
         </p>
 
-        <h3 className="mt-4 text-3xl font-black leading-tight">
+        <h3 className="mt-4 text-4xl font-black leading-tight">
 
           Inspiring India Through Storytelling
 
         </h3>
 
-        <p className="mt-6 text-gray-300 leading-relaxed">
+        <p className="mt-6 text-gray-300 leading-relaxed text-lg">
 
           “Beyond Limits – Stories of Real Champions” is a digital media
           initiative created to motivate children, youth, athletes,
@@ -293,7 +294,7 @@ export default function Home() {
 
         </p>
 
-        <p className="mt-5 text-gray-400 leading-relaxed">
+        <p className="mt-5 text-gray-400 leading-relaxed text-lg">
 
           The series focuses on struggle, discipline, perseverance,
           mental strength, and the power of never giving up —
