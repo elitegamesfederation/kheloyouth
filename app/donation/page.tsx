@@ -302,7 +302,7 @@ export default function DonationPage() {
 
           <div className="rounded-[30px] overflow-hidden border border-white/10">
             <img
-  src="/donation3.jpg"
+  src="/donationdrive3.jpg"
   alt="Donation Drive"
   className="w-full h-[350px] object-cover object-[center_top]"
 />
