@@ -27,11 +27,11 @@ export default function Footer() {
             </p>
 
             <h2 className="mt-5 text-4xl md:text-6xl font-black uppercase leading-tight">
-              Say No To Drugs
+              Say No, To Drugs,
             </h2>
 
             <h3 className="mt-3 text-3xl md:text-5xl font-black uppercase text-orange-500">
-              Yes To Sports
+              Yes, To Sports!
             </h3>
 
             <p className="mt-6 text-gray-400 text-base md:text-lg leading-relaxed max-w-3xl mx-auto">
