@@ -20,10 +20,10 @@ export default function Home() {
        <div className="max-w-7xl mx-auto px-5 md:px-6 grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] gap-14 lg:gap-28 items-center relative z-10 pt-24 md:pt-32">
 
           {/* LEFT CONTENT */}
-          <div>
+          <div className="text-center lg:text-left">
 
 
-            <h1 className="mt-6 text-6xl md:text-8xl font-black leading-none max-w-4xl">
+            <h1 className="mt-6 text-5xl sm:text-6xl md:text-8xl font-black leading-none max-w-4xl">
 
               BUILD
               <span className="text-orange-500 block mt-2">
@@ -31,14 +31,14 @@ export default function Home() {
 </span>
             </h1>
 
-            <p className="mt-8 text-xl text-gray-300 leading-relaxed max-w-2xl">
+            <p className="mt-8 text-lg md:text-xl text-gray-300 leading-relaxed max-w-2xl">
               India’s next-generation sports ecosystem empowering academies,
               athletes, and fitness communities through technology,
               affiliations, and elite opportunities.
             </p>
 
             {/* BUTTONS */}
-            <div className="mt-10 flex flex-wrap gap-5">
+            <div className="mt-10 flex flex-col sm:flex-row gap-5 items-center lg:items-start">
 
               <Link
                 href="/academies/list"
@@ -57,10 +57,10 @@ export default function Home() {
             </div>
 
             {/* STATS */}
-            <div className="mt-16 grid grid-cols-3 gap-6 max-w-xl">
+            <div className="mt-12 md:mt-16 grid grid-cols-3 gap-4 md:gap-6 max-w-xl">
 
               <div>
-                <h2 className="text-4xl font-black text-orange-500">
+                <h2 className="text-2xl md:text-4xl font-black text-orange-500">
                   500+
                 </h2>
                 <p className="text-gray-400 mt-2">
@@ -69,7 +69,7 @@ export default function Home() {
               </div>
 
               <div>
-                <h2 className="text-4xl font-black text-orange-500">
+                <h2 className="text-2xl md:text-4xl font-black text-orange-500">
                   25+
                 </h2>
                 <p className="text-gray-400 mt-2">
@@ -78,7 +78,7 @@ export default function Home() {
               </div>
 
               <div>
-                <h2 className="text-4xl font-black text-orange-500">
+                <h2 className="text-2xl md:text-4xl font-black text-orange-500">
                   50K+
                 </h2>
                 <p className="text-gray-400 mt-2">
@@ -94,7 +94,7 @@ export default function Home() {
           <div className="relative flex justify-center">
 
             {/* MAIN IMAGE CARD */}
-            <div className="relative w-full max-w-xl h-[650px] rounded-[40px] overflow-hidden border border-white/10 bg-zinc-900">
+            <div className="relative w-full max-w-xl h-[420px] sm:h-[520px] md:h-[650px] rounded-[40px] overflow-hidden border border-white/10 bg-zinc-900">
 
               <img
                 src="indiafuture.png"
@@ -141,7 +141,7 @@ export default function Home() {
               Featured Sports
             </p>
 
-            <h2 className="mt-4 text-5xl font-black">
+            <h2 className="mt-4 text-4xl md:text-5xl font-black">
               Explore Sports
             </h2>
           </div>
@@ -156,7 +156,7 @@ export default function Home() {
         </div>
 
         {/* CARDS */}
-        <div className="mt-16 grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="mt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
 
           {[
             "Football",
@@ -191,13 +191,13 @@ export default function Home() {
       </section>
 
       {/* FITSTREAK SECTION */}
-      <section className="relative py-32 border-t border-white/10">
+      <section className="relative py-20 md:py-32 border-t border-white/10">
 
         <div className="absolute inset-0 bg-orange-500/5 blur-3xl"></div>
 
-        <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-20 items-center relative z-10">
+        <div className="max-w-7xl mx-auto px-5 md:px-6 grid lg:grid-cols-2 gap-20 items-center relative z-10">
 
-          <div>
+          <div className="text-center lg:text-left">
 
             <p className="text-orange-500 font-semibold tracking-[0.3em] uppercase">
               FitStreak
@@ -208,12 +208,12 @@ export default function Home() {
   Inspired by the Fit India Movement
 </p>
 
-            <h2 className="mt-6 text-6xl font-black leading-tight">
+            <h2 className="mt-6 text-4xl md:text-6xl font-black leading-tight">
               Track Every
               <span className="text-orange-500"> Move</span>
             </h2>
 
-            <p className="mt-6 text-xl text-gray-300 leading-relaxed">
+            <p className="mt-6 text-lg md:text-xl text-gray-300 leading-relaxed">
               Monitor workouts, steps, calories, streaks, and performance
               with the ultimate athlete companion app.
             </p>
@@ -245,8 +245,9 @@ export default function Home() {
     alt="FitStreak Phone Mockup"
     className="
       relative z-10
-      w-[340px]
-      md:w-[390px]
+      w-[250px]
+sm:w-[300px]
+md:w-[390px]
       object-contain
       drop-shadow-[0_0_60px_rgba(255,115,0,0.25)]
       hover:scale-[1.02]
