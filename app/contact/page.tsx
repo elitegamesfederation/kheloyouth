@@ -94,46 +94,7 @@ export default function ContactPage() {
 
           </div>
 
-          {/* SOCIALS */}
-          <div className="mt-16">
-
-            <h3 className="text-3xl font-black">
-              Connect With Us
-            </h3>
-
-            <div className="mt-8 flex flex-wrap gap-4">
-
-              <a
-                href="#"
-                className="px-6 py-4 rounded-2xl bg-zinc-800 hover:bg-orange-500 transition font-semibold"
-              >
-                Instagram
-              </a>
-
-              <a
-                href="#"
-                className="px-6 py-4 rounded-2xl bg-zinc-800 hover:bg-orange-500 transition font-semibold"
-              >
-                LinkedIn
-              </a>
-
-              <a
-                href="#"
-                className="px-6 py-4 rounded-2xl bg-zinc-800 hover:bg-orange-500 transition font-semibold"
-              >
-                Twitter
-              </a>
-
-              <a
-                href="#"
-                className="px-6 py-4 rounded-2xl bg-zinc-800 hover:bg-orange-500 transition font-semibold"
-              >
-                Facebook
-              </a>
-
-            </div>
-
-          </div>
+          
 
         </div>
 
