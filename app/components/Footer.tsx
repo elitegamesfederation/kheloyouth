@@ -146,6 +146,7 @@ export default function Footer() {
               <a
                 href="https://www.facebook.com/elitegamesfederation"
                 target="_blank"
+                 rel="noopener noreferrer"
                 className="group flex items-center gap-3 px-5 py-4 rounded-2xl bg-white/5 border border-white/10 hover:border-orange-500/40 hover:bg-orange-500/10 transition-all duration-300 backdrop-blur-xl"
               >
 
