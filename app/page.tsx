@@ -17,7 +17,7 @@ export default function Home() {
 
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-orange-400/10 blur-[120px] rounded-full"></div>
 
-        <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-[1.05fr_0.95fr] gap-28 items-center relative z-10 pt-32">
+       <div className="max-w-7xl mx-auto px-5 md:px-6 grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] gap-14 lg:gap-28 items-center relative z-10 pt-24 md:pt-32">
 
           {/* LEFT CONTENT */}
           <div>
