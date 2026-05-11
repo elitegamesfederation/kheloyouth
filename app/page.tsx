@@ -214,10 +214,7 @@ export default function Home() {
 
     </div>
 
-    {/* RIGHT CONTENT */}
-    <div>
-
-      {/* STATS */}
+{/* STATS */}
       <div className="grid grid-cols-2 gap-5">
 
         <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
@@ -269,6 +266,11 @@ export default function Home() {
         </div>
 
       </div>
+
+    {/* RIGHT CONTENT */}
+    <div>
+
+      
 
       {/* ABOUT */}
       <div className="mt-10 rounded-[36px] border border-white/10 bg-zinc-900/70 backdrop-blur-xl p-8">
