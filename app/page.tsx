@@ -131,64 +131,205 @@ export default function Home() {
 
       </section>
 
-      {/* SPORTS SECTION */}
-      <section className="max-w-7xl mx-auto px-6 py-28">
+      {/* PODCAST SERIES SECTION */}
+<section className="relative max-w-7xl mx-auto px-5 md:px-6 py-24 overflow-hidden">
 
-        <div className="flex items-end justify-between flex-wrap gap-6">
+  {/* BACKGROUND GLOW */}
+  <div className="absolute top-0 left-0 w-[400px] h-[400px] bg-orange-500/10 blur-[140px] rounded-full"></div>
 
-          <div>
-            <p className="text-orange-500 font-semibold uppercase tracking-[0.3em]">
-              Featured Sports
-            </p>
+  <div className="absolute bottom-0 right-0 w-[350px] h-[350px] bg-orange-500/10 blur-[140px] rounded-full"></div>
 
-            <h2 className="mt-4 text-4xl md:text-5xl font-black">
-              Explore Sports
-            </h2>
-          </div>
+  {/* TOP SECTION */}
+  <div className="relative z-10">
 
-          <Link
-            href="/academies"
-            className="text-orange-500 hover:text-orange-400"
-          >
-            View All →
-          </Link>
+    <p className="text-orange-500 uppercase tracking-[0.4em] text-sm font-semibold">
+      Beyond Limits
+    </p>
+
+    <h2 className="mt-5 text-4xl md:text-6xl font-black leading-tight max-w-5xl">
+
+      Stories Of
+      <span className="text-orange-500"> Real Champions</span>
+
+    </h2>
+
+    <p className="mt-8 text-gray-400 text-lg leading-relaxed max-w-4xl">
+
+      A powerful podcast initiative by Elite Games Federation dedicated to
+      inspiring youth through real stories of athletes, para-athletes,
+      creators, and changemakers who fought against all odds and never gave up.
+
+    </p>
+
+  </div>
+
+  {/* MAIN FEATURE */}
+  <div className="relative z-10 mt-16 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+
+    {/* LEFT IMAGE */}
+    <div className="relative overflow-hidden rounded-[40px] border border-white/10 bg-zinc-900 h-[620px] group">
+
+      <img
+        src="/surajpodcast.jpg"
+        alt="Suraj Gaiwal Podcast"
+        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-700"
+      />
+
+      {/* OVERLAY */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent"></div>
+
+      {/* LIVE BADGE */}
+      <div className="absolute top-6 left-6 flex items-center gap-3 px-5 py-3 rounded-full bg-black/60 backdrop-blur-xl border border-white/10">
+
+        <div className="w-3 h-3 rounded-full bg-red-500 animate-pulse"></div>
+
+        <p className="text-white text-sm uppercase tracking-[0.25em]">
+          Under Production
+        </p>
+
+      </div>
+
+      {/* TEXT */}
+      <div className="absolute bottom-0 p-8 md:p-10">
+
+        <p className="text-orange-500 uppercase tracking-[0.3em] text-sm font-semibold">
+          Featured Episode
+        </p>
+
+        <h3 className="mt-4 text-4xl font-black leading-tight">
+
+          Suraj Gaiwal
+
+        </h3>
+
+        <p className="mt-5 text-gray-300 leading-relaxed text-lg">
+
+          A para bodybuilder who lost one hand and both legs in a life-changing
+          accident, yet rebuilt his life through discipline, fitness,
+          bodybuilding, and unstoppable mental strength.
+
+        </p>
+
+      </div>
+
+    </div>
+
+    {/* RIGHT CONTENT */}
+    <div>
+
+      {/* STATS */}
+      <div className="grid grid-cols-2 gap-5">
+
+        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+
+          <h3 className="text-4xl font-black text-orange-500">
+            534K+
+          </h3>
+
+          <p className="mt-3 text-gray-400">
+            Instagram Followers
+          </p>
 
         </div>
 
-        {/* CARDS */}
-        <div className="mt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+
+          <h3 className="text-4xl font-black text-orange-500">
+            75
+          </h3>
+
+          <p className="mt-3 text-gray-400">
+            Hard Challenge Completed
+          </p>
+
+        </div>
+
+        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+
+          <h3 className="text-4xl font-black text-orange-500">
+            Pune
+          </h3>
+
+          <p className="mt-3 text-gray-400">
+            Shree Title Winner
+          </p>
+
+        </div>
+
+        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+
+          <h3 className="text-4xl font-black text-orange-500">
+            Real
+          </h3>
+
+          <p className="mt-3 text-gray-400">
+            Story Of Resilience
+          </p>
+
+        </div>
+
+      </div>
+
+      {/* ABOUT */}
+      <div className="mt-10 rounded-[36px] border border-white/10 bg-zinc-900/70 backdrop-blur-xl p-8">
+
+        <p className="text-orange-500 uppercase tracking-[0.3em] text-sm font-semibold">
+          About The Initiative
+        </p>
+
+        <h3 className="mt-4 text-3xl font-black leading-tight">
+
+          Inspiring India Through Storytelling
+
+        </h3>
+
+        <p className="mt-6 text-gray-300 leading-relaxed">
+
+          “Beyond Limits – Stories of Real Champions” is a digital media
+          initiative created to motivate children, youth, athletes,
+          and everyday individuals through emotional and inspiring stories.
+
+        </p>
+
+        <p className="mt-5 text-gray-400 leading-relaxed">
+
+          The series focuses on struggle, discipline, perseverance,
+          mental strength, and the power of never giving up —
+          especially highlighting the journeys of para-athletes who face
+          unimaginable challenges yet continue fighting every single day.
+
+        </p>
+
+        {/* TAGS */}
+        <div className="mt-8 flex flex-wrap gap-3">
 
           {[
-            "Football",
-            "Cricket",
-            "MMA",
-            "Athletics",
-          ].map((sport) => (
+            "Youth Inspiration",
+            "Para Athletes",
+            "Sports Culture",
+            "Mental Strength",
+            "Fitness",
+            "Motivation",
+          ].map((item) => (
+
             <div
-              key={sport}
-              className="group relative overflow-hidden rounded-3xl border border-white/10 bg-zinc-900 h-[320px]"
+              key={item}
+              className="px-4 py-2 rounded-full border border-orange-500/20 bg-orange-500/10 text-orange-400 text-sm"
             >
-
-              <img
-                src="https://images.unsplash.com/photo-1547347298-4074fc3086f0?q=80&w=1200&auto=format&fit=crop"
-                alt={sport}
-                className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:scale-110 transition duration-700"
-              />
-
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
-
-              <div className="absolute bottom-8 left-8">
-                <h3 className="text-3xl font-bold">
-                  {sport}
-                </h3>
-              </div>
-
+              {item}
             </div>
+
           ))}
 
         </div>
 
-      </section>
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
 
       {/* FITSTREAK SECTION */}
       <section className="relative py-20 md:py-32 border-t border-white/10">
