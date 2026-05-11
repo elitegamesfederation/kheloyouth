@@ -204,7 +204,7 @@ export default function Home() {
 
         <p className="mt-5 text-gray-300 leading-relaxed text-lg">
 
-          A para bodybuilder who his limbs in a life-changing
+          A para bodybuilder who lost his limbs in a life-changing
           accident, yet rebuilt his life through discipline, fitness,
           bodybuilding, and unstoppable mental strength.
 
