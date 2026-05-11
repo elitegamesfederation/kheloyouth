@@ -286,7 +286,7 @@ export default function DonationPage() {
 
           <div className="rounded-[30px] overflow-hidden border border-white/10">
             <img
-              src="https://images.unsplash.com/photo-1517466787929-bc90951d0974?q=80&w=1200&auto=format&fit=crop"
+              src="/donationdrive1.png"
               alt="Community"
               className="w-full h-[350px] object-cover hover:scale-110 transition duration-700"
             />
