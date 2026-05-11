@@ -170,7 +170,7 @@ export default function Home() {
     <div className="relative overflow-hidden rounded-[40px] border border-white/10 bg-zinc-900 h-[620px] group">
 
       <img
-        src="/surajpodcast.jpg"
+        src="/surajpodcast.png"
         alt="Suraj Gaiwal Podcast"
         className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-700"
       />
