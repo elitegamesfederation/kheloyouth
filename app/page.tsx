@@ -229,52 +229,38 @@ export default function Home() {
 
           </div>
 
-          {/* MOCKUP */}
-          <div className="flex justify-center">
+          {/* FITSTREAK PHONE MOCKUP */}
+<div className="flex justify-center relative">
 
-            <div className="w-[320px] h-[650px] rounded-[50px] border border-white/10 bg-zinc-900 p-4 shadow-[0_0_80px_rgba(255,115,0,0.2)]">
+  {/* GLOW */}
+  <div className="absolute inset-0 flex items-center justify-center">
 
-              <div className="w-full h-full rounded-[40px] bg-black overflow-hidden relative">
+    <div className="w-[320px] h-[650px] bg-orange-500/20 blur-[120px] rounded-full"></div>
 
-                <img
-                  src="/fitstreak-stats.png"
-                  alt="FitStreak Cycling Stats"
-                  className="w-full h-full object-cover opacity-70"
-                />
+  </div>
 
-                <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent"></div>
+  {/* PHONE IMAGE */}
+  <img
+    src="/mockupphone.png"
+    alt="FitStreak Phone Mockup"
+    className="
+      relative z-10
+      w-[340px]
+      md:w-[390px]
+      object-contain
+      drop-shadow-[0_0_60px_rgba(255,115,0,0.25)]
+      hover:scale-[1.02]
+      transition duration-500
+    "
+  />
 
-                <div className="absolute bottom-8 left-6 right-6">
-
-                  <div className="flex items-center justify-between">
-
-                    <div>
-                      <p className="text-gray-400 text-sm">
-                        Today Steps
-                      </p>
-
-                      <h3 className="text-4xl font-black">
-                        12,846
-                      </h3>
-                    </div>
-
-                    <div className="w-14 h-14 rounded-full bg-orange-500"></div>
-
-                  </div>
-
-                </div>
-
-              </div>
-
-            </div>
-
-          </div>
+</div>
 
         </div>
 
       </section>
 
-<Footer />
+      <Footer />
 
     </main>
   );
