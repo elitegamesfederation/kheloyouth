@@ -230,7 +230,7 @@ export default function Home() {
           </div>
 
           {/* MOCKUP */}
-          <div className="flex justify-start md:justify-end">
+          <div className="flex justify-center">
 
             <div className="w-[320px] h-[650px] rounded-[50px] border border-white/10 bg-zinc-900 p-4 shadow-[0_0_80px_rgba(255,115,0,0.2)]">
 
