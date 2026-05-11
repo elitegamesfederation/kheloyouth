@@ -36,11 +36,46 @@ export default function FitStreakPage() {
               </span>
             </h1>
 
-            <p className="mt-8 text-xl text-gray-300 leading-relaxed max-w-2xl">
-              FitStreak is more than just a fitness app.
-              It’s a movement built around discipline,
-              consistency, self-growth, and transformation.
-            </p>
+            <div className="mt-6 space-y-5">
+
+  <p className="text-xl text-gray-300 leading-relaxed">
+    FitStreak is more than just a fitness app. It’s a movement built
+    around discipline, consistency, self-growth, and transformation.
+  </p>
+
+  {/* HIGHLIGHT BOX */}
+  <div className="relative overflow-hidden rounded-3xl border border-orange-500/20 bg-orange-500/10 backdrop-blur-xl p-6">
+
+    {/* GLOW */}
+    <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/20 blur-3xl rounded-full"></div>
+
+    <p className="relative z-10 text-orange-400 uppercase tracking-[0.3em] text-xs font-semibold">
+      Purpose Driven Movement
+    </p>
+
+    <h3 className="relative z-10 mt-3 text-2xl font-black leading-tight text-white">
+      Every Challenge Accepted
+      <span className="text-orange-500"> Helps Someone Rise</span>
+    </h3>
+
+    <p className="relative z-10 mt-4 text-gray-300 leading-relaxed">
+
+      FitStreak is also a fundraising initiative dedicated to supporting
+      para-athletes and grassroots sports development across India.
+
+    </p>
+
+    <p className="relative z-10 mt-4 text-gray-400 leading-relaxed">
+
+      Every workout completed, every challenge accepted, and every streak
+      maintained contributes towards empowering athletes who continue to
+      fight against limitations to achieve their dreams and inspire millions.
+
+    </p>
+
+  </div>
+
+</div>
 
             {/* BUTTONS */}
             <div className="mt-10 flex flex-wrap gap-5">
@@ -55,40 +90,7 @@ export default function FitStreakPage() {
 
             </div>
 
-            {/* STATS */}
-            <div className="mt-16 grid grid-cols-3 gap-8 max-w-2xl">
-
-              <div>
-                <h2 className="text-4xl font-black text-orange-500">
-                  75
-                </h2>
-
-                <p className="mt-2 text-gray-400">
-                  Hard Challenge
-                </p>
-              </div>
-
-              <div>
-                <h2 className="text-4xl font-black text-orange-500">
-                  50K+
-                </h2>
-
-                <p className="mt-2 text-gray-400">
-                  Fitness Users
-                </p>
-              </div>
-
-              <div>
-                <h2 className="text-4xl font-black text-orange-500">
-                  24/7
-                </h2>
-
-                <p className="mt-2 text-gray-400">
-                  Progress Tracking
-                </p>
-              </div>
-
-            </div>
+            
 
           </div>
 
@@ -158,11 +160,11 @@ export default function FitStreakPage() {
             </div>
 
             <h3 className="mt-8 text-3xl font-black">
-              45/75 Hard
+              Challenges
             </h3>
 
             <p className="mt-5 text-gray-400 leading-relaxed">
-              Complete the ultimate discipline challenge and unlock rewards.
+              Complete the ultimate discipline challenges and unlock rewards.
             </p>
 
           </div>
