@@ -476,7 +476,7 @@ export default function Home() {
       {/* LOCATION */}
       <div className="mt-8 inline-flex items-center gap-3 px-6 py-3 rounded-full border border-orange-500/20 bg-orange-500/10 text-orange-400 text-sm uppercase tracking-[0.25em]">
 
-        First Branch • Pimpri
+        First Branch • Pimpri, Pune, Maharashtra 411018
 
       </div>
 
@@ -489,7 +489,7 @@ export default function Home() {
       <div className="group relative overflow-hidden rounded-[32px] h-[320px] border border-white/10">
 
         <img
-          src="/littlefeet1.jpg"
+          src="/littlefeet1.png"
           alt="Little Feet Preschool"
           className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-700"
         />
@@ -500,7 +500,7 @@ export default function Home() {
       <div className="group relative overflow-hidden rounded-[32px] h-[320px] border border-white/10">
 
         <img
-          src="/littlefeet2.jpg"
+          src="/littlefeet2.png"
           alt="Little Feet Preschool"
           className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-700"
         />
@@ -511,7 +511,7 @@ export default function Home() {
       <div className="group relative overflow-hidden rounded-[32px] h-[320px] border border-white/10">
 
         <img
-          src="/littlefeet3.jpg"
+          src="/littlefeet3.png"
           alt="Little Feet Preschool"
           className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-700"
         />
