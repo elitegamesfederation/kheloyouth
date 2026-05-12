@@ -460,7 +460,7 @@ md:w-[390px]
           </p>
 
           <h3 className="mt-3 text-2xl font-black">
-            Met  India's Premier Para-Javelin Throwers, Navdeep Singhji
+            With Javelin Throwers, Navdeep Singhji
           </h3>
 
         </div>
