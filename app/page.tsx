@@ -335,78 +335,230 @@ export default function Home() {
 </section>
 
       {/* FITSTREAK SECTION */}
-      <section className="relative py-20 md:py-32 border-t border-white/10">
+<section className="relative py-20 md:py-32 border-t border-white/10 overflow-hidden">
 
-        <div className="absolute inset-0 bg-orange-500/5 blur-3xl"></div>
+  <div className="absolute inset-0 bg-orange-500/5 blur-3xl"></div>
 
-        <div className="max-w-7xl mx-auto px-5 md:px-6 grid lg:grid-cols-2 gap-20 items-center relative z-10">
+  <div className="max-w-7xl mx-auto px-5 md:px-6 grid lg:grid-cols-2 gap-20 items-center relative z-10">
 
-          <div className="text-center lg:text-left">
+    <div className="text-center lg:text-left">
 
-            <p className="text-orange-500 font-semibold tracking-[0.3em] uppercase">
-              FitStreak
-            </p>
+      <p className="text-orange-500 font-semibold tracking-[0.3em] uppercase">
+        FitStreak
+      </p>
 
-<h1 className="text-6xl font-black leading-none"></h1>
-<p className="text-orange-500 uppercase tracking-[0.4em] text-sm font-semibold mb-6">
-  Inspired by the Fit India Movement
-</p>
+      <p className="text-orange-500 uppercase tracking-[0.4em] text-sm font-semibold mb-6">
+        Inspired by the Fit India Movement
+      </p>
 
-            <h2 className="mt-6 text-4xl md:text-6xl font-black leading-tight">
-              Track Every
-              <span className="text-orange-500"> Move</span>
-            </h2>
+      <h2 className="mt-6 text-4xl md:text-6xl font-black leading-tight">
+        Track Every
+        <span className="text-orange-500"> Move</span>
+      </h2>
 
-            <p className="mt-6 text-lg md:text-xl text-gray-300 leading-relaxed">
-              Monitor workouts, steps, calories, streaks, and performance
-              with the ultimate athlete companion app.
-            </p>
+      <p className="mt-6 text-lg md:text-xl text-gray-300 leading-relaxed">
+        Monitor workouts, steps, calories, streaks, and performance
+        with the ultimate athlete companion app.
+      </p>
 
-            <div className="mt-10">
-              <Link
-                href="/fitstreak"
-                className="bg-orange-500 hover:bg-orange-600 transition px-8 py-4 rounded-2xl text-lg font-semibold inline-block"
-              >
-                Explore FitStreak
-              </Link>
-            </div>
+      {/* HIGHLIGHT BOX */}
+      <div className="mt-8 rounded-3xl border border-orange-500/20 bg-orange-500/10 p-6 backdrop-blur-xl">
 
-          </div>
+        <p className="text-orange-400 uppercase tracking-[0.25em] text-xs font-semibold">
+          Social Impact Initiative
+        </p>
 
-          {/* FITSTREAK PHONE MOCKUP */}
-<div className="flex justify-center relative">
+        <p className="mt-4 text-gray-300 leading-relaxed text-base md:text-lg">
+          FitStreak is also a fundraising initiative created to support
+          para-athletes and grassroots sports development across India.
+          Every challenge accepted, every streak completed, and every
+          step taken helps someone move closer to achieving their dream.
+        </p>
 
-  {/* GLOW */}
-  <div className="absolute inset-0 flex items-center justify-center">
+      </div>
 
-    <div className="w-[320px] h-[650px] bg-orange-500/20 blur-[120px] rounded-full"></div>
+      <div className="mt-10">
+        <Link
+          href="/fitstreak"
+          className="bg-orange-500 hover:bg-orange-600 transition px-8 py-4 rounded-2xl text-lg font-semibold inline-block"
+        >
+          Explore FitStreak
+        </Link>
+      </div>
+
+    </div>
+
+    {/* FITSTREAK PHONE MOCKUP */}
+    <div className="flex justify-center relative">
+
+      {/* GLOW */}
+      <div className="absolute inset-0 flex items-center justify-center">
+
+        <div className="w-[320px] h-[650px] bg-orange-500/20 blur-[120px] rounded-full"></div>
+
+      </div>
+
+      {/* PHONE IMAGE */}
+      <img
+        src="/mockupphone.png"
+        alt="FitStreak Phone Mockup"
+        className="
+          relative z-10
+          w-[250px]
+          sm:w-[300px]
+          md:w-[390px]
+          object-contain
+          drop-shadow-[0_0_60px_rgba(255,115,0,0.25)]
+          hover:scale-[1.02]
+          transition duration-500
+        "
+      />
+
+    </div>
 
   </div>
 
-  {/* PHONE IMAGE */}
-  <img
-    src="/mockupphone.png"
-    alt="FitStreak Phone Mockup"
-    className="
-      relative z-10
-      w-[250px]
-sm:w-[300px]
-md:w-[390px]
-      object-contain
-      drop-shadow-[0_0_60px_rgba(255,115,0,0.25)]
-      hover:scale-[1.02]
-      transition duration-500
-    "
-  />
+</section>
 
-</div>
+{/* LITTLE FEETS PRESCHOOL SECTION */}
+<section className="relative py-24 border-t border-white/10 overflow-hidden">
 
-        </div>
+  {/* GLOW */}
+  <div className="absolute top-0 left-0 w-[450px] h-[450px] bg-orange-500/10 blur-[140px] rounded-full"></div>
 
-      </section>
+  <div className="absolute bottom-0 right-0 w-[450px] h-[450px] bg-orange-500/10 blur-[140px] rounded-full"></div>
 
-      {/* PREMIUM Elite GALLERY */}
-<section className="relative py-24 overflow-hidden">
+  <div className="relative z-10 max-w-7xl mx-auto px-5 md:px-6">
+
+    {/* TOP */}
+    <div className="text-center max-w-5xl mx-auto">
+
+      <p className="text-orange-500 uppercase tracking-[0.35em] text-sm font-semibold">
+        Little Feet’s Pre School
+      </p>
+
+      <h2 className="mt-5 text-4xl md:text-6xl font-black leading-tight">
+
+        An Initiative By
+        <span className="text-orange-500"> Elite Games Federation</span>
+
+      </h2>
+
+      <p className="mt-8 text-gray-300 text-lg md:text-xl leading-relaxed">
+
+        At Little Feet’s Pre School, we believe sports, discipline,
+        confidence, and leadership should begin right from childhood.
+
+      </p>
+
+      <p className="mt-5 text-gray-400 text-lg leading-relaxed max-w-4xl mx-auto">
+
+        Our mission is to provide high-quality education while developing
+        creativity, curiosity, physical activity, teamwork, and sports
+        interest from the very beginning.
+
+      </p>
+
+      {/* BUTTON */}
+      <div className="mt-10">
+
+        <a
+          href="https://little-feets.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-3 bg-orange-500 hover:bg-orange-600 transition px-8 py-4 rounded-2xl text-lg font-semibold"
+        >
+          Visit Little Feet’s
+        </a>
+
+      </div>
+
+      {/* LOCATION */}
+      <div className="mt-8 inline-flex items-center gap-3 px-6 py-3 rounded-full border border-orange-500/20 bg-orange-500/10 text-orange-400 text-sm uppercase tracking-[0.25em]">
+
+        First Branch • Pimpri
+
+      </div>
+
+    </div>
+
+    {/* GALLERY */}
+    <div className="mt-20 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+      {/* IMAGE 1 */}
+      <div className="group relative overflow-hidden rounded-[32px] h-[320px] border border-white/10">
+
+        <img
+          src="/littlefeet1.jpg"
+          alt="Little Feet Preschool"
+          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-700"
+        />
+
+      </div>
+
+      {/* IMAGE 2 */}
+      <div className="group relative overflow-hidden rounded-[32px] h-[320px] border border-white/10">
+
+        <img
+          src="/littlefeet2.jpg"
+          alt="Little Feet Preschool"
+          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-700"
+        />
+
+      </div>
+
+      {/* IMAGE 3 */}
+      <div className="group relative overflow-hidden rounded-[32px] h-[320px] border border-white/10">
+
+        <img
+          src="/littlefeet3.jpg"
+          alt="Little Feet Preschool"
+          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-700"
+        />
+
+      </div>
+
+      {/* IMAGE 4 */}
+      <div className="group relative overflow-hidden rounded-[32px] h-[320px] border border-white/10">
+
+        <img
+          src="/littlefeet4.jpg"
+          alt="Little Feet Preschool"
+          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-700"
+        />
+
+      </div>
+
+      {/* IMAGE 5 */}
+      <div className="group relative overflow-hidden rounded-[32px] h-[320px] border border-white/10">
+
+        <img
+          src="/littlefeet5.jpg"
+          alt="Little Feet Preschool"
+          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-700"
+        />
+
+      </div>
+
+      {/* IMAGE 6 */}
+      <div className="group relative overflow-hidden rounded-[32px] h-[320px] border border-white/10">
+
+        <img
+          src="/littlefeet6.jpg"
+          alt="Little Feet Preschool"
+          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-700"
+        />
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+{/* PREMIUM ELITE GALLERY */}
+<section className="relative py-24 overflow-hidden border-t border-white/10">
 
   {/* BACKGROUND GLOW */}
   <div className="absolute top-0 left-0 w-[450px] h-[450px] bg-orange-500/10 blur-[140px] rounded-full"></div>
@@ -423,8 +575,6 @@ md:w-[390px]
         <p className="text-orange-500 uppercase tracking-[0.35em] text-sm font-semibold">
           Elite Gallery
         </p>
-
-        
 
       </div>
 
@@ -548,7 +698,7 @@ md:w-[390px]
 
 </section>
 
-      <Footer />
+<Footer />
 
     </main>
   );
