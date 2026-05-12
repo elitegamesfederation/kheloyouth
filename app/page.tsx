@@ -496,8 +496,8 @@ md:w-[390px]
       <div className="group relative overflow-hidden rounded-[32px] h-[300px] border border-white/10">
 
         <img
-          src="/fitgallery3.jpg"
-          alt="Running"
+          src="/paraathletes.png"
+          alt="Para-Athletes"
           className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition duration-700"
         />
 
@@ -506,11 +506,11 @@ md:w-[390px]
         <div className="absolute bottom-0 p-6">
 
           <p className="text-orange-400 uppercase tracking-[0.3em] text-xs">
-            Running
+            Ms. Kajal Keshi, General Secretary
           </p>
 
-          <h3 className="mt-3 text-2xl font-black">
-            Chase Greatness
+          <h3 className="mt-3 text-xl font-black">
+            With Para-Athletes
           </h3>
 
         </div>
