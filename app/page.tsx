@@ -518,38 +518,7 @@ export default function Home() {
 
       </div>
 
-      {/* IMAGE 4 */}
-      <div className="group relative overflow-hidden rounded-[32px] h-[320px] border border-white/10">
-
-        <img
-          src="/littlefeet4.jpg"
-          alt="Little Feet Preschool"
-          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-700"
-        />
-
-      </div>
-
-      {/* IMAGE 5 */}
-      <div className="group relative overflow-hidden rounded-[32px] h-[320px] border border-white/10">
-
-        <img
-          src="/littlefeet5.jpg"
-          alt="Little Feet Preschool"
-          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-700"
-        />
-
-      </div>
-
-      {/* IMAGE 6 */}
-      <div className="group relative overflow-hidden rounded-[32px] h-[320px] border border-white/10">
-
-        <img
-          src="/littlefeet6.jpg"
-          alt="Little Feet Preschool"
-          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-700"
-        />
-
-      </div>
+     
 
     </div>
 
