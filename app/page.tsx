@@ -468,7 +468,7 @@ md:w-[390px]
       </div>
 
       {/* IMAGE 2 */}
-      <div className="group relative overflow-hidden rounded-[32px] h-[500px] border border-white/10">
+      <div className="group relative overflow-hidden rounded-[32px] h-[300px] border border-white/10">
 
         <img
           src="/fitgallery2.jpg"
@@ -493,7 +493,7 @@ md:w-[390px]
       </div>
 
       {/* IMAGE 3 */}
-      <div className="group relative overflow-hidden rounded-[32px] h-[500px] border border-white/10">
+      <div className="group relative overflow-hidden rounded-[32px] h-[300px] border border-white/10">
 
         <img
           src="/fitgallery3.jpg"
@@ -518,7 +518,7 @@ md:w-[390px]
       </div>
 
       {/* IMAGE 4 */}
-      <div className="group relative overflow-hidden rounded-[32px] h-[500px] border border-white/10">
+      <div className="group relative overflow-hidden rounded-[32px] h-[300px] border border-white/10">
 
         <img
           src="/fitgallery4.jpg"
