@@ -408,6 +408,33 @@ const academyPayload = {
   profileCompleted: true,
 };
 
+const dashboardSports = Array.isArray(userData?.sportsConducted)
+  ? userData.sportsConducted
+  : [];
+
+const dashboardOwners = Array.isArray(userData?.owners)
+  ? userData.owners
+  : [];
+
+const dashboardStudents = Array.isArray(userData?.students)
+  ? userData.students
+  : [];
+
+const dashboardGallery =
+  Array.isArray(userData?.academyImageUrls) &&
+  userData.academyImageUrls.length
+    ? userData.academyImageUrls
+    : academyImages.map((image) =>
+        typeof image === "string"
+          ? image
+          : URL.createObjectURL(image)
+      );
+
+const dashboardLogo =
+  userData?.academyLogoUrl ||
+  logoPreview ||
+  "";
+
   // =========================
   // SIGNUP
   // =========================
@@ -1196,35 +1223,300 @@ console.log("Razorpay Loaded:", window.Razorpay);
 
               {!editMode && (
                 <>
-                  {[
-                    ["Status", userData?.paymentDone ? "Affiliation Active" : "Payment Pending"],
-                    ["Public URL", userData?.paymentDone ? `kheloyouth.com/academy/${userData?.academySlug || academySlug}` : "Visible after payment"],
-                    ["Established", userData?.establishmentYear],
-                    ["Address", userData?.fullAddress],
-                    ["City", userData?.city],
-                    ["District", userData?.district],
-                    ["State", userData?.state],
-                    ["Pincode", userData?.pincode],
-                    ["Contact", userData?.contactNumber],
-                    ["Official Email", userData?.officialEmail],
-                    ["Sports", (Array.isArray(userData?.sportsConducted) ? userData.sportsConducted : []).join(", ")],
-                    ["Students", `${userData?.students?.length || 0}`],
-                    ["Owners / Coaches", `${userData?.owners?.length || 0}`],
-                    ["Google Location", userData?.googleLocation],
-                    ["Media Proof", userData?.mediaCoverageProofName],
-                  ].map(([label, value]) => (
-                    <div
-                      key={label}
-                      className="bg-black border border-zinc-700 rounded-2xl px-6 py-5"
-                    >
-                      <p className="text-sm uppercase tracking-[0.2em] text-orange-500">
-                        {label}
+                  <div className="md:col-span-2 overflow-hidden rounded-[35px] border border-white/10 bg-black">
+                    <div className="h-56 bg-gradient-to-r from-zinc-950 via-orange-500/20 to-zinc-900">
+                      {dashboardGallery[0] && (
+                        <img
+                          src={dashboardGallery[0]}
+                          alt="Academy cover"
+                          className="w-full h-full object-cover opacity-70"
+                        />
+                      )}
+                    </div>
+
+                    <div className="px-8 pb-8">
+                      <div className="-mt-16 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+                        <div className="flex flex-col sm:flex-row sm:items-end gap-6">
+                          <div className="w-36 h-36 rounded-3xl border-4 border-black bg-zinc-900 overflow-hidden flex items-center justify-center">
+                            {dashboardLogo ? (
+                              <img
+                                src={dashboardLogo}
+                                alt="Academy logo"
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <span className="text-5xl font-black text-orange-500">
+                                {(userData?.academyName || "A").charAt(0)}
+                              </span>
+                            )}
+                          </div>
+
+                          <div>
+                            <h3 className="text-5xl font-black">
+                              {userData?.academyName}
+                            </h3>
+                            <p className="mt-3 text-zinc-400 text-lg">
+                              {[userData?.city, userData?.district, userData?.state]
+                                .filter(Boolean)
+                                .join(", ") || "Location not added"}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-wrap gap-3">
+                          <span className={`px-5 py-3 rounded-2xl font-bold ${
+                            userData?.paymentDone
+                              ? "bg-green-500 text-black"
+                              : "bg-red-500 text-white"
+                          }`}>
+                            {userData?.paymentDone
+                              ? "Affiliation Active"
+                              : "Payment Pending"}
+                          </span>
+
+                          <span className="px-5 py-3 rounded-2xl font-bold bg-zinc-900 border border-white/10">
+                            {dashboardStudents.length} Students
+                          </span>
+                          <span className="px-5 py-3 rounded-2xl font-bold bg-zinc-900 border border-white/10">
+                            {dashboardOwners.length} Owners / Coaches
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="md:col-span-2 grid lg:grid-cols-[1.2fr_0.8fr] gap-6">
+                    <div className="bg-black border border-zinc-700 rounded-3xl p-8">
+                      <h3 className="text-3xl font-black">
+                        About
+                      </h3>
+                      <p className="mt-4 text-zinc-300 leading-relaxed">
+                        {userData?.academyDescription ||
+                          "Academy description not added yet."}
                       </p>
-                      <p className="mt-2 text-lg font-bold text-white break-words">
-                        {value || "Not added"}
+                      <div className="mt-6 grid md:grid-cols-2 gap-4">
+                        {[
+                          ["Established", userData?.establishmentYear],
+                          ["Full Address", userData?.fullAddress],
+                          ["Google Location", userData?.googleLocation],
+                          ["Public URL", userData?.paymentDone ? `kheloyouth.com/academy/${userData?.academySlug || academySlug}` : "Visible after payment"],
+                        ].map(([label, value]) => (
+                          <div
+                            key={label}
+                            className="bg-zinc-950 border border-white/10 rounded-2xl p-5"
+                          >
+                            <p className="text-xs uppercase tracking-[0.2em] text-orange-500">
+                              {label}
+                            </p>
+                            <p className="mt-2 font-bold break-words">
+                              {value || "Not added"}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="bg-black border border-zinc-700 rounded-3xl p-8">
+                      <h3 className="text-3xl font-black">
+                        Contact
+                      </h3>
+                      <div className="mt-6 space-y-4">
+                        {[
+                          ["Phone", userData?.contactNumber],
+                          ["Email", userData?.officialEmail],
+                          ["Website", userData?.websiteLink],
+                          ["Instagram", userData?.instagramLink],
+                          ["Facebook", userData?.facebookLink],
+                        ].map(([label, value]) => (
+                          <div key={label}>
+                            <p className="text-xs uppercase tracking-[0.2em] text-orange-500">
+                              {label}
+                            </p>
+                            <p className="mt-1 font-bold break-words">
+                              {value || "Not added"}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="md:col-span-2 bg-black border border-zinc-700 rounded-3xl p-8">
+                    <h3 className="text-3xl font-black">
+                      Sports Conducted
+                    </h3>
+                    <div className="mt-5 flex flex-wrap gap-3">
+                      {dashboardSports.length ? (
+                        dashboardSports.map((sport: string) => (
+                          <span
+                            key={sport}
+                            className="bg-orange-500/10 text-orange-500 border border-orange-500/20 px-4 py-2 rounded-full font-bold"
+                          >
+                            {sport}
+                          </span>
+                        ))
+                      ) : (
+                        <p className="text-zinc-400">No sports added yet.</p>
+                      )}
+                    </div>
+                    {userData?.desiredSport && (
+                      <p className="mt-5 text-zinc-300">
+                        Desired sport requested:{" "}
+                        <span className="font-bold text-white">
+                          {userData.desiredSport}
+                        </span>
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="md:col-span-2 bg-black border border-zinc-700 rounded-3xl p-8">
+                    <h3 className="text-3xl font-black">
+                      Academy Photos
+                    </h3>
+                    <div className="mt-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                      {dashboardGallery.length ? (
+                        dashboardGallery.map((image: string, index: number) => (
+                          <img
+                            key={`${image}-${index}`}
+                            src={image}
+                            alt={`Academy photo ${index + 1}`}
+                            className="w-full h-56 object-cover rounded-2xl border border-white/10"
+                          />
+                        ))
+                      ) : (
+                        <p className="text-zinc-400">No photos added yet.</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="bg-black border border-zinc-700 rounded-3xl p-8">
+                    <h3 className="text-3xl font-black">
+                      Owner / Coach Details
+                    </h3>
+                    <div className="mt-6 space-y-5">
+                      {dashboardOwners.length ? (
+                        dashboardOwners.map((owner: any, index: number) => (
+                          <div
+                            key={index}
+                            className="flex gap-5 bg-zinc-950 border border-white/10 rounded-2xl p-5"
+                          >
+                            {owner.photoPreview ? (
+                              <img
+                                src={owner.photoPreview}
+                                alt={owner.fullName || "Owner"}
+                                className="w-20 h-24 rounded-xl object-cover"
+                              />
+                            ) : (
+                              <div className="w-20 h-24 rounded-xl bg-zinc-900 flex items-center justify-center text-2xl font-black text-orange-500">
+                                {(owner.fullName || "O").charAt(0)}
+                              </div>
+                            )}
+                            <div>
+                              <p className="text-xl font-black">
+                                {owner.fullName || `Owner ${index + 1}`}
+                              </p>
+                              <p className="mt-1 text-orange-500 font-bold">
+                                {owner.role || "Owner"}
+                              </p>
+                              <p className="mt-2 text-zinc-400">
+                                {owner.designation || "Designation not added"}
+                              </p>
+                              <p className="mt-2 text-zinc-400">
+                                {owner.mobile || "Mobile not added"} • {owner.email || "Email not added"}
+                              </p>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-zinc-400">No owner details added yet.</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="bg-black border border-zinc-700 rounded-3xl p-8">
+                    <h3 className="text-3xl font-black">
+                      Student Details
+                    </h3>
+                    <div className="mt-6 space-y-5">
+                      {dashboardStudents.length ? (
+                        dashboardStudents.map((student: any, index: number) => (
+                          <div
+                            key={index}
+                            className="flex gap-5 bg-zinc-950 border border-white/10 rounded-2xl p-5"
+                          >
+                            {student.photoPreview ? (
+                              <img
+                                src={student.photoPreview}
+                                alt={student.name || "Student"}
+                                className="w-20 h-24 rounded-xl object-cover"
+                              />
+                            ) : (
+                              <div className="w-20 h-24 rounded-xl bg-zinc-900 flex items-center justify-center text-2xl font-black text-orange-500">
+                                {(student.name || "S").charAt(0)}
+                              </div>
+                            )}
+                            <div>
+                              <p className="text-xl font-black">
+                                {student.name || `Student ${index + 1}`}
+                              </p>
+                              <p className="mt-1 text-zinc-400">
+                                {[student.sports, student.sex, student.age && `${student.age} yrs`]
+                                  .filter(Boolean)
+                                  .join(" • ") || "Sport not added"}
+                              </p>
+                              <p className="mt-2 text-zinc-400">
+                                {student.school || "School not added"}
+                              </p>
+                              {student.achievement && (
+                                <p className="mt-2 text-zinc-300">
+                                  {student.achievement}
+                                </p>
+                              )}
+                              {(student.isEliteAthlete || student.isParaAthlete) && (
+                                <div className="mt-3 flex flex-wrap gap-2">
+                                  {student.isEliteAthlete && (
+                                    <span className="bg-orange-500 text-black px-3 py-1 rounded-full text-sm font-bold">
+                                      Elite Athlete
+                                    </span>
+                                  )}
+                                  {student.isParaAthlete && (
+                                    <span className="bg-white text-black px-3 py-1 rounded-full text-sm font-bold">
+                                      Para Athlete
+                                    </span>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-zinc-400">No student details added yet.</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="md:col-span-2 grid md:grid-cols-2 gap-6">
+                    <div className="bg-black border border-zinc-700 rounded-3xl p-8">
+                      <h3 className="text-3xl font-black">
+                        Media Coverage
+                      </h3>
+                      <p className="mt-4 text-zinc-300">
+                        {userData?.mediaCoverageProofName ||
+                          "No media proof uploaded yet."}
                       </p>
                     </div>
-                  ))}
+
+                    <div className="bg-black border border-zinc-700 rounded-3xl p-8">
+                      <h3 className="text-3xl font-black">
+                        Declaration
+                      </h3>
+                      <p className="mt-4 text-zinc-300">
+                        {userData?.declarationAccepted
+                          ? "Declaration accepted by the academy."
+                          : "Declaration is pending."}
+                      </p>
+                    </div>
+                  </div>
                 </>
               )}
 
