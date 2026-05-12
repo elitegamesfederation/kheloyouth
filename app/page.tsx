@@ -446,8 +446,8 @@ md:w-[390px]
       <div className="group relative overflow-hidden rounded-[32px] h-[300px] border border-white/10">
 
         <img
-          src="/fitgallery1.jpg"
-          alt="FitStreak Workout"
+          src="/navdeepsingh.jpg"
+          alt="Navdeep Singh"
           className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition duration-700"
         />
 
@@ -456,11 +456,11 @@ md:w-[390px]
         <div className="absolute bottom-0 p-6">
 
           <p className="text-orange-400 uppercase tracking-[0.3em] text-xs">
-            Outdoor Workout
+            Ms. Kajal Keshi, General Secretary
           </p>
 
           <h3 className="mt-3 text-2xl font-black">
-            Morning Discipline
+            Met  India's Premier Para-Javelin Throwers, Navdeep Singhji
           </h3>
 
         </div>
