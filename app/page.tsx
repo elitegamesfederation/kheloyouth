@@ -443,7 +443,7 @@ md:w-[390px]
     <div className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 
       {/* IMAGE 1 */}
-      <div className="group relative overflow-hidden rounded-[32px] h-[500px] border border-white/10">
+      <div className="group relative overflow-hidden rounded-[32px] h-[300px] border border-white/10">
 
         <img
           src="/fitgallery1.jpg"
