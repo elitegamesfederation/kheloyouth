@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
@@ -10,13 +10,34 @@ import { auth, db } from "@/app/lib/firebase";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut,
 } from "firebase/auth";
 
-import { doc, setDoc } from "firebase/firestore";
+import {
+  doc,
+  setDoc,
+  getDoc,
+  updateDoc,
+} from "firebase/firestore";
+
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
 
 export default function AcademyAffiliationPage() {
 
-  // SIGNUP STATES
+  // =========================
+  // AUTH STATES
+  // =========================
+
+  const [loading, setLoading] = useState(false);
+
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+
   const [academyName, setAcademyName] = useState("");
   const [stateName, setStateName] = useState("");
   const [district, setDistrict] = useState("");
@@ -26,22 +47,371 @@ export default function AcademyAffiliationPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  // LOGIN STATES
-  const [loginEmail, setLoginEmail] = useState("");
-  const [loginPassword, setLoginPassword] = useState("");
+  // =========================
+  // DASHBOARD STATES
+  // =========================
 
-  // OTHER STATES
-  const [loading, setLoading] = useState(false);
-  const [showPopup, setShowPopup] = useState(false);
+  const [userData, setUserData] = useState<any>(null);
+  const [currentUser, setCurrentUser] = useState<any>(null);
 
-  
+  const [isFirstTime, setIsFirstTime] = useState(false);
+  const [showDashboard, setShowDashboard] = useState(false);
+  const [editMode, setEditMode] = useState(false);
 
-  // PLAN SELECT
-  
+  // =========================
+  // FORM STATES
+  // =========================
 
-    
+  const [academyDescription, setAcademyDescription] = useState("");
+  const [studentsCount, setStudentsCount] = useState(1);
+  const [selectedYears, setSelectedYears] = useState(1);
 
-  // SIGNUP FUNCTION
+  const [establishmentYear, setEstablishmentYear] = useState("");
+const [fullAddress, setFullAddress] = useState("");
+const [city, setCity] = useState("");
+const [districtName, setDistrictName] = useState("");
+const [contactNumber, setContactNumber] = useState("");
+const [officialEmail, setOfficialEmail] = useState("");
+const [websiteLink, setWebsiteLink] = useState("");
+const [instagramLink, setInstagramLink] = useState("");
+const [facebookLink, setFacebookLink] = useState("");
+const [sportsConducted, setSportsConducted] = useState<string[]>([]);
+const [desiredSport, setDesiredSport] = useState("");
+const [hasOtherBranch, setHasOtherBranch] = useState("");
+const [googleLocation, setGoogleLocation] = useState("");
+const [mediaCoverageProof, setMediaCoverageProof] = useState<any>(null);
+const [mediaCoverageProofName, setMediaCoverageProofName] = useState("");
+const [declarationAccepted, setDeclarationAccepted] = useState(false);
+const [academyLogo, setAcademyLogo] = useState<any>(null);
+const [showSports, setShowSports] = useState(false);
+const [sportsSearch, setSportsSearch] = useState("");
+const [logoPreview, setLogoPreview] = useState("");
+const [academyImages, setAcademyImages] = useState<any[]>([]);
+
+const [owners, setOwners] = useState([
+  {
+    fullName: "",
+    role: "Owner",
+    designation: "",
+    mobile: "",
+    email: "",
+    photo: null,
+    photoPreview: "",
+    idProof: null,
+    idProofPreview: "",
+  },
+]);
+const [coaches, setCoaches] = useState<any[]>([]);
+const [students, setStudents] = useState<any[]>([
+  {
+    name: "",
+    age: "",
+    school: "",
+    achievement: "",
+    sex: "",
+    sports: "",
+    photo: null,
+    photoPreview: "",
+    isEliteAthlete: false,
+    isParaAthlete: false,
+  },
+]);
+
+  // =========================
+  // FEES
+  // =========================
+
+  const yearlyStudentFee = 99;
+
+  const affiliationFees: any = {
+    1: 999,
+    2: 1799,
+    3: 2499,
+  };
+
+  const affiliationAmount =
+    affiliationFees[selectedYears];
+
+  const studentsAmount =
+    students.length * yearlyStudentFee;
+
+  const totalAmount =
+    affiliationAmount + studentsAmount;
+
+  // =========================
+  // LOAD USER
+  // =========================
+
+  useEffect(() => {
+
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      async (user) => {
+
+        if (!user) {
+          return;
+        }
+
+        setCurrentUser(user);
+
+        const docRef = doc(
+          db,
+          "academies",
+          user.uid
+        );
+
+        const snap = await getDoc(docRef);
+
+        if (snap.exists()) {
+
+          const data = snap.data();
+
+          setUserData(data);
+
+          // USER HAS COMPLETED PROFILE
+          if (data.profileCompleted) {
+
+            setShowDashboard(true);
+
+          } else {
+
+            setIsFirstTime(true);
+          }
+
+          // PREFILL
+          setAcademyName(data.academyName || "");
+          setStateName(data.state || "");
+          setDistrict(data.district || "");
+          setPincode(data.pincode || "");
+          setAcademyDescription(
+            data.academyDescription || ""
+          );
+
+          setStudentsCount(
+            data.studentsCount || 1
+          );
+
+          setSelectedYears(
+            data.selectedYears || 1
+          );
+
+          setEstablishmentYear(
+  data.establishmentYear || ""
+);
+
+setFullAddress(
+  data.fullAddress || ""
+);
+
+setCity(
+  data.city || ""
+);
+
+setContactNumber(
+  data.contactNumber || ""
+);
+
+setOfficialEmail(
+  data.officialEmail || ""
+);
+
+setWebsiteLink(
+  data.websiteLink || ""
+);
+
+setInstagramLink(
+  data.instagramLink || ""
+);
+
+setFacebookLink(
+  data.facebookLink || ""
+);
+
+setSportsConducted(
+  Array.isArray(data.sportsConducted)
+    ? data.sportsConducted
+    : []
+);
+
+setDesiredSport(
+  data.desiredSport || ""
+);
+
+setGoogleLocation(
+  data.googleLocation || ""
+);
+
+setMediaCoverageProofName(
+  data.mediaCoverageProofName || ""
+);
+
+setDeclarationAccepted(
+  data.declarationAccepted || false
+);
+
+setOwners(
+  data.owners || [
+    {
+      fullName: "",
+      role: "Owner",
+      designation: "",
+      mobile: "",
+      email: "",
+      photo: null,
+      photoPreview: "",
+      idProof: null,
+      idProofPreview: "",
+    },
+  ]
+);
+
+setStudents(
+  data.students || [
+    {
+      name: "",
+      age: "",
+      school: "",
+      achievement: "",
+      sex: "",
+      sports: "",
+      photo: null,
+      photoPreview: "",
+      isEliteAthlete: false,
+      isParaAthlete: false,
+    },
+  ]
+);
+
+        }
+      }
+    );
+
+    return () => unsubscribe();
+
+  }, []);
+
+  // =========================
+// SPORTS LIST
+// =========================
+
+const sportsList = [
+
+"Cricket",
+"Football",
+"Hockey",
+"Athletics",
+"Rugby",
+"Baseball",
+"Softball",
+"Basketball",
+"Volleyball",
+"Handball",
+"Netball",
+"Kho Kho",
+"Kabaddi",
+"Cycling",
+"Archery",
+"Shooting",
+"Golf",
+"Polo",
+"Tennis",
+"Table Tennis",
+"Badminton",
+"Squash",
+"Skateboarding",
+"Roller Skating",
+"Rowing",
+"Canoeing",
+"Kayaking",
+"Triathlon",
+"Marathon",
+"Chess",
+"Carrom",
+"Snooker",
+"Billiards",
+"Pool",
+"Gymnastics",
+"Yoga Sports",
+"Martial Arts",
+"Arm Wrestling",
+"Powerlifting",
+"Weightlifting",
+"Bodybuilding",
+"Wrestling",
+"Boxing",
+"Kickboxing",
+"Wushu",
+"Taekwondo",
+"Karate",
+"Judo",
+"Ju-Jitsu",
+"MMA (Mixed Martial Arts)",
+"Muay Thai",
+"Sambo",
+"Kudo",
+"Aikido",
+"Kung Fu",
+"Silambam",
+"Mallakhamb",
+"Gatka",
+"Kalaripayattu",
+"Brazilian Jiu-Jitsu",
+"Grappling",
+"Pickleball",
+"Padel",
+
+];
+
+const filteredSports = sportsList.filter(
+(sport) =>
+sport.toLowerCase().includes(
+sportsSearch.toLowerCase()
+)
+);
+
+const selectedSports = Array.isArray(sportsConducted)
+  ? sportsConducted
+  : [];
+
+const academySlug = academyName
+  .trim()
+  .toLowerCase()
+  .replace(/[^a-z0-9]+/g, "-")
+  .replace(/^-+|-+$/g, "");
+
+const academyPayload = {
+  academyName,
+  academySlug,
+  state: stateName,
+  district,
+  pincode,
+  academyDescription,
+  establishmentYear,
+  fullAddress,
+  city,
+  contactNumber,
+  officialEmail,
+  websiteLink,
+  instagramLink,
+  facebookLink,
+  sportsConducted: selectedSports,
+  desiredSport,
+  googleLocation,
+  mediaCoverageProofName,
+  declarationAccepted,
+  owners,
+  coaches,
+  students,
+  studentsCount: students.length,
+  selectedYears,
+  totalAmount,
+  profileCompleted: true,
+};
+
+  // =========================
+  // SIGNUP
+  // =========================
+
   const handleSignup = async () => {
 
     if (
@@ -61,8 +431,6 @@ export default function AcademyAffiliationPage() {
       return;
     }
 
-    
-
     try {
 
       setLoading(true);
@@ -76,25 +444,54 @@ export default function AcademyAffiliationPage() {
 
       const user = userCredential.user;
 
-      await setDoc(doc(db, "academies", user.uid), {
+      await setDoc(
+        doc(db, "academies", user.uid),
+        {
+          academyName,
+          state: stateName,
+          district,
+          pincode,
+          email,
 
-        academyName,
-        state: stateName,
-        district,
-        pincode,
+          academyDescription: "",
 
-        email,
+          establishmentYear: "",
+fullAddress: "",
+city: "",
+contactNumber: "",
+officialEmail: "",
+websiteLink: "",
+instagramLink: "",
+facebookLink: "",
+sportsConducted: [],
+desiredSport: "",
+googleLocation: "",
+mediaCoverageProofName: "",
+declarationAccepted: false,
+owners,
+coaches,
+students,
 
-        selectedPlan: "",
+          studentsCount: 1,
+          selectedYears: 1,
 
-        verified: false,
-        paymentDone: false,
+          totalAmount: 1098,
 
-        createdAt: new Date(),
+          paymentDone: false,
+          verified: false,
 
-      });
+          profileCompleted: false,
 
-      window.location.href = "/dashboard";
+          affiliationStartDate: null,
+          affiliationEndDate: null,
+
+          createdAt: new Date(),
+        }
+      );
+
+      alert(
+        "Account created successfully. Login now."
+      );
 
     } catch (error: any) {
 
@@ -103,24 +500,159 @@ export default function AcademyAffiliationPage() {
     } finally {
 
       setLoading(false);
-
     }
   };
 
-  // LOGIN FUNCTION
+  // =========================
+  // LOGIN
+  // =========================
+
   const handleLogin = async () => {
 
     try {
 
       setLoading(true);
 
-      await signInWithEmailAndPassword(
-        auth,
-        loginEmail,
-        loginPassword
+      const userCredential =
+        await signInWithEmailAndPassword(
+          auth,
+          loginEmail,
+          loginPassword
+        );
+
+      const user = userCredential.user;
+
+      const docRef = doc(
+        db,
+        "academies",
+        user.uid
       );
 
-      window.location.href = "/dashboard";
+      const snap = await getDoc(docRef);
+
+      if (snap.exists()) {
+
+        const data = snap.data();
+
+        setUserData(data);
+
+        if (data.profileCompleted) {
+
+          setShowDashboard(true);
+
+        } else {
+
+          setIsFirstTime(true);
+        }
+
+        // PREFILL
+        setAcademyName(data.academyName || "");
+        setStateName(data.state || "");
+        setDistrict(data.district || "");
+        setPincode(data.pincode || "");
+        setAcademyDescription(
+          data.academyDescription || ""
+        );
+
+        setStudentsCount(
+          data.studentsCount || 1
+        );
+
+        setSelectedYears(
+          data.selectedYears || 1
+        );
+
+        setEstablishmentYear(
+  data.establishmentYear || ""
+);
+
+setFullAddress(
+  data.fullAddress || ""
+);
+
+setCity(
+  data.city || ""
+);
+
+setContactNumber(
+  data.contactNumber || ""
+);
+
+setOfficialEmail(
+  data.officialEmail || ""
+);
+
+setWebsiteLink(
+  data.websiteLink || ""
+);
+
+setInstagramLink(
+  data.instagramLink || ""
+);
+
+setFacebookLink(
+  data.facebookLink || ""
+);
+
+setSportsConducted(
+  Array.isArray(data.sportsConducted)
+    ? data.sportsConducted
+    : []
+);
+
+setDesiredSport(
+  data.desiredSport || ""
+);
+
+setGoogleLocation(
+  data.googleLocation || ""
+);
+
+setMediaCoverageProofName(
+  data.mediaCoverageProofName || ""
+);
+
+setDeclarationAccepted(
+  data.declarationAccepted || false
+);
+
+setOwners(
+  data.owners || [
+    {
+      fullName: "",
+      role: "Owner",
+      designation: "",
+      mobile: "",
+      email: "",
+      photo: null,
+      photoPreview: "",
+      idProof: null,
+      idProofPreview: "",
+    },
+  ]
+);
+
+setCoaches(
+  data.coaches || []
+);
+
+setStudents(
+  data.students || [
+    {
+      name: "",
+      age: "",
+      school: "",
+      achievement: "",
+      sex: "",
+      sports: "",
+      photo: null,
+      photoPreview: "",
+      isEliteAthlete: false,
+      isParaAthlete: false,
+    },
+  ]
+);
+      }
 
     } catch (error: any) {
 
@@ -129,9 +661,1666 @@ export default function AcademyAffiliationPage() {
     } finally {
 
       setLoading(false);
-
     }
   };
+
+  // =========================
+  // SAVE FORM
+  // =========================
+
+
+const addOwner = () => {
+
+  setOwners([
+    ...owners,
+    {
+      fullName: "",
+      role: "Owner",
+      designation: "",
+      mobile: "",
+      email: "",
+      photo: null,
+      photoPreview: "",
+      idProof: null,
+      idProofPreview: "",
+    },
+  ]);
+};
+
+
+
+const removeOwner = (index: number) => {
+
+  setOwners(
+    owners.filter((_, i) => i !== index)
+  );
+};
+
+const addCoach = () => {
+
+  setCoaches([
+    ...coaches,
+    {
+      fullName: "",
+      designation: "",
+      mobile: "",
+      email: "",
+      photo: null,
+      photoPreview: "",
+      idProof: null,
+      idProofPreview: "",
+      useOwnerData: false,
+    },
+  ]);
+
+};
+
+const removeCoach = (index: number) => {
+
+  const updated = [...coaches];
+
+  updated.splice(index, 1);
+
+  setCoaches(updated);
+
+};
+
+const addStudent = () => {
+
+  setStudents([
+    ...students,
+    {
+      name: "",
+      age: "",
+      school: "",
+      achievement: "",
+      sex: "",
+      sports: "",
+      photo: null,
+      photoPreview: "",
+      isEliteAthlete: false,
+      isParaAthlete: false,
+    },
+  ]);
+};
+
+const removeStudent = (index: number) => {
+
+  setStudents(
+    students.filter((_, i) => i !== index)
+  );
+};
+
+const handleStudentChange = (
+  index: number,
+  field: string,
+  value: any
+) => {
+
+  const updated = [...students];
+
+  updated[index][field] = value;
+
+  setStudents(updated);
+};
+
+const handleStudentPhoto = (
+  e: any,
+  index: number
+) => {
+
+  const file = e.target.files[0];
+
+  if (!file) return;
+
+  if (file.size > 2 * 1024 * 1024) {
+    alert("Passport photo must be below 2MB");
+    return;
+  }
+
+  const updated = [...students];
+
+  updated[index].photo = file;
+  updated[index].photoPreview =
+    URL.createObjectURL(file);
+
+  setStudents(updated);
+};
+
+const toggleEliteAthlete = (
+  index: number,
+  checked: boolean
+) => {
+
+  const eliteCount = students.filter(
+    (student, studentIndex) =>
+      student.isEliteAthlete && studentIndex !== index
+  ).length;
+
+  if (checked && eliteCount >= 2) {
+    alert("Only two students can be marked as Elite Athlete");
+    return;
+  }
+
+  handleStudentChange(index, "isEliteAthlete", checked);
+};
+
+
+const handleOwnerChange = (
+  index: number,
+  field: string,
+  value: any
+) => {
+
+  const updatedOwners = [...owners];
+
+  (updatedOwners[index] as any)[field] = value;
+
+  setOwners(updatedOwners);
+};
+
+const handleOwnerPhoto = (
+  e: any,
+  index: number
+) => {
+
+  const file = e.target.files[0];
+
+  if (!file) return;
+
+  if (file.size > 2 * 1024 * 1024) {
+    alert("Passport photo must be below 2MB");
+    return;
+  }
+
+  const updatedOwners = [...owners];
+
+  updatedOwners[index].photo = file;
+
+  updatedOwners[index].photoPreview =
+    URL.createObjectURL(file);
+
+  setOwners(updatedOwners);
+};
+
+const handleOwnerIdProof = (
+  e: any,
+  index: number
+) => {
+
+  const file = e.target.files[0];
+
+  if (!file) return;
+
+  const updatedOwners = [...owners];
+
+  updatedOwners[index].idProof = file;
+
+  if (file.type !== "application/pdf") {
+
+    updatedOwners[index].idProofPreview =
+      URL.createObjectURL(file);
+
+  }
+
+  setOwners(updatedOwners);
+};
+
+
+
+const handleCoachChange = (
+  index: number,
+  field: string,
+  value: any
+) => {
+
+  const updated = [...coaches];
+
+  (updated[index] as any)[field] = value;
+
+  setCoaches(updated);
+};
+
+const copyOwnerToCoach = (
+  coachIndex: number,
+  ownerIndex: number
+) => {
+
+  const updated = [...coaches];
+
+  updated[coachIndex] = {
+    ...updated[coachIndex],
+
+    fullName: owners[ownerIndex].fullName,
+    designation: owners[ownerIndex].designation,
+    mobile: owners[ownerIndex].mobile,
+    email: owners[ownerIndex].email,
+
+    sameAsOwner: true,
+  };
+
+  setCoaches(updated);
+};
+
+
+  const handleSaveDashboard = async () => {
+
+    if (!currentUser) return;
+
+    if (!userData?.profileCompleted && academyImages.length < 3) {
+  alert("Please upload minimum 3 academy photos");
+  return;
+}
+
+    try {
+
+      setLoading(true);
+
+      await updateDoc(
+  doc(db, "academies", currentUser.uid),
+  academyPayload
+);
+
+      alert("Saved. Opening your academy dashboard.");
+
+      const snap = await getDoc(
+        doc(db, "academies", currentUser.uid)
+      );
+
+      setUserData(snap.data());
+
+      setShowDashboard(true);
+
+      setIsFirstTime(false);
+
+    } catch (error: any) {
+
+      alert(error.message);
+
+    } finally {
+
+      setLoading(false);
+    }
+  };
+
+  const handleLogoUpload = (e: any) => {
+
+  const file = e.target.files[0];
+
+  if (!file) return;
+
+  setLogoPreview(
+    URL.createObjectURL(file)
+  );
+};
+
+const handleAcademyPhotos = (e: any) => {
+
+  const files = Array.from(
+    e.target.files
+  );
+
+  if (files.length > 5) {
+
+    alert("Maximum 5 photos allowed");
+    return;
+  }
+
+  setAcademyImages(files);
+};
+
+const handleMediaCoverageProof = (e: any) => {
+
+  const file = e.target.files[0];
+
+  if (!file) return;
+
+  setMediaCoverageProof(file);
+  setMediaCoverageProofName(file.name);
+};
+
+  // =========================
+  // RAZORPAY PAYMENT
+  // =========================
+
+  const handlePayment = async () => {
+
+    if (!currentUser) return;
+
+      if (!userData?.profileCompleted && academyImages.length < 3) {
+    alert("Please upload minimum 3 academy photos");
+    return;
+  }
+
+    const today = new Date();
+
+    const endDate = new Date();
+
+    endDate.setFullYear(
+      today.getFullYear() + selectedYears
+    );
+
+    console.log("RAZORPAY KEY:", process.env.NEXT_PUBLIC_RAZORPAY_KEY);
+    const options = {
+      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY,
+
+      amount: totalAmount * 100,
+
+      currency: "INR",
+
+      name: "Elite Games Federation",
+
+      description: "Academy Affiliation",
+
+      handler: async function (response: any) {
+
+        await updateDoc(
+          doc(db, "academies", currentUser.uid),
+          {
+            ...academyPayload,
+            paymentDone: true,
+
+            razorpayPaymentId:
+              response.razorpay_payment_id,
+
+            affiliationStartDate:
+              today.toDateString(),
+
+            affiliationEndDate:
+              endDate.toDateString(),
+
+            totalAmount,
+          }
+        );
+
+        alert("Payment Successful");
+
+        const snap = await getDoc(
+          doc(db, "academies", currentUser.uid)
+        );
+
+        setUserData(snap.data());
+
+        setShowDashboard(true);
+
+        setIsFirstTime(false);
+      },
+
+      prefill: {
+        name: academyName,
+        email: email || userData?.email,
+      },
+
+      theme: {
+        color: "#ff6b00",
+      },
+    };
+console.log("Razorpay Loaded:", window.Razorpay);
+    
+    const razor = new window.Razorpay(options);
+
+    razor.open();
+  };
+
+  // =========================
+  // LOGOUT
+  // =========================
+
+  const handleLogout = async () => {
+
+    await signOut(auth);
+
+    window.location.reload();
+  };
+
+  // =========================
+  // DASHBOARD VIEW
+  // =========================
+
+  if (showDashboard) {
+
+    return (
+
+      <main className="min-h-screen bg-black text-white">
+
+        <Navbar />
+
+        <section className="pt-44 pb-24 max-w-7xl mx-auto px-6">
+
+          <div className="flex items-center justify-between">
+
+            <div>
+
+              <p className="text-orange-500 uppercase tracking-[0.4em]">
+                Academy Dashboard
+              </p>
+
+              <h1 className="text-6xl font-black mt-4">
+                {userData?.academyName}
+              </h1>
+
+            </div>
+
+            <button
+              onClick={handleLogout}
+              className="bg-red-500 hover:bg-red-600 px-6 py-3 rounded-2xl font-bold"
+            >
+              Logout
+            </button>
+
+          </div>
+
+          {/* STATUS */}
+
+          <div className="mt-10">
+
+            {userData?.paymentDone ? (
+
+              <div className="bg-green-500/10 border border-green-500 rounded-3xl p-8">
+
+                <h2 className="text-3xl font-black text-green-400">
+                  Affiliation Active
+                </h2>
+
+                <p className="mt-4 text-gray-300 text-lg">
+                  This affiliation was done on{" "}
+                  <span className="font-bold">
+                    {
+                      userData?.affiliationStartDate
+                    }
+                  </span>
+                </p>
+
+                <p className="mt-2 text-gray-300 text-lg">
+                  Valid till{" "}
+                  <span className="font-bold">
+                    {
+                      userData?.affiliationEndDate
+                    }
+                  </span>
+                </p>
+
+              </div>
+
+            ) : (
+
+              <div className="bg-red-500/10 border border-red-500 rounded-3xl p-8">
+
+                <h2 className="text-3xl font-black text-red-400">
+                  Payment Pending
+                </h2>
+
+                <p className="mt-4 text-gray-300">
+                  Make payment to make your
+                  academy live on the website
+                  for public view.
+                </p>
+
+                <button
+                  onClick={handlePayment}
+                  className="mt-6 bg-orange-500 hover:bg-orange-600 px-8 py-4 rounded-2xl font-bold"
+                >
+                  Make Payment Now
+                </button>
+
+              </div>
+
+            )}
+
+          </div>
+
+          {/* DETAILS */}
+
+          <div className="mt-12 bg-zinc-900 border border-white/10 rounded-[35px] p-10">
+
+            <div className="flex items-center justify-between">
+
+              <h2 className="text-4xl font-black">
+                Academy Profile
+              </h2>
+
+              <button
+                onClick={() =>
+                  setEditMode(!editMode)
+                }
+                className="bg-orange-500 px-6 py-3 rounded-2xl font-bold"
+              >
+                {editMode
+                  ? "Cancel"
+                  : "Edit Details"}
+              </button>
+
+            </div>
+
+            <div className="mt-10 grid md:grid-cols-2 gap-6">
+
+              {!editMode && (
+                <>
+                  {[
+                    ["Status", userData?.paymentDone ? "Affiliation Active" : "Payment Pending"],
+                    ["Public URL", userData?.paymentDone ? `kheloyouth.com/academy/${userData?.academySlug || academySlug}` : "Visible after payment"],
+                    ["Established", userData?.establishmentYear],
+                    ["Address", userData?.fullAddress],
+                    ["City", userData?.city],
+                    ["District", userData?.district],
+                    ["State", userData?.state],
+                    ["Pincode", userData?.pincode],
+                    ["Contact", userData?.contactNumber],
+                    ["Official Email", userData?.officialEmail],
+                    ["Sports", (Array.isArray(userData?.sportsConducted) ? userData.sportsConducted : []).join(", ")],
+                    ["Students", `${userData?.students?.length || 0}`],
+                    ["Owners / Coaches", `${userData?.owners?.length || 0}`],
+                    ["Google Location", userData?.googleLocation],
+                    ["Media Proof", userData?.mediaCoverageProofName],
+                  ].map(([label, value]) => (
+                    <div
+                      key={label}
+                      className="bg-black border border-zinc-700 rounded-2xl px-6 py-5"
+                    >
+                      <p className="text-sm uppercase tracking-[0.2em] text-orange-500">
+                        {label}
+                      </p>
+                      <p className="mt-2 text-lg font-bold text-white break-words">
+                        {value || "Not added"}
+                      </p>
+                    </div>
+                  ))}
+                </>
+              )}
+
+              {editMode && (
+                <>
+
+              <input
+                type="text"
+                value={academyName}
+                disabled={!editMode}
+                onChange={(e) =>
+                  setAcademyName(e.target.value)
+                }
+                className="bg-black border border-zinc-700 rounded-2xl px-6 py-5"
+              />
+
+              <input
+                type="text"
+                value={stateName}
+                disabled={!editMode}
+                onChange={(e) =>
+                  setStateName(e.target.value)
+                }
+                className="bg-black border border-zinc-700 rounded-2xl px-6 py-5"
+              />
+
+              <input
+                type="text"
+                value={district}
+                disabled={!editMode}
+                onChange={(e) =>
+                  setDistrict(e.target.value)
+                }
+                className="bg-black border border-zinc-700 rounded-2xl px-6 py-5"
+              />
+
+              <input
+                type="text"
+                value={pincode}
+                disabled={!editMode}
+                onChange={(e) =>
+                  setPincode(e.target.value)
+                }
+                className="bg-black border border-zinc-700 rounded-2xl px-6 py-5"
+              />
+
+                </>
+              )}
+
+            </div>
+
+            {editMode && (
+              <>
+            <textarea
+              value={academyDescription}
+              disabled={!editMode}
+              onChange={(e) =>
+                setAcademyDescription(
+                  e.target.value
+                )
+              }
+              className="mt-6 w-full bg-black border border-zinc-700 rounded-2xl px-6 py-5 min-h-[180px]"
+            />
+              </>
+            )}
+
+
+
+
+            {editMode && (
+
+              <button
+                onClick={handleSaveDashboard}
+                className="mt-8 bg-orange-500 hover:bg-orange-600 px-8 py-4 rounded-2xl font-bold"
+              >
+                Save Changes
+              </button>
+
+            )}
+
+          </div>
+
+        </section>
+
+        <Footer />
+
+      </main>
+    );
+  }
+
+  // =========================
+  // FIRST TIME FORM
+  // =========================
+
+  if (isFirstTime) {
+
+    return (
+
+      <main className="min-h-screen bg-black text-white">
+
+        <Navbar />
+
+        <section className="pt-44 pb-24 max-w-7xl mx-auto px-6">
+
+          <p className="text-orange-500 uppercase tracking-[0.45em]">
+            Affiliation Form
+          </p>
+
+          <h1 className="mt-6 text-6xl font-black">
+            Academy Affiliation Form
+          </h1>
+
+          {/* FORM */}
+
+          <div className="mt-10 grid md:grid-cols-2 gap-6">
+
+  <input
+    type="text"
+    placeholder="Academy Name"
+    value={academyName}
+    onChange={(e) => setAcademyName(e.target.value)}
+    className="bg-black border border-zinc-700 rounded-2xl px-6 py-5"
+  />
+
+  <input
+    type="text"
+    placeholder="Year Of Establishment"
+    value={establishmentYear}
+    onChange={(e) => setEstablishmentYear(e.target.value)}
+    className="bg-black border border-zinc-700 rounded-2xl px-6 py-5"
+  />
+
+  <input
+    type="text"
+    placeholder="Address"
+    value={fullAddress}
+    onChange={(e) => setFullAddress(e.target.value)}
+    className="bg-black border border-zinc-700 rounded-2xl px-6 py-5"
+  />
+
+  <input
+    type="text"
+    placeholder="District"
+    value={districtName}
+    onChange={(e) => setDistrictName(e.target.value)}
+    className="bg-black border border-zinc-700 rounded-2xl px-6 py-5"
+  />
+
+  <input
+    type="text"
+    placeholder="State"
+    value={stateName}
+    onChange={(e) => setStateName(e.target.value)}
+    className="bg-black border border-zinc-700 rounded-2xl px-6 py-5"
+  />
+
+  <input
+    type="text"
+    placeholder="Pincode"
+    value={pincode}
+    onChange={(e) => setPincode(e.target.value)}
+    className="bg-black border border-zinc-700 rounded-2xl px-6 py-5"
+  />
+
+  <input
+    type="text"
+    placeholder="Contact Number"
+    value={contactNumber}
+    onChange={(e) => setContactNumber(e.target.value)}
+    className="bg-black border border-zinc-700 rounded-2xl px-6 py-5"
+  />
+
+  <input
+    type="email"
+    placeholder="Official Email"
+    value={officialEmail}
+    onChange={(e) => setOfficialEmail(e.target.value)}
+    className="bg-black border border-zinc-700 rounded-2xl px-6 py-5"
+  />
+
+  <input
+    type="text"
+    placeholder="Facebook Link"
+    value={facebookLink}
+    onChange={(e) => setFacebookLink(e.target.value)}
+    className="bg-black border border-zinc-700 rounded-2xl px-6 py-5"
+  />
+
+  <input
+    type="text"
+    placeholder="Instagram Link"
+    value={instagramLink}
+    onChange={(e) => setInstagramLink(e.target.value)}
+    className="bg-black border border-zinc-700 rounded-2xl px-6 py-5"
+  />
+
+  <input
+    type="text"
+    placeholder="Website Link"
+    value={websiteLink}
+    onChange={(e) => setWebsiteLink(e.target.value)}
+    className="bg-black border border-zinc-700 rounded-2xl px-6 py-5"
+  />
+
+  <select
+    value={hasOtherBranch}
+    onChange={(e) => setHasOtherBranch(e.target.value)}
+    className="bg-black border border-zinc-700 rounded-2xl px-6 py-5"
+  >
+    <option value="">Any Other Branch?</option>
+    <option value="Yes">Yes</option>
+    <option value="No">No</option>
+  </select>
+
+  <input
+    type="text"
+    placeholder="Google Location Of Academy"
+    value={googleLocation}
+    onChange={(e) => setGoogleLocation(e.target.value)}
+    className="md:col-span-2 bg-black border border-zinc-700 rounded-2xl px-6 py-5"
+  />
+
+  <div className="mt-10">
+  <h2 className="text-4xl font-black">
+    Academy Logo
+  </h2>
+
+  <label
+    htmlFor="academyLogo"
+    className="mt-6 flex items-center justify-center bg-orange-500 hover:bg-orange-600 transition rounded-2xl px-6 py-5 cursor-pointer font-bold text-black"
+  >
+    Upload Academy Logo
+  </label>
+
+  <input
+    id="academyLogo"
+    type="file"
+    accept="image/*"
+    onChange={handleLogoUpload}
+    className="hidden"
+  />
+
+  {logoPreview && (
+    <img
+      src={logoPreview}
+      alt="Logo"
+      className="mt-6 w-36 h-36 object-cover rounded-3xl border border-white/10"
+    />
+  )}
+</div>
+
+<div>
+
+  <h2 className="text-5xl font-black mb-3">
+    Academy Photos
+  </h2>
+
+  <p className="text-zinc-400 mb-5">
+    Minimum 3 photos • Maximum 5 photos
+  </p>
+
+  <label
+    htmlFor="academyPhotos"
+    className="w-full flex items-center justify-center bg-white text-black font-bold py-5 rounded-3xl cursor-pointer hover:bg-zinc-200 transition"
+  >
+    Upload Academy Photo
+  </label>
+
+  <input
+    id="academyPhotos"
+    type="file"
+    accept="image/*"
+    className="hidden"
+    onChange={(e: any) => {
+
+      const file = e.target.files[0];
+
+      if (!file) return;
+
+      if (academyImages.length >= 5) {
+        alert("Maximum 5 photos allowed");
+        return;
+      }
+
+      setAcademyImages([
+        ...academyImages,
+        file
+      ]);
+    }}
+  />
+
+  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-8">
+
+    {academyImages.map((image: any, index: number) => (
+
+      <div
+        key={index}
+        className="relative"
+      >
+
+        <img
+          src={URL.createObjectURL(image)}
+          alt="academy"
+          className="w-full h-52 object-cover rounded-3xl border border-white/10"
+        />
+
+        <button
+          type="button"
+          onClick={() => {
+
+            setAcademyImages(
+              academyImages.filter(
+                (_: any, i: number) => i !== index
+              )
+            );
+
+          }}
+          className="absolute top-2 right-2 bg-red-500 text-white w-8 h-8 rounded-full text-sm font-bold"
+        >
+          ✕
+        </button>
+
+      </div>
+
+    ))}
+
+  </div>
+
+  </div>
+
+<div className="md:col-span-2 mt-10">
+
+  <div className="flex items-center justify-between">
+
+    <h3 className="text-2xl font-bold">
+      Sports Conducted
+    </h3>
+
+    <button
+      type="button"
+      onClick={() =>
+        setShowSports(!showSports)
+      }
+      className="bg-orange-500 hover:bg-orange-600 px-5 py-2 rounded-xl font-bold"
+    >
+      {showSports ? "Minimize" : "Expand"}
+    </button>
+
+  </div>
+
+  {showSports && (
+
+    <>
+
+      <input
+        type="text"
+        placeholder="Search Sport..."
+        value={sportsSearch}
+        onChange={(e) =>
+          setSportsSearch(e.target.value)
+        }
+        className="mt-6 w-full bg-black border border-zinc-700 rounded-2xl px-6 py-4"
+      />
+
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-6">
+
+        {filteredSports.map((sport) => (
+
+          <label
+            key={sport}
+            className="flex items-center gap-3 bg-black border border-zinc-700 rounded-2xl px-5 py-4 cursor-pointer"
+          >
+
+            <input
+              type="checkbox"
+              value={sport}
+              checked={selectedSports.includes(sport)}
+              onChange={(e) => {
+
+                if (e.target.checked) {
+
+                  setSportsConducted([
+                    ...selectedSports,
+                    sport
+                  ]);
+
+                } else {
+
+                  setSportsConducted(
+                    selectedSports.filter(
+                      (s: string) => s !== sport
+                    )
+                  );
+                }
+              }}
+            />
+
+            <span>{sport}</span>
+
+          </label>
+
+        ))}
+
+      </div>
+
+      <div className="mt-8 bg-zinc-950 border border-white/10 rounded-3xl p-6">
+
+        <p className="text-zinc-300">
+          If your desired sport is not present in the options, write it below and inform the federation to add the desired sport.
+        </p>
+
+        <input
+          type="text"
+          placeholder="Desired sport name"
+          value={desiredSport}
+          onChange={(e) =>
+            setDesiredSport(e.target.value)
+          }
+          className="mt-5 w-full bg-black border border-zinc-700 rounded-2xl px-6 py-4"
+        />
+
+      </div>
+
+    </>
+
+  )}
+
+</div>
+
+  <div className="md:col-span-2 grid grid-cols-1 xl:grid-cols-2 gap-8 xl:gap-10 mt-16 items-start">
+
+  {/* OWNER SECTION */}
+  <div>
+
+    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+
+      <h2 className="text-3xl xl:text-4xl leading-tight font-black">
+        Owner / Coach Details
+      </h2>
+
+    <button
+      type="button"
+      onClick={addOwner}
+      className="w-fit whitespace-nowrap bg-orange-500 hover:bg-orange-400 transition px-6 py-3 rounded-2xl font-bold text-black"
+    >
+      + Add
+    </button>
+
+  </div>
+
+  <div className="space-y-10">
+
+    {owners.map((owner, index) => (
+
+      <div
+        key={index}
+        className="border border-white/10 rounded-3xl p-6 xl:p-8 bg-zinc-950 overflow-hidden"
+      >
+
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 mb-10">
+
+          <h3 className="text-2xl font-bold">
+            Owner #{index + 1}
+          </h3>
+
+          {owners.length > 1 && (
+
+            <button
+              type="button"
+              onClick={() => removeOwner(index)}
+              className="bg-red-500 hover:bg-red-400 transition px-5 py-2 rounded-xl font-bold"
+            >
+              Remove
+            </button>
+
+          )}
+
+        </div>
+
+        <div className="overflow-x-auto">
+
+          <table className="w-full border-collapse">
+
+            <tbody>
+
+              <tr className="border-b border-white/10">
+
+                <td className="py-5 pr-5 font-semibold w-40 xl:w-56">
+                  Full Name
+                </td>
+
+                <td className="py-5">
+
+                  <input
+                    type="text"
+                    value={owner.fullName}
+                    onChange={(e) =>
+                      handleOwnerChange(
+                        index,
+                        "fullName",
+                        e.target.value
+                      )
+                    }
+                    className="w-full bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+                  />
+
+                </td>
+
+              </tr>
+
+              <tr className="border-b border-white/10">
+
+                <td className="py-5 pr-5 font-semibold">
+                  Role
+                </td>
+
+                <td className="py-5">
+
+                  <select
+                    value={(owner as any).role || "Owner"}
+                    onChange={(e) =>
+                      handleOwnerChange(
+                        index,
+                        "role",
+                        e.target.value
+                      )
+                    }
+                    className="w-full bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+                  >
+                    <option value="Owner">Owner</option>
+                    <option value="Coach">Coach</option>
+                    <option value="Coach and Owner">
+                      Coach and Owner
+                    </option>
+                  </select>
+
+                </td>
+
+              </tr>
+
+              <tr className="border-b border-white/10">
+
+                <td className="py-5 pr-5 font-semibold">
+                  Designation
+                </td>
+
+                <td className="py-5">
+
+                  <input
+                    type="text"
+                    value={owner.designation}
+                    onChange={(e) =>
+                      handleOwnerChange(
+                        index,
+                        "designation",
+                        e.target.value
+                      )
+                    }
+                    className="w-full bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+                  />
+
+                </td>
+
+              </tr>
+
+              <tr className="border-b border-white/10">
+
+                <td className="py-5 pr-5 font-semibold">
+                  Mobile Number
+                </td>
+
+                <td className="py-5">
+
+                  <input
+                    type="tel"
+                    maxLength={10}
+                    value={owner.mobile}
+                    onChange={(e) =>
+                      handleOwnerChange(
+                        index,
+                        "mobile",
+                        e.target.value.replace(/\D/g, "")
+                      )
+                    }
+                    className="w-full bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+                  />
+
+                </td>
+
+              </tr>
+
+              <tr className="border-b border-white/10">
+
+                <td className="py-5 pr-5 font-semibold">
+                  Email ID
+                </td>
+
+                <td className="py-5">
+
+                  <input
+                    type="email"
+                    value={owner.email}
+                    onChange={(e) =>
+                      handleOwnerChange(
+                        index,
+                        "email",
+                        e.target.value
+                      )
+                    }
+                    className="w-full bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+                  />
+
+                </td>
+
+              </tr>
+
+              <tr className="border-b border-white/10">
+
+                <td className="py-5 pr-5 font-semibold">
+                  Passport Size Photo
+                </td>
+
+                <td className="py-5">
+
+                  <label
+                    htmlFor={`photo-${index}`}
+                    className="inline-flex bg-orange-500 text-black font-bold px-6 py-4 rounded-2xl cursor-pointer"
+                  >
+                    Upload Photo
+                  </label>
+
+                  <input
+                    id={`photo-${index}`}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) =>
+                      handleOwnerPhoto(e, index)
+                    }
+                  />
+
+                  <p className="text-zinc-400 text-sm mt-2">
+                    Maximum Size: 2MB
+                  </p>
+
+                  {owner.photoPreview && (
+
+                    <img
+                      src={owner.photoPreview}
+                      alt="Owner"
+                      className="mt-5 w-36 h-44 object-cover rounded-2xl border border-white/10"
+                    />
+
+                  )}
+
+                </td>
+
+              </tr>
+
+              <tr>
+
+                <td className="py-5 pr-5 font-semibold">
+                  Government ID Proof
+                </td>
+
+                <td className="py-5">
+
+                  <label
+                    htmlFor={`proof-${index}`}
+                    className="inline-flex bg-white text-black font-bold px-6 py-4 rounded-2xl cursor-pointer"
+                  >
+                    Upload ID Proof
+                  </label>
+
+                  <input
+                    id={`proof-${index}`}
+                    type="file"
+                    accept=".pdf,image/*"
+                    className="hidden"
+                    onChange={(e) =>
+                      handleOwnerIdProof(e, index)
+                    }
+                  />
+
+                  <p className="text-zinc-400 text-sm mt-2">
+                    Aadhaar / PAN / Passport / Driving Licence
+                  </p>
+
+                  {owner.idProofPreview && (
+
+                    <img
+                      src={owner.idProofPreview}
+                      alt="ID"
+                      className="mt-5 w-44 h-32 object-cover rounded-2xl border border-white/10"
+                    />
+
+                  )}
+
+                  {owner.idProof &&
+                    (owner.idProof as any)?.type ===
+                      "application/pdf" && (
+
+                    <p className="mt-4 text-green-400 font-semibold">
+                      PDF Uploaded Successfully
+                    </p>
+
+                  )}
+
+                </td>
+
+              </tr>
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    ))}
+
+  </div>
+
+  </div>
+
+  {/* STUDENT SECTION */}
+  <div>
+
+    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+
+      <h2 className="text-3xl xl:text-4xl leading-tight font-black">
+        Student Details
+      </h2>
+
+      <button
+        type="button"
+        onClick={addStudent}
+        className="w-fit whitespace-nowrap bg-orange-500 hover:bg-orange-400 transition text-black px-6 py-3 rounded-2xl font-bold"
+      >
+        + Add Student
+      </button>
+
+    </div>
+
+    <div className="space-y-8">
+
+    {students.map((student, index) => (
+
+      <div
+        key={index}
+        className="bg-zinc-950 border border-white/10 rounded-3xl p-6 xl:p-8 mb-8 overflow-hidden"
+      >
+
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+
+          <h3 className="text-3xl font-bold">
+            Student #{index + 1}
+          </h3>
+
+          {students.length > 1 && (
+            <button
+              type="button"
+              onClick={() => removeStudent(index)}
+              className="w-fit text-red-500 font-bold"
+            >
+              Remove
+            </button>
+          )}
+
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-5">
+
+          <input
+            type="text"
+            placeholder="Student Name"
+            value={student.name}
+            onChange={(e) =>
+              handleStudentChange(index, "name", e.target.value)
+            }
+            className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+          />
+
+          <input
+            type="number"
+            min={1}
+            placeholder="Age"
+            value={student.age}
+            onChange={(e) =>
+              handleStudentChange(index, "age", e.target.value)
+            }
+            className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+          />
+
+          <input
+            type="text"
+            placeholder="School"
+            value={student.school}
+            onChange={(e) =>
+              handleStudentChange(index, "school", e.target.value)
+            }
+            className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+          />
+
+          <select
+            value={student.sex}
+            onChange={(e) =>
+              handleStudentChange(index, "sex", e.target.value)
+            }
+            className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+          >
+            <option value="">Sex</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+
+          <select
+            value={student.sports}
+            onChange={(e) =>
+              handleStudentChange(index, "sports", e.target.value)
+            }
+            className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+          >
+            <option value="">
+              {selectedSports.length
+                ? "Select Sport"
+                : "Select sports conducted first"}
+            </option>
+
+            {selectedSports.map((sport) => (
+
+              <option
+                key={sport}
+                value={sport}
+              >
+                {sport}
+              </option>
+
+            ))}
+          </select>
+
+          <input
+            type="text"
+            placeholder="Achievement"
+            value={student.achievement}
+            onChange={(e) =>
+              handleStudentChange(index, "achievement", e.target.value)
+            }
+            className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+          />
+
+        </div>
+
+        <div className="mt-6 flex flex-col sm:flex-row sm:items-center gap-5">
+
+          <label
+            htmlFor={`student-photo-${index}`}
+            className="w-fit bg-white text-black font-bold px-6 py-4 rounded-2xl cursor-pointer"
+          >
+            Upload Passport Photo
+          </label>
+
+          <input
+            id={`student-photo-${index}`}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) =>
+              handleStudentPhoto(e, index)
+            }
+          />
+
+          <label className="flex items-center gap-3 bg-black border border-zinc-700 rounded-2xl px-5 py-4 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={student.isEliteAthlete}
+              onChange={(e) =>
+                toggleEliteAthlete(index, e.target.checked)
+              }
+            />
+            <span className="font-bold">
+              Mark as Elite Athlete
+            </span>
+          </label>
+
+          <label className="flex items-center gap-3 bg-black border border-zinc-700 rounded-2xl px-5 py-4 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={student.isParaAthlete || false}
+              onChange={(e) =>
+                handleStudentChange(index, "isParaAthlete", e.target.checked)
+              }
+            />
+            <span className="font-bold">
+              Mark as Para Athlete
+            </span>
+          </label>
+
+        </div>
+
+        {student.photoPreview && (
+
+          <img
+            src={student.photoPreview}
+            alt="Student"
+            className="mt-5 w-36 h-44 object-cover rounded-2xl border border-white/10"
+          />
+
+        )}
+
+      </div>
+
+    ))}
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<div className="md:col-span-2 mt-10 bg-zinc-900 border border-white/10 rounded-[35px] p-10">
+
+  <h2 className="text-4xl font-black">
+    Press / Media Coverage
+  </h2>
+
+  <p className="mt-3 text-zinc-400">
+    Upload academy press or media coverage proof in PDF, PNG, JPG, or JPEG format.
+  </p>
+
+  <label
+    htmlFor="mediaCoverageProof"
+    className="mt-6 inline-flex bg-white text-black font-bold px-6 py-4 rounded-2xl cursor-pointer hover:bg-zinc-200 transition"
+  >
+    Upload Proof
+  </label>
+
+  <input
+    id="mediaCoverageProof"
+    type="file"
+    accept=".pdf,image/png,image/jpeg"
+    className="hidden"
+    onChange={handleMediaCoverageProof}
+  />
+
+  {mediaCoverageProofName && (
+    <p className="mt-4 text-green-400 font-semibold">
+      {mediaCoverageProofName} uploaded
+    </p>
+  )}
+
+</div>
+
+<div className="md:col-span-2 mt-10 bg-zinc-950 border border-white/10 rounded-[35px] p-8">
+
+  <label className="flex items-start gap-4 cursor-pointer">
+    <input
+      type="checkbox"
+      checked={declarationAccepted}
+      onChange={(e) =>
+        setDeclarationAccepted(e.target.checked)
+      }
+      className="mt-2"
+    />
+    <span className="text-zinc-200 leading-relaxed">
+      I declare that all information, documents, photos, student details, and media proofs submitted by this academy are true and correct to the best of my knowledge.
+    </span>
+  </label>
+
+</div>
+
+          {/* PLAN */}
+
+          <div className="md:col-span-2 mt-10 bg-zinc-900 border border-white/10 rounded-[35px] p-10">
+
+            <h2 className="text-4xl font-black">
+              Select Affiliation Plan
+            </h2>
+
+            <div className="mt-8 grid md:grid-cols-3 gap-6">
+
+              {[1, 2, 3].map((year) => (
+
+                <button
+                  key={year}
+                  onClick={() =>
+                    setSelectedYears(year)
+                  }
+                  className={`rounded-3xl p-8 border text-left transition ${
+                    selectedYears === year
+                      ? "bg-orange-500 border-orange-500"
+                      : "bg-black border-zinc-700"
+                  }`}
+                >
+
+                  <h3 className="text-4xl font-black">
+                    ₹{affiliationFees[year]}
+                  </h3>
+
+                  <p className="mt-2 text-lg">
+                    {year} Year
+                    {year > 1 ? "s" : ""}
+                  </p>
+
+                </button>
+
+              ))}
+
+            </div>
+
+          </div>
+
+          {/* FEES */}
+
+          <div className="md:col-span-2 mt-10 bg-orange-500 text-black rounded-[35px] p-10">
+
+            <h2 className="text-5xl font-black">
+              Fee Calculation
+            </h2>
+
+            <div className="mt-10 space-y-5 text-2xl">
+
+              <div className="flex items-center justify-between">
+
+                <p>
+                  Academy Affiliation (
+                  {selectedYears} Year)
+                </p>
+
+                <p>
+                  ₹{affiliationAmount}
+                </p>
+
+              </div>
+
+              <div className="flex items-center justify-between">
+
+                <p>
+                  Students ({students.length} ×
+                  ₹99)
+                </p>
+
+                <p>
+                  ₹{studentsAmount}
+                </p>
+
+              </div>
+
+            </div>
+
+            <div className="mt-8 border-t border-black/20 pt-8 flex items-center justify-between">
+
+              <h3 className="text-5xl font-black">
+                Total
+              </h3>
+
+              <h3 className="text-5xl font-black">
+                ₹{totalAmount}
+              </h3>
+
+            </div>
+
+            {/* PAYMENT */}
+
+            <div className="mt-10 flex flex-col md:flex-row gap-6">
+
+              <button
+                onClick={handlePayment}
+                className="flex-1 bg-black text-white hover:bg-zinc-900 transition py-5 rounded-2xl text-xl font-bold"
+              >
+                Make Payment Now
+              </button>
+
+              <button
+                onClick={handleSaveDashboard}                
+                className="flex-1 bg-white text-black hover:bg-gray-200 transition py-5 rounded-2xl text-xl font-bold"              >
+                Save & Continue Later                
+              </button>
+
+            </div>
+ </div>
+          </div>
+
+        </section>
+        <Footer />
+
+      </main>
+    );
+  }
+
+  // =========================
+  // DEFAULT LOGIN/SIGNUP
+  // =========================
 
   return (
 
@@ -139,40 +2328,6 @@ export default function AcademyAffiliationPage() {
 
       <Navbar />
 
-      {/* POPUP */}
-      {showPopup && (
-
-        <div className="fixed top-28 left-1/2 -translate-x-1/2 z-[100]">
-
-          <div className="bg-zinc-950 border border-orange-500/30 shadow-[0_0_60px_rgba(255,115,0,0.35)] rounded-[30px] px-10 py-7 backdrop-blur-2xl">
-
-            <div className="flex items-center gap-5">
-
-              <div className="w-14 h-14 rounded-full bg-orange-500 flex items-center justify-center text-2xl font-black text-white">
-                ✓
-              </div>
-
-              <div>
-
-                <h3 className="text-2xl font-black text-white">
-                  Plan Selected
-                </h3>
-
-                <p className="text-gray-400 mt-1">
-                 
-                </p>
-
-              </div>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      )}
-
-      {/* HERO */}
       <section className="relative pt-44 pb-20 overflow-hidden">
 
         <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-orange-500/10 blur-[150px] rounded-full"></div>
@@ -196,12 +2351,12 @@ export default function AcademyAffiliationPage() {
 
       </section>
 
-      {/* LOGIN + SIGNUP */}
       <section className="max-w-7xl mx-auto px-6 pb-28">
 
         <div className="grid lg:grid-cols-2 gap-10 items-start">
 
           {/* LOGIN */}
+
           <div className="bg-zinc-900/80 backdrop-blur-xl border border-white/10 rounded-[35px] p-10">
 
             <p className="text-orange-500 uppercase tracking-[0.35em] text-sm font-semibold">
@@ -221,7 +2376,7 @@ export default function AcademyAffiliationPage() {
                 onChange={(e) =>
                   setLoginEmail(e.target.value)
                 }
-                className="w-full bg-black border border-zinc-700 rounded-2xl px-6 py-5 outline-none focus:border-orange-500"
+                className="w-full bg-black border border-zinc-700 rounded-2xl px-6 py-5"
               />
 
               <input
@@ -231,7 +2386,7 @@ export default function AcademyAffiliationPage() {
                 onChange={(e) =>
                   setLoginPassword(e.target.value)
                 }
-                className="w-full bg-black border border-zinc-700 rounded-2xl px-6 py-5 outline-none focus:border-orange-500"
+                className="w-full bg-black border border-zinc-700 rounded-2xl px-6 py-5"
               />
 
               <button
@@ -249,6 +2404,7 @@ export default function AcademyAffiliationPage() {
           </div>
 
           {/* SIGNUP */}
+
           <div className="bg-zinc-900/80 backdrop-blur-xl border border-white/10 rounded-[35px] p-10">
 
             <p className="text-orange-500 uppercase tracking-[0.35em] text-sm font-semibold">
@@ -268,7 +2424,7 @@ export default function AcademyAffiliationPage() {
                 onChange={(e) =>
                   setAcademyName(e.target.value)
                 }
-                className="w-full bg-black border border-zinc-700 rounded-2xl px-6 py-5 outline-none focus:border-orange-500"
+                className="w-full bg-black border border-zinc-700 rounded-2xl px-6 py-5"
               />
 
               <div className="grid md:grid-cols-2 gap-6">
@@ -280,7 +2436,7 @@ export default function AcademyAffiliationPage() {
                   onChange={(e) =>
                     setStateName(e.target.value)
                   }
-                  className="w-full bg-black border border-zinc-700 rounded-2xl px-6 py-5 outline-none focus:border-orange-500"
+                  className="w-full bg-black border border-zinc-700 rounded-2xl px-6 py-5"
                 />
 
                 <input
@@ -290,7 +2446,7 @@ export default function AcademyAffiliationPage() {
                   onChange={(e) =>
                     setDistrict(e.target.value)
                   }
-                  className="w-full bg-black border border-zinc-700 rounded-2xl px-6 py-5 outline-none focus:border-orange-500"
+                  className="w-full bg-black border border-zinc-700 rounded-2xl px-6 py-5"
                 />
 
               </div>
@@ -302,7 +2458,7 @@ export default function AcademyAffiliationPage() {
                 onChange={(e) =>
                   setPincode(e.target.value)
                 }
-                className="w-full bg-black border border-zinc-700 rounded-2xl px-6 py-5 outline-none focus:border-orange-500"
+                className="w-full bg-black border border-zinc-700 rounded-2xl px-6 py-5"
               />
 
               <input
@@ -312,7 +2468,7 @@ export default function AcademyAffiliationPage() {
                 onChange={(e) =>
                   setEmail(e.target.value)
                 }
-                className="w-full bg-black border border-zinc-700 rounded-2xl px-6 py-5 outline-none focus:border-orange-500"
+                className="w-full bg-black border border-zinc-700 rounded-2xl px-6 py-5"
               />
 
               <input
@@ -322,7 +2478,7 @@ export default function AcademyAffiliationPage() {
                 onChange={(e) =>
                   setPassword(e.target.value)
                 }
-                className="w-full bg-black border border-zinc-700 rounded-2xl px-6 py-5 outline-none focus:border-orange-500"
+                className="w-full bg-black border border-zinc-700 rounded-2xl px-6 py-5"
               />
 
               <input
@@ -330,9 +2486,11 @@ export default function AcademyAffiliationPage() {
                 placeholder="Retype Password"
                 value={confirmPassword}
                 onChange={(e) =>
-                  setConfirmPassword(e.target.value)
+                  setConfirmPassword(
+                    e.target.value
+                  )
                 }
-                className="w-full bg-black border border-zinc-700 rounded-2xl px-6 py-5 outline-none focus:border-orange-500"
+                className="w-full bg-black border border-zinc-700 rounded-2xl px-6 py-5"
               />
 
               <button
@@ -348,85 +2506,6 @@ export default function AcademyAffiliationPage() {
             </div>
 
           </div>
-
-        </div>
-
-      </section>
-
-      {/* PLANS */}
-      <section className="max-w-7xl mx-auto px-6 pb-32">
-
-        <div className="text-center">
-
-          <p className="text-orange-500 uppercase tracking-[0.4em] font-semibold">
-            Membership Plans
-          </p>
-
-          <h2 className="mt-5 text-6xl font-black">
-            AFFILIATION PRICING
-          </h2>
-
-        </div>
-
-        <div className="mt-16 grid md:grid-cols-2 xl:grid-cols-4 gap-8">
-
-          {[
-            {
-              duration: "1 Year",
-              price: "₹1000",
-              featured: false,
-            },
-            {
-              duration: "2 Years",
-              price: "₹1800",
-              featured: true,
-            },
-            {
-              duration: "3 Years",
-              price: "₹2500",
-              featured: false,
-            },
-            {
-              duration: "5 Years",
-              price: "₹4000",
-              featured: false,
-            },
-          ].map((plan) => (
-
-            <div
-              key={plan.duration}
-              className={`relative rounded-[35px] p-10 border transition duration-300 ${
-                plan.featured
-                  ? "bg-orange-500 text-white border-orange-500 shadow-[0_0_60px_rgba(255,115,0,0.35)]"
-                  : "bg-zinc-900 border-white/10 hover:border-orange-500"
-              }`}
-            >
-
-              <h3 className="text-5xl font-black">
-                {plan.price}
-              </h3>
-
-              <p className="mt-3 text-xl">
-                {plan.duration}
-              </p>
-
-              <button
-                onClick={() =>
-  alert("Signup/Login first to select your affiliation plan from dashboard.")
-}
-
-                className={`mt-10 w-full py-4 rounded-2xl font-bold transition ${
-                  plan.featured
-                    ? "bg-white text-orange-500"
-                    : "bg-orange-500 text-white"
-                }`}
-              >
-                Select Plan
-              </button>
-
-            </div>
-
-          ))}
 
         </div>
 
