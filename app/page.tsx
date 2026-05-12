@@ -521,8 +521,8 @@ md:w-[390px]
       <div className="group relative overflow-hidden rounded-[32px] h-[300px] border border-white/10">
 
         <img
-          src="/fitgallery4.jpg"
-          alt="Transformation"
+          src="/ruralsports.png"
+          alt="Rural Sports"
           className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition duration-700"
         />
 
@@ -531,11 +531,11 @@ md:w-[390px]
         <div className="absolute bottom-0 p-6">
 
           <p className="text-orange-400 uppercase tracking-[0.3em] text-xs">
-            Transformation
+            Rural Tournament
           </p>
 
-          <h3 className="mt-3 text-2xl font-black">
-            Build Your Legacy
+          <h3 className="mt-3 text-xl font-black">
+            Team Elite
           </h3>
 
         </div>
