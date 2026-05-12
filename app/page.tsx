@@ -459,7 +459,7 @@ md:w-[390px]
             Ms. Kajal Keshi, General Secretary
           </p>
 
-          <h3 className="mt-3 text-2xl font-black">
+          <h3 className="mt-3 text-xl font-black">
             With Javelin Throwers, Navdeep Singhji
           </h3>
 
