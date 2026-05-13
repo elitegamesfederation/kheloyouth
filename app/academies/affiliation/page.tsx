@@ -1207,14 +1207,14 @@ console.log("Razorpay Loaded:", window.Razorpay);
               </h2>
 
               <button
-                onClick={() =>
-                  setEditMode(!editMode)
-                }
+                onClick={() => {
+                  setShowDashboard(false);
+                  setIsFirstTime(true);
+                  setEditMode(false);
+                }}
                 className="bg-orange-500 px-6 py-3 rounded-2xl font-bold"
               >
-                {editMode
-                  ? "Cancel"
-                  : "Edit Details"}
+                Edit Full Profile
               </button>
 
             </div>
