@@ -1224,20 +1224,21 @@ console.log("Razorpay Loaded:", window.Razorpay);
               {!editMode && (
                 <>
                   <div className="md:col-span-2 overflow-hidden rounded-[35px] border border-white/10 bg-black">
-                    <div className="h-56 bg-gradient-to-r from-zinc-950 via-orange-500/20 to-zinc-900">
+                    <div className="relative h-72 bg-gradient-to-r from-zinc-950 via-orange-500/20 to-zinc-900">
                       {dashboardGallery[0] && (
                         <img
                           src={dashboardGallery[0]}
                           alt="Academy cover"
-                          className="w-full h-full object-cover opacity-70"
+                          className="absolute inset-0 w-full h-full object-cover opacity-45"
                         />
                       )}
-                    </div>
 
-                    <div className="px-8 pb-8">
-                      <div className="-mt-16 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
-                        <div className="flex flex-col sm:flex-row sm:items-end gap-6">
-                          <div className="w-36 h-36 rounded-3xl border-4 border-black bg-zinc-900 overflow-hidden flex items-center justify-center">
+                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/65 to-black/10"></div>
+
+                      <div className="relative z-10 h-full flex flex-col justify-end px-8 pb-8">
+                        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+                          <div className="flex flex-col sm:flex-row sm:items-end gap-6">
+                          <div className="w-36 h-36 shrink-0 rounded-3xl border-4 border-black bg-zinc-900 overflow-hidden flex items-center justify-center shadow-2xl">
                             {dashboardLogo ? (
                               <img
                                 src={dashboardLogo}
@@ -1252,10 +1253,10 @@ console.log("Razorpay Loaded:", window.Razorpay);
                           </div>
 
                           <div>
-                            <h3 className="text-5xl font-black">
+                            <h3 className="text-5xl font-black drop-shadow-[0_3px_8px_rgba(0,0,0,0.9)]">
                               {userData?.academyName}
                             </h3>
-                            <p className="mt-3 text-zinc-400 text-lg">
+                            <p className="mt-3 text-zinc-200 text-lg drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">
                               {[userData?.city, userData?.district, userData?.state]
                                 .filter(Boolean)
                                 .join(", ") || "Location not added"}
@@ -1263,7 +1264,7 @@ console.log("Razorpay Loaded:", window.Razorpay);
                           </div>
                         </div>
 
-                        <div className="flex flex-wrap gap-3">
+                        <div className="flex flex-wrap gap-3 relative z-20">
                           <span className={`px-5 py-3 rounded-2xl font-bold ${
                             userData?.paymentDone
                               ? "bg-green-500 text-black"
@@ -1282,6 +1283,7 @@ console.log("Razorpay Loaded:", window.Razorpay);
                           </span>
                         </div>
                       </div>
+                    </div>
                     </div>
                   </div>
 
