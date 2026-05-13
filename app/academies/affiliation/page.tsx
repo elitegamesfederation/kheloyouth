@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 
-import { auth, db } from "@/app/lib/firebase";
+import { auth, db, storage } from "@/app/lib/firebase";
 
 import {
   createUserWithEmailAndPassword,
@@ -20,6 +20,12 @@ import {
   getDoc,
   updateDoc,
 } from "firebase/firestore";
+
+import {
+  getDownloadURL,
+  ref,
+  uploadBytes,
+} from "firebase/storage";
 
 declare global {
   interface Window {
@@ -434,6 +440,49 @@ const dashboardLogo =
   userData?.academyLogoUrl ||
   logoPreview ||
   "";
+
+const uploadAcademyFile = async (
+  file: File,
+  folder: string
+) => {
+  if (!currentUser) return "";
+
+  const storageRef = ref(
+    storage,
+    `academies/${currentUser.uid}/${folder}/${Date.now()}-${file.name}`
+  );
+
+  await uploadBytes(storageRef, file);
+
+  return getDownloadURL(storageRef);
+};
+
+const buildAcademyPayload = async () => {
+  const academyLogoUrl = academyLogo
+    ? await uploadAcademyFile(academyLogo, "logo")
+    : userData?.academyLogoUrl || "";
+
+  const uploadedImageUrls = await Promise.all(
+    academyImages
+      .filter((image) => image instanceof File)
+      .map((image) =>
+        uploadAcademyFile(image as File, "photos")
+      )
+  );
+
+  const existingImageUrls = Array.isArray(userData?.academyImageUrls)
+    ? userData.academyImageUrls
+    : [];
+
+  return {
+    ...academyPayload,
+    academyLogoUrl,
+    academyImageUrls: [
+      ...existingImageUrls,
+      ...uploadedImageUrls.filter(Boolean),
+    ],
+  };
+};
 
   // =========================
   // SIGNUP
@@ -943,9 +992,11 @@ const copyOwnerToCoach = (
 
       setLoading(true);
 
+      const payload = await buildAcademyPayload();
+
       await updateDoc(
   doc(db, "academies", currentUser.uid),
-  academyPayload
+  payload
 );
 
       alert("Saved. Opening your academy dashboard.");
@@ -975,6 +1026,8 @@ const copyOwnerToCoach = (
   const file = e.target.files[0];
 
   if (!file) return;
+
+  setAcademyLogo(file);
 
   setLogoPreview(
     URL.createObjectURL(file)
@@ -1027,6 +1080,8 @@ const handleMediaCoverageProof = (e: any) => {
       today.getFullYear() + selectedYears
     );
 
+    const payload = await buildAcademyPayload();
+
     console.log("RAZORPAY KEY:", process.env.NEXT_PUBLIC_RAZORPAY_KEY);
     const options = {
       key: process.env.NEXT_PUBLIC_RAZORPAY_KEY,
@@ -1044,7 +1099,7 @@ const handleMediaCoverageProof = (e: any) => {
         await updateDoc(
           doc(db, "academies", currentUser.uid),
           {
-            ...academyPayload,
+            ...payload,
             paymentDone: true,
 
             razorpayPaymentId:
