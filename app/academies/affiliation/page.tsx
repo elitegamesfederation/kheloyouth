@@ -441,6 +441,85 @@ const dashboardLogo =
   logoPreview ||
   "";
 
+const stateCodes: any = {
+  "Andhra Pradesh": "AP",
+  "Arunachal Pradesh": "AR",
+  Assam: "AS",
+  Bihar: "BR",
+  Chhattisgarh: "CG",
+  Delhi: "DL",
+  Goa: "GA",
+  Gujarat: "GJ",
+  Haryana: "HR",
+  "Himachal Pradesh": "HP",
+  Jharkhand: "JH",
+  Karnataka: "KA",
+  Kerala: "KL",
+  "Madhya Pradesh": "MP",
+  Maharashtra: "MH",
+  Manipur: "MN",
+  Meghalaya: "ML",
+  Mizoram: "MZ",
+  Nagaland: "NL",
+  Odisha: "OD",
+  Punjab: "PB",
+  Rajasthan: "RJ",
+  Sikkim: "SK",
+  "Tamil Nadu": "TN",
+  Telangana: "TS",
+  Tripura: "TR",
+  "Uttar Pradesh": "UP",
+  Uttarakhand: "UK",
+  "West Bengal": "WB",
+};
+
+const getStateCode = (value: string) =>
+  stateCodes[value] ||
+  value
+    .trim()
+    .slice(0, 2)
+    .toUpperCase() ||
+  "EG";
+
+const getAffiliationNumber = () => {
+  if (userData?.affiliationNumber) {
+    return userData.affiliationNumber;
+  }
+
+  const year = new Date().getFullYear().toString().slice(-2);
+  const uidSeed = (currentUser?.uid || "000001")
+    .replace(/[^a-z0-9]/gi, "")
+    .slice(-6)
+    .toUpperCase()
+    .padStart(6, "0");
+
+  return `${getStateCode(stateName)}/${year}/${uidSeed}`;
+};
+
+const formatCertificateDate = (value: Date | string | null | undefined) => {
+  if (!value) return "";
+
+  const date = value instanceof Date ? value : new Date(value);
+
+  if (Number.isNaN(date.getTime())) return "";
+
+  const day = date.getDate();
+  const suffix =
+    day % 10 === 1 && day !== 11
+      ? "st"
+      : day % 10 === 2 && day !== 12
+      ? "nd"
+      : day % 10 === 3 && day !== 13
+      ? "rd"
+      : "th";
+
+  const month = date.toLocaleString("en-US", {
+    month: "short",
+  });
+
+  return `${day}${suffix} ${month} ${date.getFullYear()}`;
+};
+
 const uploadAcademyFile = async (
   file: File,
   folder: string
@@ -1064,6 +1143,105 @@ const handleMediaCoverageProof = (e: any) => {
   setMediaCoverageProofName(file.name);
 };
 
+const fitCanvasText = (
+  context: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+  maxWidth: number,
+  fontSize: number,
+  fontFamily: string,
+  color = "#1c3455",
+  weight = "800"
+) => {
+  let size = fontSize;
+
+  do {
+    context.font = `${weight} ${size}px ${fontFamily}`;
+    size -= 2;
+  } while (
+    context.measureText(text).width > maxWidth &&
+    size > 24
+  );
+
+  context.fillStyle = color;
+  context.fillText(text, x, y);
+};
+
+const handleDownloadCertificate = async () => {
+  if (!userData?.paymentDone) {
+    alert("Certificate is available after payment.");
+    return;
+  }
+
+  const image = new Image();
+  image.src = "/certificate-affiliation-template.png";
+
+  await new Promise((resolve, reject) => {
+    image.onload = resolve;
+    image.onerror = reject;
+  });
+
+  const canvas = document.createElement("canvas");
+  canvas.width = image.naturalWidth;
+  canvas.height = image.naturalHeight;
+
+  const context = canvas.getContext("2d");
+  if (!context) return;
+
+  context.drawImage(image, 0, 0);
+  context.textBaseline = "alphabetic";
+
+  fitCanvasText(
+    context,
+    userData?.academyName || academyName,
+    735,
+    665,
+    1000,
+    118,
+    "Arial, sans-serif"
+  );
+
+  fitCanvasText(
+    context,
+    userData?.district || district || userData?.state || stateName,
+    735,
+    765,
+    700,
+    72,
+    "Arial, sans-serif"
+  );
+
+  fitCanvasText(
+    context,
+    `From ${formatCertificateDate(userData?.affiliationStartDate)} To ${formatCertificateDate(userData?.affiliationEndDate)}`,
+    735,
+    990,
+    900,
+    36,
+    "Arial, sans-serif",
+    "#2c2835",
+    "700"
+  );
+
+  fitCanvasText(
+    context,
+    getAffiliationNumber(),
+    142,
+    1184,
+    430,
+    42,
+    "Arial, sans-serif",
+    "#2c2835",
+    "800"
+  );
+
+  const link = document.createElement("a");
+  link.href = canvas.toDataURL("image/png");
+  link.download = `${academySlug || "academy"}-affiliation-certificate.png`;
+  link.click();
+};
+
   // =========================
   // RAZORPAY PAYMENT
   // =========================
@@ -1086,6 +1264,7 @@ const handleMediaCoverageProof = (e: any) => {
     );
 
     const payload = await buildAcademyPayload();
+    const affiliationNumber = getAffiliationNumber();
 
     console.log("RAZORPAY KEY:", process.env.NEXT_PUBLIC_RAZORPAY_KEY);
     const options = {
@@ -1115,6 +1294,8 @@ const handleMediaCoverageProof = (e: any) => {
 
             affiliationEndDate:
               endDate.toDateString(),
+
+            affiliationNumber,
 
             totalAmount,
           }
@@ -1226,6 +1407,20 @@ console.log("Razorpay Loaded:", window.Razorpay);
                     }
                   </span>
                 </p>
+
+                <p className="mt-2 text-gray-300 text-lg">
+                  Affiliation No.{" "}
+                  <span className="font-bold">
+                    {userData?.affiliationNumber}
+                  </span>
+                </p>
+
+                <button
+                  onClick={handleDownloadCertificate}
+                  className="mt-6 bg-white text-black hover:bg-zinc-200 px-8 py-4 rounded-2xl font-bold"
+                >
+                  Download Affiliation Certificate
+                </button>
 
               </div>
 
@@ -1341,6 +1536,11 @@ console.log("Razorpay Loaded:", window.Razorpay);
                           <span className="px-5 py-3 rounded-2xl font-bold bg-zinc-900 border border-white/10">
                             {dashboardOwners.length} Owners / Coaches
                           </span>
+                          {userData?.affiliationNumber && (
+                            <span className="px-5 py-3 rounded-2xl font-bold bg-zinc-900 border border-white/10">
+                              {userData.affiliationNumber}
+                            </span>
+                          )}
                         </div>
                       </div>
                     </div>
