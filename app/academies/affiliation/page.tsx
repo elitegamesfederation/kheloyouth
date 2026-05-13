@@ -15,10 +15,14 @@ import {
 } from "firebase/auth";
 
 import {
+  collection,
   doc,
-  setDoc,
   getDoc,
+  getDocs,
+  query,
+  setDoc,
   updateDoc,
+  where,
 } from "firebase/firestore";
 
 import {
@@ -71,6 +75,9 @@ export default function AcademyAffiliationPage() {
   const [academyDescription, setAcademyDescription] = useState("");
   const [studentsCount, setStudentsCount] = useState(1);
   const [selectedYears, setSelectedYears] = useState(1);
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState("");
+  const [couponMessage, setCouponMessage] = useState("");
 
   const [establishmentYear, setEstablishmentYear] = useState("");
 const [fullAddress, setFullAddress] = useState("");
@@ -135,6 +142,14 @@ const [students, setStudents] = useState<any[]>([
     3: 2499,
   };
 
+  const academyCouponCodes = [
+    "ELITE100-01",
+    "ELITE100-02",
+    "ELITE100-03",
+    "ELITE100-04",
+    "ELITE100-05",
+  ];
+
   const affiliationAmount =
     affiliationFees[selectedYears];
 
@@ -143,6 +158,12 @@ const [students, setStudents] = useState<any[]>([
 
   const totalAmount =
     affiliationAmount + studentsAmount;
+
+  const couponDiscountAmount =
+    appliedCoupon ? totalAmount : 0;
+
+  const payableAmount =
+    Math.max(totalAmount - couponDiscountAmount, 0);
 
   // =========================
   // LOAD USER
@@ -411,6 +432,9 @@ const academyPayload = {
   studentsCount: students.length,
   selectedYears,
   totalAmount,
+  payableAmount,
+  couponCode: appliedCoupon,
+  couponDiscountAmount,
   profileCompleted: true,
 };
 
@@ -1143,6 +1167,44 @@ const handleMediaCoverageProof = (e: any) => {
   setMediaCoverageProofName(file.name);
 };
 
+const handleApplyCoupon = async () => {
+  const normalizedCoupon = couponCode.trim().toUpperCase();
+
+  if (!normalizedCoupon) {
+    setCouponMessage("Enter a coupon code");
+    return;
+  }
+
+  if (!academyCouponCodes.includes(normalizedCoupon)) {
+    setAppliedCoupon("");
+    setCouponMessage("Invalid coupon code");
+    return;
+  }
+
+  const usedCouponSnap = await getDocs(
+    query(
+      collection(db, "academies"),
+      where("couponCode", "==", normalizedCoupon)
+    )
+  );
+
+  const usedByAnotherAcademy = usedCouponSnap.docs.some(
+    (couponDoc) =>
+      couponDoc.id !== currentUser?.uid &&
+      couponDoc.data().paymentDone
+  );
+
+  if (usedByAnotherAcademy) {
+    setAppliedCoupon("");
+    setCouponMessage("This coupon code has already been used");
+    return;
+  }
+
+  setAppliedCoupon(normalizedCoupon);
+  setCouponCode(normalizedCoupon);
+  setCouponMessage("100% discount applied");
+};
+
 const fitCanvasText = (
   context: CanvasRenderingContext2D,
   text: string,
@@ -1242,6 +1304,60 @@ const handleDownloadCertificate = async () => {
   link.click();
 };
 
+const completeAffiliationWithCoupon = async () => {
+  if (!currentUser || !appliedCoupon) return;
+
+  if (!userData?.profileCompleted && academyImages.length < 3) {
+    alert("Please upload minimum 3 academy photos");
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    const today = new Date();
+    const endDate = new Date();
+
+    endDate.setFullYear(
+      today.getFullYear() + selectedYears
+    );
+
+    const payload = await buildAcademyPayload();
+    const affiliationNumber = getAffiliationNumber();
+
+    await updateDoc(
+      doc(db, "academies", currentUser.uid),
+      {
+        ...payload,
+        paymentDone: true,
+        paymentMode: "coupon",
+        couponCode: appliedCoupon,
+        couponDiscountAmount: totalAmount,
+        payableAmount: 0,
+        amountPaid: 0,
+        affiliationNumber,
+        affiliationStartDate: today.toDateString(),
+        affiliationEndDate: endDate.toDateString(),
+        totalAmount,
+      }
+    );
+
+    alert("Coupon applied. Affiliation activated.");
+
+    const snap = await getDoc(
+      doc(db, "academies", currentUser.uid)
+    );
+
+    setUserData(snap.data());
+    setShowDashboard(true);
+    setIsFirstTime(false);
+  } catch (error: any) {
+    alert(error.message);
+  } finally {
+    setLoading(false);
+  }
+};
+
   // =========================
   // RAZORPAY PAYMENT
   // =========================
@@ -1249,6 +1365,11 @@ const handleDownloadCertificate = async () => {
   const handlePayment = async () => {
 
     if (!currentUser) return;
+
+    if (appliedCoupon && payableAmount === 0) {
+      await completeAffiliationWithCoupon();
+      return;
+    }
 
       if (!userData?.profileCompleted && academyImages.length < 3) {
     alert("Please upload minimum 3 academy photos");
@@ -1270,7 +1391,7 @@ const handleDownloadCertificate = async () => {
     const options = {
       key: process.env.NEXT_PUBLIC_RAZORPAY_KEY,
 
-      amount: totalAmount * 100,
+      amount: payableAmount * 100,
 
       currency: "INR",
 
@@ -1296,6 +1417,12 @@ const handleDownloadCertificate = async () => {
               endDate.toDateString(),
 
             affiliationNumber,
+
+            paymentMode: "razorpay",
+            couponCode: appliedCoupon,
+            couponDiscountAmount,
+            payableAmount,
+            amountPaid: payableAmount,
 
             totalAmount,
           }
@@ -2835,12 +2962,66 @@ console.log("Razorpay Loaded:", window.Razorpay);
             <div className="mt-8 border-t border-black/20 pt-8 flex items-center justify-between">
 
               <h3 className="text-5xl font-black">
-                Total
+                Payable
               </h3>
 
               <h3 className="text-5xl font-black">
-                ₹{totalAmount}
+                ₹{payableAmount}
               </h3>
+
+            </div>
+
+            {appliedCoupon && (
+
+              <div className="mt-6 flex items-center justify-between text-2xl">
+
+                <p>
+                  Coupon Discount ({appliedCoupon})
+                </p>
+
+                <p>
+                  -₹{couponDiscountAmount}
+                </p>
+
+              </div>
+
+            )}
+
+            <div className="mt-8 bg-black/10 border border-black/20 rounded-3xl p-6">
+
+              <h3 className="text-2xl font-black">
+                Coupon Code
+              </h3>
+
+              <div className="mt-5 flex flex-col md:flex-row gap-4">
+
+                <input
+                  type="text"
+                  placeholder="Enter coupon code"
+                  value={couponCode}
+                  onChange={(e) => {
+                    setCouponCode(e.target.value.toUpperCase());
+                    setAppliedCoupon("");
+                    setCouponMessage("");
+                  }}
+                  className="flex-1 bg-white text-black border border-black/20 rounded-2xl px-6 py-4"
+                />
+
+                <button
+                  type="button"
+                  onClick={handleApplyCoupon}
+                  className="bg-black text-white px-8 py-4 rounded-2xl font-bold"
+                >
+                  Apply Coupon
+                </button>
+
+              </div>
+
+              {couponMessage && (
+                <p className="mt-3 font-bold">
+                  {couponMessage}
+                </p>
+              )}
 
             </div>
 
@@ -2852,7 +3033,9 @@ console.log("Razorpay Loaded:", window.Razorpay);
                 onClick={handlePayment}
                 className="flex-1 bg-black text-white hover:bg-zinc-900 transition py-5 rounded-2xl text-xl font-bold"
               >
-                Make Payment Now
+                {payableAmount === 0
+                  ? "Complete Affiliation"
+                  : "Make Payment Now"}
               </button>
 
               <button
