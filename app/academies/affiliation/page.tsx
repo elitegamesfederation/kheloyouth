@@ -447,9 +447,14 @@ const uploadAcademyFile = async (
 ) => {
   if (!currentUser) return "";
 
+  const storageFolder =
+    folder === "logo"
+      ? "academy-logos"
+      : "academy-banners";
+
   const storageRef = ref(
     storage,
-    `academies/${currentUser.uid}/${folder}/${Date.now()}-${file.name}`
+    `${storageFolder}/${currentUser.uid}/${Date.now()}-${file.name}`
   );
 
   await uploadBytes(storageRef, file);
