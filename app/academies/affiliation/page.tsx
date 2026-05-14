@@ -2474,10 +2474,15 @@ console.log("Razorpay Loaded:", window.Razorpay);
   />
 
   <input
-    type="text"
+    type="tel"
     placeholder="Contact Number"
     value={contactNumber}
-    onChange={(e) => setContactNumber(e.target.value)}
+    maxLength={10}
+    onChange={(e) =>
+      setContactNumber(
+        e.target.value.replace(/\D/g, "").slice(0, 10)
+      )
+    }
     className="bg-black border border-zinc-700 rounded-2xl px-6 py-5"
   />
 

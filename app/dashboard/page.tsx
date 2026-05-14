@@ -816,9 +816,13 @@ export default function DashboardPage() {
                   className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
                 />
                 <input
+                  type="tel"
+                  maxLength={10}
                   value={contactNumber}
                   onChange={(e) =>
-                    setContactNumber(e.target.value)
+                    setContactNumber(
+                      e.target.value.replace(/\D/g, "").slice(0, 10)
+                    )
                   }
                   placeholder="Contact Number"
                   className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
@@ -1062,12 +1066,16 @@ export default function DashboardPage() {
                           className="bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4"
                         />
                         <input
+                          type="tel"
+                          maxLength={10}
                           value={owner.mobile}
                           onChange={(e) =>
                             updateOwner(
                               index,
                               "mobile",
                               e.target.value
+                                .replace(/\D/g, "")
+                                .slice(0, 10)
                             )
                           }
                           placeholder="Mobile"
