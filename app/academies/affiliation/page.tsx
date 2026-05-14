@@ -322,6 +322,16 @@ setMediaCoverageProofName(
   data.mediaCoverageProofName || ""
 );
 
+setLogoPreview(
+  data.academyLogoUrl || ""
+);
+
+setAcademyImages(
+  Array.isArray(data.academyImageUrls)
+    ? data.academyImageUrls
+    : []
+);
+
 setDeclarationAccepted(
   data.declarationAccepted || false
 );
@@ -714,7 +724,7 @@ const buildAcademyPayload = async () => {
     ? await safeUploadAcademyFile(academyLogo, "logo")
     : "";
   const academyLogoUrl =
-    uploadedLogoUrl || userData?.academyLogoUrl || "";
+    uploadedLogoUrl || logoPreview || "";
 
   const uploadedImageUrls = await Promise.all(
     academyImages
@@ -724,9 +734,9 @@ const buildAcademyPayload = async () => {
       )
   );
 
-  const existingImageUrls = Array.isArray(userData?.academyImageUrls)
-    ? userData.academyImageUrls
-    : [];
+  const existingImageUrls = academyImages.filter(
+    (image) => typeof image === "string"
+  );
 
   return {
     ...academyPayload,
@@ -940,6 +950,16 @@ setGoogleLocation(
 
 setMediaCoverageProofName(
   data.mediaCoverageProofName || ""
+);
+
+setLogoPreview(
+  data.academyLogoUrl || ""
+);
+
+setAcademyImages(
+  Array.isArray(data.academyImageUrls)
+    ? data.academyImageUrls
+    : []
 );
 
 setDeclarationAccepted(
@@ -2501,11 +2521,24 @@ console.log("Razorpay Loaded:", window.Razorpay);
   />
 
   {logoPreview && (
-    <img
-      src={logoPreview}
-      alt="Logo"
-      className="mt-6 w-36 h-36 object-cover rounded-3xl border border-white/10"
-    />
+    <div className="mt-6 relative w-36">
+      <img
+        src={logoPreview}
+        alt="Logo"
+        className="w-36 h-36 object-cover rounded-3xl border border-white/10"
+      />
+
+      <button
+        type="button"
+        onClick={() => {
+          setAcademyLogo(null);
+          setLogoPreview("");
+        }}
+        className="absolute top-2 right-2 bg-red-500 text-white w-8 h-8 rounded-full text-sm font-bold"
+      >
+        ×
+      </button>
+    </div>
   )}
 </div>
 
@@ -2559,7 +2592,11 @@ console.log("Razorpay Loaded:", window.Razorpay);
       >
 
         <img
-          src={URL.createObjectURL(image)}
+          src={
+            typeof image === "string"
+              ? image
+              : URL.createObjectURL(image)
+          }
           alt="academy"
           className="w-full h-52 object-cover rounded-3xl border border-white/10"
         />
@@ -2577,7 +2614,7 @@ console.log("Razorpay Loaded:", window.Razorpay);
           }}
           className="absolute top-2 right-2 bg-red-500 text-white w-8 h-8 rounded-full text-sm font-bold"
         >
-          ✕
+          ×
         </button>
 
       </div>
@@ -3408,13 +3445,15 @@ console.log("Razorpay Loaded:", window.Razorpay);
                   : "Make Payment Now"}
               </button>
 
-              <button
-                onClick={handleSaveDashboard}                
-                className="flex-1 bg-white text-black hover:bg-gray-200 transition py-5 rounded-2xl text-xl font-bold"              >
-                {isPaidAcademy && additionalStudentsCount > 0
-                  ? "Save Changes (New Students Hidden Until Paid)"
-                  : "Save & Continue Later"}                
-              </button>
+              {(!isPaidAcademy || payableAmount > 0) && (
+                <button
+                  onClick={handleSaveDashboard}                
+                  className="flex-1 bg-white text-black hover:bg-gray-200 transition py-5 rounded-2xl text-xl font-bold"              >
+                  {isPaidAcademy && payableAmount > 0
+                    ? "Save Changes (New Students Hidden Until Paid)"
+                    : "Save & Continue Later"}                
+                </button>
+              )}
 
             </div>
  </div>
