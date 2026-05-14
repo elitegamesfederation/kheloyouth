@@ -2124,19 +2124,6 @@ console.log("Razorpay Loaded:", window.Razorpay);
                         <p className="text-zinc-400">No sports added yet.</p>
                       )}
                     </div>
-                    {userData?.desiredSport && (
-                      <div className="mt-6 bg-orange-500/10 border border-orange-500/30 rounded-2xl p-5">
-                        <p className="text-orange-500 uppercase tracking-[0.25em] text-xs font-bold">
-                          Federation Sport Request
-                        </p>
-                        <p className="mt-2 text-xl font-black text-white">
-                          {userData.desiredSport}
-                        </p>
-                        <p className="mt-2 text-zinc-400">
-                          Add this sport to the master sports list if approved by the federation.
-                        </p>
-                      </div>
-                    )}
                   </div>
 
                   <div className="md:col-span-2 bg-black border border-zinc-700 rounded-3xl p-8">

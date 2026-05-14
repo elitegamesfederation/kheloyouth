@@ -1,1222 +1,771 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
-import { auth, db, storage } from "@/app/lib/firebase";
-
-import { onAuthStateChanged, signOut } from "firebase/auth";
+import { db } from "@/app/lib/firebase";
 
 import {
-  doc,
-  getDoc,
-  updateDoc,
+  addDoc,
+  collection,
+  getDocs,
 } from "firebase/firestore";
 
-import {
-  ref,
-  uploadBytes,
-  getDownloadURL,
-} from "firebase/storage";
+const yearlyStudentFee = 99;
+
+const affiliationFees: any = {
+  1: 999,
+  2: 1799,
+  3: 2499,
+};
+
+const stateCodes: any = {
+  Delhi: "DL",
+  Maharashtra: "MH",
+  "Uttar Pradesh": "UP",
+  Haryana: "HR",
+  Punjab: "PB",
+  Rajasthan: "RJ",
+  Gujarat: "GJ",
+  Karnataka: "KA",
+  "Tamil Nadu": "TN",
+  Telangana: "TS",
+  Kerala: "KL",
+  "West Bengal": "WB",
+  Bihar: "BR",
+  Jharkhand: "JH",
+  Odisha: "OD",
+  Assam: "AS",
+};
+
+const slugify = (value: string) =>
+  value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+const getStateCode = (value: string) =>
+  stateCodes[value] ||
+  value.trim().slice(0, 2).toUpperCase() ||
+  "EG";
+
+const getDefaultOwner = () => ({
+  fullName: "",
+  role: "Owner",
+  sex: "",
+  mobile: "",
+  email: "",
+  designation: "",
+});
+
+const getDefaultStudent = () => ({
+  name: "",
+  age: "",
+  sex: "",
+  sports: "",
+  school: "",
+  achievement: "",
+  isEliteAthlete: false,
+  isParaAthlete: false,
+});
 
 export default function DashboardPage() {
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [academies, setAcademies] = useState<any[]>([]);
+  const [selectedState, setSelectedState] = useState("All States");
 
-  const [loading, setLoading] = useState(false);
+  const [academyName, setAcademyName] = useState("");
+  const [stateName, setStateName] = useState("");
+  const [district, setDistrict] = useState("");
+  const [city, setCity] = useState("");
+  const [pincode, setPincode] = useState("");
+  const [contactNumber, setContactNumber] = useState("");
+  const [officialEmail, setOfficialEmail] = useState("");
+  const [selectedYears, setSelectedYears] = useState(1);
+  const [sportsConducted, setSportsConducted] = useState("");
+  const [owners, setOwners] = useState<any[]>([getDefaultOwner()]);
+  const [students, setStudents] = useState<any[]>([getDefaultStudent()]);
 
-  const [academyName, setAcademyName] =
-    useState("");
+  const loadAcademies = async () => {
+    setLoading(true);
 
-  const [foundedYear, setFoundedYear] =
-    useState("");
+    const snap = await getDocs(collection(db, "academies"));
 
-  const [academyAddress, setAcademyAddress] =
-    useState("");
+    setAcademies(
+      snap.docs.map((academyDoc) => ({
+        id: academyDoc.id,
+        ...academyDoc.data(),
+      }))
+    );
 
-  const [phoneNumber, setPhoneNumber] =
-    useState("");
-
-  const [whatsappNumber, setWhatsappNumber] =
-    useState("");
-
-  const [sports, setSports] = useState<string[]>([]);
-
-  const [logoFile, setLogoFile] =
-    useState<File | null>(null);
-
-  const [logoURL, setLogoURL] =
-    useState("");
-
-  const [bannerFiles, setBannerFiles] =
-    useState<FileList | null>(null);
-
-  const [bannerURLs, setBannerURLs] =
-    useState<string[]>([]);
-
-  // OWNERS
-
-  const [owners, setOwners] = useState([
-    {
-      name: "",
-      gender: "",
-      role: "",
-    },
-  ]);
-
-  // COACHES
-
-  const [coaches, setCoaches] = useState([
-    {
-      name: "",
-      gender: "",
-      sport: "",
-      experience: "",
-    },
-  ]);
-
-  // STUDENTS
-
-  const [students, setStudents] = useState([
-    {
-      name: "",
-      gender: "",
-      age: "",
-      sport: "",
-      school: "",
-      district: "",
-      state: "",
-      image: "",
-    },
-  ]);
-
-  const sportsList = [
-    "Football",
-    "Cricket",
-    "MMA",
-    "Boxing",
-    "Karate",
-    "Taekwondo",
-    "Wrestling",
-    "Kabaddi",
-    "Athletics",
-    "Yoga",
-  ];
-
-  // LOAD DATA
+    setLoading(false);
+  };
 
   useEffect(() => {
-
-    const unsubscribe =
-      onAuthStateChanged(auth, async (user) => {
-
-        if (user) {
-
-          const docRef = doc(
-            db,
-            "academies",
-            user.uid
-          );
-
-          const docSnap =
-            await getDoc(docRef);
-
-          if (docSnap.exists()) {
-
-            const data = docSnap.data();
-
-            setAcademyName(
-              data.academyName || ""
-            );
-
-            setFoundedYear(
-              data.foundedYear || ""
-            );
-
-            setAcademyAddress(
-              data.academyAddress || ""
-            );
-
-            setPhoneNumber(
-              data.phoneNumber || ""
-            );
-
-            setWhatsappNumber(
-              data.whatsappNumber || ""
-            );
-
-            setSports(data.sports || []);
-
-            setLogoURL(data.logoURL || "");
-
-            setBannerURLs(
-              data.bannerURLs || []
-            );
-
-            setOwners(
-              data.owners || [
-                {
-                  name: "",
-                  gender: "",
-                  role: "",
-                },
-              ]
-            );
-
-            setCoaches(
-              data.coaches || [
-                {
-                  name: "",
-                  gender: "",
-                  sport: "",
-                  experience: "",
-                },
-              ]
-            );
-
-            setStudents(
-              data.students || [
-                {
-                  name: "",
-                  gender: "",
-                  age: "",
-                  sport: "",
-                  school: "",
-                  district: "",
-                  state: "",
-                  image: "",
-                },
-              ]
-            );
-
-          }
-
-        }
-
-      });
-
-    return () => unsubscribe();
-
+    loadAcademies();
   }, []);
 
-  // SPORTS
+  const activeAcademies = academies.filter(
+    (academy) => academy.paymentDone
+  );
+  const unpaidAcademies = academies.filter(
+    (academy) => !academy.paymentDone
+  );
+  const sportRequests = academies.filter(
+    (academy) => academy.desiredSport
+  );
+  const totalActiveStudents = activeAcademies.reduce(
+    (total, academy) =>
+      total +
+      Number(
+        academy.paidStudentsCount ??
+          academy.studentsCount ??
+          (Array.isArray(academy.students)
+            ? academy.students.length
+            : 0)
+      ),
+    0
+  );
 
-  const toggleSport = (sport: string) => {
+  const stateRows = useMemo(() => {
+    const rows: any = {};
 
-    if (sports.includes(sport)) {
+    academies.forEach((academy) => {
+      const state = academy.state || "Not Added";
 
-      setSports(
-        sports.filter(
-          (item) => item !== sport
-        )
-      );
-
-    } else {
-
-      setSports([...sports, sport]);
-
-    }
-
-  };
-
-  // LOGOUT
-
-  const handleLogout = async () => {
-
-    await signOut(auth);
-
-    window.location.href =
-      "/academies/affiliation";
-
-  };
-
-  // LOGO UPLOAD
-
-  const uploadLogo = async () => {
-
-    if (!logoFile) {
-
-      alert("Logo is compulsory");
-
-      return;
-
-    }
-
-    try {
-
-      const user = auth.currentUser;
-
-      if (!user) return;
-
-      const storageRef = ref(
-        storage,
-        `academy-logos/${user.uid}/${logoFile.name}`
-      );
-
-      await uploadBytes(
-        storageRef,
-        logoFile
-      );
-
-      const url =
-        await getDownloadURL(storageRef);
-
-      setLogoURL(url);
-
-      alert("Logo Uploaded");
-
-    } catch (error) {
-
-      console.log(error);
-
-    }
-
-  };
-
-  // BANNER UPLOAD
-
-  const uploadBanners = async () => {
-
-    if (!bannerFiles) {
-
-      alert(
-        "Minimum 3 banners compulsory"
-      );
-
-      return;
-
-    }
-
-    if (
-      bannerFiles.length < 3 ||
-      bannerFiles.length > 5
-    ) {
-
-      alert(
-        "Upload minimum 3 and maximum 5 banners"
-      );
-
-      return;
-
-    }
-
-    try {
-
-      const user = auth.currentUser;
-
-      if (!user) return;
-
-      const uploadedURLs: string[] = [];
-
-      for (
-        let i = 0;
-        i < bannerFiles.length;
-        i++
-      ) {
-
-        const file = bannerFiles[i];
-
-        const storageRef = ref(
-          storage,
-          `academy-banners/${user.uid}/${file.name}`
-        );
-
-        await uploadBytes(
-          storageRef,
-          file
-        );
-
-        const url =
-          await getDownloadURL(storageRef);
-
-        uploadedURLs.push(url);
-
+      if (!rows[state]) {
+        rows[state] = {
+          state,
+          totalAcademies: 0,
+          activeAcademies: 0,
+          unpaidAcademies: 0,
+          activeStudents: 0,
+        };
       }
 
-      setBannerURLs(uploadedURLs);
+      rows[state].totalAcademies += 1;
 
-      alert("Banners Uploaded");
+      if (academy.paymentDone) {
+        rows[state].activeAcademies += 1;
+        rows[state].activeStudents += Number(
+          academy.paidStudentsCount ??
+            academy.studentsCount ??
+            (Array.isArray(academy.students)
+              ? academy.students.length
+              : 0)
+        );
+      } else {
+        rows[state].unpaidAcademies += 1;
+      }
+    });
 
-    } catch (error) {
+    return Object.values(rows);
+  }, [academies]);
 
-      console.log(error);
+  const filteredStateRows =
+    selectedState === "All States"
+      ? stateRows
+      : stateRows.filter(
+          (row: any) => row.state === selectedState
+        );
 
-    }
+  const addOwner = () =>
+    setOwners([...owners, getDefaultOwner()]);
 
+  const addStudent = () =>
+    setStudents([...students, getDefaultStudent()]);
+
+  const updateOwner = (
+    index: number,
+    field: string,
+    value: string
+  ) => {
+    const updated = [...owners];
+    updated[index] = {
+      ...updated[index],
+      [field]: value,
+    };
+    setOwners(updated);
   };
 
-  // SAVE DASHBOARD
+  const updateStudent = (
+    index: number,
+    field: string,
+    value: any
+  ) => {
+    const updated = [...students];
+    updated[index] = {
+      ...updated[index],
+      [field]: value,
+    };
+    setStudents(updated);
+  };
 
-  const saveDashboard = async () => {
-
-    if (!foundedYear) {
-
-      alert(
-        "Founder Year is compulsory"
-      );
-
+  const createAdminAcademy = async () => {
+    if (!academyName || !stateName || !district) {
+      alert("Academy name, state, and district are required.");
       return;
-
-    }
-
-    if (!academyAddress) {
-
-      alert(
-        "Academy Address is compulsory"
-      );
-
-      return;
-
-    }
-
-    if (!phoneNumber) {
-
-      alert(
-        "Phone Number is compulsory"
-      );
-
-      return;
-
-    }
-
-    if (!whatsappNumber) {
-
-      alert(
-        "WhatsApp Number is compulsory"
-      );
-
-      return;
-
-    }
-
-    if (sports.length === 0) {
-
-      alert(
-        "Select at least one sport"
-      );
-
-      return;
-
-    }
-
-    if (!logoURL) {
-
-      alert(
-        "Academy Logo is compulsory"
-      );
-
-      return;
-
-    }
-
-    if (
-      bannerURLs.length < 3 ||
-      bannerURLs.length > 5
-    ) {
-
-      alert(
-        "Upload minimum 3 banners"
-      );
-
-      return;
-
-    }
-
-    if (
-      owners.length < 1 ||
-      !owners[0].name
-    ) {
-
-      alert(
-        "At least one owner compulsory"
-      );
-
-      return;
-
-    }
-
-    if (
-      coaches.length < 1 ||
-      !coaches[0].name
-    ) {
-
-      alert(
-        "At least one coach compulsory"
-      );
-
-      return;
-
-    }
-
-    if (
-      students.length < 1 ||
-      !students[0].name
-    ) {
-
-      alert(
-        "At least one student compulsory"
-      );
-
-      return;
-
     }
 
     try {
+      setSaving(true);
 
-      setLoading(true);
+      const today = new Date();
+      const affiliationEndDate = new Date(today);
+      const studentFeeEndDate = new Date(today);
+      const slug = slugify(academyName);
+      const randomId = Math.random()
+        .toString(36)
+        .slice(2, 8)
+        .toUpperCase();
+      const affiliationNumber = `${getStateCode(stateName)}/${today
+        .getFullYear()
+        .toString()
+        .slice(-2)}/${randomId}`;
 
-      const user = auth.currentUser;
-
-      if (!user) return;
-
-      const academyFees = 1000;
-
-      const studentFees =
-        students.length * 100;
-
-      const totalAmount =
-        academyFees + studentFees;
-
-      await updateDoc(
-        doc(
-          db,
-          "academies",
-          user.uid
-        ),
-        {
-
-          academyName,
-
-          foundedYear,
-
-          academyAddress,
-
-          phoneNumber,
-
-          whatsappNumber,
-
-          sports,
-
-          logoURL,
-
-          bannerURLs,
-
-          owners,
-
-          coaches,
-
-          students,
-
-          academyFees,
-
-          studentFees,
-
-          totalAmount,
-
-          updatedAt: new Date(),
-
-        }
+      affiliationEndDate.setFullYear(
+        today.getFullYear() + Number(selectedYears)
       );
+      studentFeeEndDate.setFullYear(today.getFullYear() + 1);
 
-      alert(
-        `Dashboard Saved Successfully. Total Fees: ₹${totalAmount}`
-      );
+      await addDoc(collection(db, "academies"), {
+        academyName,
+        academySlug: slug,
+        state: stateName,
+        district,
+        city,
+        pincode,
+        contactNumber,
+        officialEmail,
+        sportsConducted: sportsConducted
+          .split(",")
+          .map((sport) => sport.trim())
+          .filter(Boolean),
+        owners,
+        students,
+        studentsCount: students.length,
+        paidStudentsCount: students.length,
+        selectedYears: Number(selectedYears),
+        affiliationNumber,
+        affiliationStartDate: today.toDateString(),
+        affiliationEndDate: affiliationEndDate.toDateString(),
+        studentFeeStartDate: today.toDateString(),
+        studentFeeEndDate: studentFeeEndDate.toDateString(),
+        couponCode: "ELITENETWORK",
+        paymentMode: "admin-coupon",
+        paymentDone: true,
+        verified: true,
+        profileCompleted: true,
+        totalAmount:
+          (affiliationFees[selectedYears] || 0) +
+          students.length * yearlyStudentFee,
+        payableAmount: 0,
+        amountPaid: 0,
+        createdByAdmin: true,
+        createdAt: new Date(),
+      });
 
-    } catch (error) {
+      alert("Academy added with ELITENETWORK.");
 
-      console.log(error);
-
-      alert("Save Failed");
-
+      setAcademyName("");
+      setStateName("");
+      setDistrict("");
+      setCity("");
+      setPincode("");
+      setContactNumber("");
+      setOfficialEmail("");
+      setSelectedYears(1);
+      setSportsConducted("");
+      setOwners([getDefaultOwner()]);
+      setStudents([getDefaultStudent()]);
+      await loadAcademies();
+    } catch (error: any) {
+      alert(error.message);
     } finally {
-
-      setLoading(false);
-
+      setSaving(false);
     }
-
   };
 
   return (
-
-    <main className="min-h-screen pt-40 md:pt-0 bg-black text-white">
-
+    <main className="min-h-screen bg-black text-white">
       <Navbar />
 
-      <section className="max-w-7xl mx-auto px-6 pt-40 pb-24">
+      <section className="pt-44 pb-24 max-w-7xl mx-auto px-6">
+        <p className="text-orange-500 uppercase tracking-[0.4em]">
+          Federation Admin
+        </p>
 
-        <div className="flex items-center justify-between">
+        <h1 className="mt-5 text-6xl font-black">
+          Academy Control Panel
+        </h1>
 
-          <div>
-
-            <p className="text-orange-500 uppercase tracking-[0.4em]">
-              Academy Dashboard
-            </p>
-
-            <h1 className="mt-4 text-6xl font-black">
-              Complete Academy Profile
-            </h1>
-
-          </div>
-
-          <button
-            onClick={handleLogout}
-            className="bg-red-500 px-6 py-3 rounded-xl font-bold"
-          >
-            Logout
-          </button>
-
-        </div>
-
-        {/* BASIC DETAILS */}
-
-        <div className="mt-14 bg-zinc-900 rounded-3xl p-10 border border-white/10">
-
-          <h2 className="text-3xl font-black">
-            Basic Details
-          </h2>
-
-          <div className="mt-8 grid md:grid-cols-2 gap-6">
-
-            <input
-              type="text"
-              placeholder="Academy Name"
-              value={academyName}
-              onChange={(e) =>
-                setAcademyName(
-                  e.target.value
-                )
-              }
-              className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
-            />
-
-            <input
-              type="text"
-              placeholder="Founded Year *"
-              value={foundedYear}
-              onChange={(e) =>
-                setFoundedYear(
-                  e.target.value
-                )
-              }
-              className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
-            />
-
-            <input
-              type="text"
-              placeholder="Phone Number *"
-              value={phoneNumber}
-              onChange={(e) =>
-                setPhoneNumber(
-                  e.target.value
-                )
-              }
-              className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
-            />
-
-            <input
-              type="text"
-              placeholder="WhatsApp Number *"
-              value={whatsappNumber}
-              onChange={(e) =>
-                setWhatsappNumber(
-                  e.target.value
-                )
-              }
-              className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
-            />
-
-          </div>
-
-          <textarea
-            placeholder="Academy Address *"
-            value={academyAddress}
-            onChange={(e) =>
-              setAcademyAddress(
-                e.target.value
-              )
-            }
-            className="mt-6 w-full bg-black border border-zinc-700 rounded-2xl px-5 py-4 min-h-[120px]"
-          />
-
-        </div>
-
-        {/* SPORTS */}
-
-        <div className="mt-10 bg-zinc-900 rounded-3xl p-10 border border-white/10">
-
-          <h2 className="text-3xl font-black">
-            Sports *
-          </h2>
-
-          <div className="mt-8 grid md:grid-cols-3 gap-4">
-
-            {sportsList.map((sport) => (
-
-              <label
-                key={sport}
-                className="bg-black border border-zinc-700 rounded-2xl px-5 py-4 flex items-center gap-3"
-              >
-
-                <input
-                  type="checkbox"
-                  checked={sports.includes(
-                    sport
-                  )}
-                  onChange={() =>
-                    toggleSport(sport)
-                  }
-                />
-
-                {sport}
-
-              </label>
-
-            ))}
-
-          </div>
-
-        </div>
-
-        {/* LOGO */}
-
-        <div className="mt-10 bg-zinc-900 rounded-3xl p-10 border border-white/10">
-
-          <h2 className="text-3xl font-black">
-            Academy Logo *
-          </h2>
-
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => {
-
-              if (
-                e.target.files?.[0]
-              ) {
-
-                setLogoFile(
-                  e.target.files[0]
-                );
-
-              }
-
-            }}
-            className="mt-8"
-          />
-
-          <button
-            onClick={uploadLogo}
-            className="mt-6 bg-orange-500 px-8 py-3 rounded-xl font-bold"
-          >
-            Upload Logo
-          </button>
-
-        </div>
-
-        {/* BANNERS */}
-
-        <div className="mt-10 bg-zinc-900 rounded-3xl p-10 border border-white/10">
-
-          <h2 className="text-3xl font-black">
-            Academy Banners *
-          </h2>
-
-          <p className="text-gray-400 mt-2">
-            Minimum 3 Maximum 5
+        {loading ? (
+          <p className="mt-10 text-zinc-400">
+            Loading admin data...
           </p>
-
-          <input
-            type="file"
-            multiple
-            accept="image/*"
-            onChange={(e) =>
-              setBannerFiles(
-                e.target.files
-              )
-            }
-            className="mt-8"
-          />
-
-          <button
-            onClick={uploadBanners}
-            className="mt-6 bg-orange-500 px-8 py-3 rounded-xl font-bold"
-          >
-            Upload Banners
-          </button>
-
-        </div>
-
-{/* OWNERS */}
-
-<div className="mt-10 bg-zinc-900 rounded-3xl p-10 border border-white/10">
-
-  <div className="flex items-center justify-between">
-
-    <h2 className="text-3xl font-black">
-      Owners *
-    </h2>
-
-    <button
-      onClick={() =>
-        setOwners([
-          ...owners,
-          {
-            name: "",
-            gender: "",
-            role: "",
-          },
-        ])
-      }
-      className="bg-orange-500 px-5 py-2 rounded-xl font-bold"
-    >
-      Add Owner
-    </button>
-
-  </div>
-
-  <div className="mt-8 space-y-6">
-
-    {owners.map((owner, index) => (
-
-      <div
-        key={index}
-        className="grid md:grid-cols-3 gap-4"
-      >
-
-        <input
-          type="text"
-          placeholder="Owner Name"
-          value={owner.name}
-          onChange={(e) => {
-
-            const updated = [...owners];
-
-            updated[index].name =
-              e.target.value;
-
-            setOwners(updated);
-
-          }}
-          className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
-        />
-
-        <select
-          value={owner.gender}
-          onChange={(e) => {
-
-            const updated = [...owners];
-
-            updated[index].gender =
-              e.target.value;
-
-            setOwners(updated);
-
-          }}
-          className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
-        >
-
-          <option value="">
-            Select Gender
-          </option>
-
-          <option value="Male">
-            Male
-          </option>
-
-          <option value="Female">
-            Female
-          </option>
-
-        </select>
-
-        <input
-          type="text"
-          placeholder="Role"
-          value={owner.role}
-          onChange={(e) => {
-
-            const updated = [...owners];
-
-            updated[index].role =
-              e.target.value;
-
-            setOwners(updated);
-
-          }}
-          className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
-        />
-
-      </div>
-
-    ))}
-
-  </div>
-
-</div>
-
-{/* COACHES */}
-
-<div className="mt-10 bg-zinc-900 rounded-3xl p-10 border border-white/10">
-
-  <div className="flex items-center justify-between">
-
-    <h2 className="text-3xl font-black">
-      Coaches *
-    </h2>
-
-    <button
-      onClick={() =>
-        setCoaches([
-          ...coaches,
-          {
-            name: "",
-            gender: "",
-            sport: "",
-            experience: "",
-          },
-        ])
-      }
-      className="bg-orange-500 px-5 py-2 rounded-xl font-bold"
-    >
-      Add Coach
-    </button>
-
-  </div>
-
-  <div className="mt-8 space-y-6">
-
-    {coaches.map((coach, index) => (
-
-      <div
-        key={index}
-        className="grid md:grid-cols-4 gap-4"
-      >
-
-        <input
-          type="text"
-          placeholder="Coach Name"
-          value={coach.name}
-          onChange={(e) => {
-
-            const updated = [...coaches];
-
-            updated[index].name =
-              e.target.value;
-
-            setCoaches(updated);
-
-          }}
-          className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
-        />
-
-        <select
-          value={coach.gender}
-          onChange={(e) => {
-
-            const updated = [...coaches];
-
-            updated[index].gender =
-              e.target.value;
-
-            setCoaches(updated);
-
-          }}
-          className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
-        >
-
-          <option value="">
-            Gender
-          </option>
-
-          <option value="Male">
-            Male
-          </option>
-
-          <option value="Female">
-            Female
-          </option>
-
-        </select>
-
-        <input
-          type="text"
-          placeholder="Sport"
-          value={coach.sport}
-          onChange={(e) => {
-
-            const updated = [...coaches];
-
-            updated[index].sport =
-              e.target.value;
-
-            setCoaches(updated);
-
-          }}
-          className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
-        />
-
-        <input
-          type="text"
-          placeholder="Experience"
-          value={coach.experience}
-          onChange={(e) => {
-
-            const updated = [...coaches];
-
-            updated[index].experience =
-              e.target.value;
-
-            setCoaches(updated);
-
-          }}
-          className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
-        />
-
-      </div>
-
-    ))}
-
-  </div>
-
-</div>
-
-{/* STUDENTS */}
-
-<div className="mt-10 bg-zinc-900 rounded-3xl p-10 border border-white/10">
-
-  <div className="flex items-center justify-between">
-
-    <h2 className="text-3xl font-black">
-      Students *
-    </h2>
-
-    <button
-      onClick={() =>
-        setStudents([
-          ...students,
-          {
-            name: "",
-            gender: "",
-            age: "",
-            sport: "",
-            school: "",
-            district: "",
-            state: "",
-            image: "",
-          },
-        ])
-      }
-      className="bg-orange-500 px-5 py-2 rounded-xl font-bold"
-    >
-      Add Student
-    </button>
-
-  </div>
-
-  <div className="mt-8 space-y-10">
-
-    {students.map((student, index) => (
-
-      <div
-        key={index}
-        className="bg-black border border-zinc-800 rounded-3xl p-6"
-      >
-
-        <div className="grid md:grid-cols-2 gap-4">
-
-          <input
-            type="text"
-            placeholder="Student Name"
-            value={student.name}
-            onChange={(e) => {
-
-              const updated = [...students];
-
-              updated[index].name =
-                e.target.value;
-
-              setStudents(updated);
-
-            }}
-            className="bg-zinc-900 border border-zinc-700 rounded-2xl px-5 py-4"
-          />
-
-          <select
-            value={student.gender}
-            onChange={(e) => {
-
-              const updated = [...students];
-
-              updated[index].gender =
-                e.target.value;
-
-              setStudents(updated);
-
-            }}
-            className="bg-zinc-900 border border-zinc-700 rounded-2xl px-5 py-4"
-          >
-
-            <option value="">
-              Gender
-            </option>
-
-            <option value="Male">
-              Male
-            </option>
-
-            <option value="Female">
-              Female
-            </option>
-
-          </select>
-
-          <input
-            type="text"
-            placeholder="Age"
-            value={student.age}
-            onChange={(e) => {
-
-              const updated = [...students];
-
-              updated[index].age =
-                e.target.value;
-
-              setStudents(updated);
-
-            }}
-            className="bg-zinc-900 border border-zinc-700 rounded-2xl px-5 py-4"
-          />
-
-          <input
-            type="text"
-            placeholder="Sport"
-            value={student.sport}
-            onChange={(e) => {
-
-              const updated = [...students];
-
-              updated[index].sport =
-                e.target.value;
-
-              setStudents(updated);
-
-            }}
-            className="bg-zinc-900 border border-zinc-700 rounded-2xl px-5 py-4"
-          />
-
-          <input
-            type="text"
-            placeholder="School"
-            value={student.school}
-            onChange={(e) => {
-
-              const updated = [...students];
-
-              updated[index].school =
-                e.target.value;
-
-              setStudents(updated);
-
-            }}
-            className="bg-zinc-900 border border-zinc-700 rounded-2xl px-5 py-4"
-          />
-
-          <input
-            type="text"
-            placeholder="District"
-            value={student.district}
-            onChange={(e) => {
-
-              const updated = [...students];
-
-              updated[index].district =
-                e.target.value;
-
-              setStudents(updated);
-
-            }}
-            className="bg-zinc-900 border border-zinc-700 rounded-2xl px-5 py-4"
-          />
-
-        </div>
-
-      </div>
-
-    ))}
-
-  </div>
-
-</div>
-
-
-
-        {/* TOTAL */}
-
-        <div className="mt-12 bg-orange-500 rounded-3xl p-10 text-black">
-
-          <h2 className="text-4xl font-black">
-            Fee Calculation
-          </h2>
-
-          <div className="mt-8 space-y-4 text-xl">
-
-            <div className="flex justify-between">
-              <span>
-                Academy Registration
-              </span>
-
-              <span>
-                ₹1000
-              </span>
+        ) : (
+          <>
+            <div className="mt-12 grid md:grid-cols-4 gap-5">
+              {[
+                ["Active Academies", activeAcademies.length],
+                ["Payment Pending", unpaidAcademies.length],
+                ["Active Students", totalActiveStudents],
+                ["Sport Requests", sportRequests.length],
+              ].map(([label, value]) => (
+                <div
+                  key={label}
+                  className="bg-zinc-900 border border-white/10 rounded-3xl p-6"
+                >
+                  <p className="text-orange-500 uppercase tracking-[0.25em] text-xs">
+                    {label}
+                  </p>
+                  <p className="mt-4 text-5xl font-black">
+                    {value}
+                  </p>
+                </div>
+              ))}
             </div>
 
-            <div className="flex justify-between">
-              <span>
-                Students (
-                {students.length} × ₹100)
-              </span>
+            <div className="mt-10 bg-zinc-900 border border-white/10 rounded-3xl p-8">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5">
+                <h2 className="text-3xl font-black">
+                  State Wise Data
+                </h2>
 
-              <span>
-                ₹
-                {students.length *
-                  100}
-              </span>
+                <select
+                  value={selectedState}
+                  onChange={(e) =>
+                    setSelectedState(e.target.value)
+                  }
+                  className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+                >
+                  <option>All States</option>
+                  {stateRows.map((row: any) => (
+                    <option key={row.state} value={row.state}>
+                      {row.state}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="mt-6 grid md:grid-cols-2 xl:grid-cols-3 gap-5">
+                {filteredStateRows.map((row: any) => (
+                  <div
+                    key={row.state}
+                    className="bg-black border border-zinc-700 rounded-2xl p-5"
+                  >
+                    <h3 className="text-2xl font-black">
+                      {row.state}
+                    </h3>
+                    <p className="mt-3 text-zinc-300">
+                      Total academies: {row.totalAcademies}
+                    </p>
+                    <p className="text-zinc-300">
+                      Active academies: {row.activeAcademies}
+                    </p>
+                    <p className="text-zinc-300">
+                      Payment pending: {row.unpaidAcademies}
+                    </p>
+                    <p className="text-zinc-300">
+                      Active students: {row.activeStudents}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            <div className="border-t border-black/20 pt-5 flex justify-between text-3xl font-black">
+            <div className="mt-10 grid lg:grid-cols-2 gap-8">
+              <div className="bg-zinc-900 border border-white/10 rounded-3xl p-8">
+                <h2 className="text-3xl font-black">
+                  Payment Pending Leads
+                </h2>
 
-              <span>Total</span>
+                <div className="mt-6 space-y-4">
+                  {unpaidAcademies.length ? (
+                    unpaidAcademies.map((academy) => {
+                      const owner = Array.isArray(academy.owners)
+                        ? academy.owners[0]
+                        : null;
 
-              <span>
-                ₹
-                {1000 +
-                  students.length *
-                    100}
-              </span>
+                      return (
+                        <div
+                          key={academy.id}
+                          className="bg-black border border-zinc-700 rounded-2xl p-5"
+                        >
+                          <p className="text-xl font-black">
+                            {academy.academyName || "Unnamed Academy"}
+                          </p>
+                          <p className="mt-2 text-zinc-400">
+                            {[academy.state, academy.district]
+                              .filter(Boolean)
+                              .join(", ") || "Location not added"}
+                          </p>
+                          <p className="mt-2 text-zinc-300">
+                            Owner: {owner?.fullName || "Not added"}
+                          </p>
+                          <p className="text-zinc-300">
+                            Contact:{" "}
+                            {owner?.mobile ||
+                              academy.contactNumber ||
+                              "Not added"}{" "}
+                            {owner?.email || academy.officialEmail
+                              ? `• ${
+                                  owner?.email ||
+                                  academy.officialEmail
+                                }`
+                              : ""}
+                          </p>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <p className="text-zinc-400">
+                      No unpaid academies right now.
+                    </p>
+                  )}
+                </div>
+              </div>
 
+              <div className="bg-zinc-900 border border-white/10 rounded-3xl p-8">
+                <h2 className="text-3xl font-black">
+                  Sport Request Notifications
+                </h2>
+
+                <div className="mt-6 space-y-4">
+                  {sportRequests.length ? (
+                    sportRequests.map((academy) => (
+                      <div
+                        key={academy.id}
+                        className="bg-orange-500/10 border border-orange-500/30 rounded-2xl p-5"
+                      >
+                        <p className="text-orange-500 uppercase tracking-[0.2em] text-xs font-bold">
+                          Requested Sport
+                        </p>
+                        <p className="mt-2 text-2xl font-black">
+                          {academy.desiredSport}
+                        </p>
+                        <p className="mt-2 text-zinc-300">
+                          {academy.academyName || "Unnamed Academy"} •{" "}
+                          {[academy.state, academy.district]
+                            .filter(Boolean)
+                            .join(", ")}
+                        </p>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-zinc-400">
+                      No sport requests yet.
+                    </p>
+                  )}
+                </div>
+              </div>
             </div>
 
-          </div>
+            <div className="mt-10 bg-zinc-900 border border-white/10 rounded-3xl p-8">
+              <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-5">
+                <div>
+                  <h2 className="text-3xl font-black">
+                    Add Academy From Admin
+                  </h2>
+                  <p className="mt-2 text-zinc-400">
+                    Uses coupon code ELITENETWORK with unlimited use.
+                  </p>
+                </div>
 
-        </div>
+                <div className="bg-black border border-orange-500/30 rounded-2xl px-5 py-4 font-black text-orange-500">
+                  ELITENETWORK
+                </div>
+              </div>
 
-        {/* SAVE */}
+              <div className="mt-8 grid md:grid-cols-2 gap-5">
+                <input
+                  value={academyName}
+                  onChange={(e) =>
+                    setAcademyName(e.target.value)
+                  }
+                  placeholder="Academy Name"
+                  className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+                />
+                <select
+                  value={selectedYears}
+                  onChange={(e) =>
+                    setSelectedYears(Number(e.target.value))
+                  }
+                  className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+                >
+                  <option value={1}>1 Year</option>
+                  <option value={2}>2 Years</option>
+                  <option value={3}>3 Years</option>
+                </select>
+                <input
+                  value={stateName}
+                  onChange={(e) => setStateName(e.target.value)}
+                  placeholder="State"
+                  className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+                />
+                <input
+                  value={district}
+                  onChange={(e) => setDistrict(e.target.value)}
+                  placeholder="District"
+                  className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+                />
+                <input
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  placeholder="City"
+                  className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+                />
+                <input
+                  value={pincode}
+                  onChange={(e) => setPincode(e.target.value)}
+                  placeholder="Pincode"
+                  className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+                />
+                <input
+                  value={contactNumber}
+                  onChange={(e) =>
+                    setContactNumber(e.target.value)
+                  }
+                  placeholder="Contact Number"
+                  className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+                />
+                <input
+                  value={officialEmail}
+                  onChange={(e) =>
+                    setOfficialEmail(e.target.value)
+                  }
+                  placeholder="Official Email"
+                  className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+                />
+                <input
+                  value={sportsConducted}
+                  onChange={(e) =>
+                    setSportsConducted(e.target.value)
+                  }
+                  placeholder="Sports Conducted, comma separated"
+                  className="md:col-span-2 bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+                />
+              </div>
 
-        <button
-          onClick={saveDashboard}
-          disabled={loading}
-          className="mt-12 w-full bg-orange-500 hover:bg-orange-600 transition py-5 rounded-3xl text-2xl font-black"
-        >
-          {loading
-            ? "Saving..."
-            : "Save Dashboard"}
-        </button>
+              <div className="mt-8 grid lg:grid-cols-2 gap-8">
+                <div>
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-2xl font-black">
+                      Owners / Coaches
+                    </h3>
+                    <button
+                      type="button"
+                      onClick={addOwner}
+                      className="bg-orange-500 text-black px-5 py-3 rounded-2xl font-bold"
+                    >
+                      + Add
+                    </button>
+                  </div>
 
+                  <div className="mt-5 space-y-5">
+                    {owners.map((owner, index) => (
+                      <div
+                        key={index}
+                        className="bg-black border border-zinc-700 rounded-2xl p-5 grid gap-4"
+                      >
+                        <input
+                          value={owner.fullName}
+                          onChange={(e) =>
+                            updateOwner(
+                              index,
+                              "fullName",
+                              e.target.value
+                            )
+                          }
+                          placeholder="Full Name"
+                          className="bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4"
+                        />
+                        <div className="grid md:grid-cols-2 gap-4">
+                          <select
+                            value={owner.role}
+                            onChange={(e) =>
+                              updateOwner(
+                                index,
+                                "role",
+                                e.target.value
+                              )
+                            }
+                            className="bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4"
+                          >
+                            <option>Owner</option>
+                            <option>Coach</option>
+                            <option>Coach and Owner</option>
+                          </select>
+                          <select
+                            value={owner.sex}
+                            onChange={(e) =>
+                              updateOwner(
+                                index,
+                                "sex",
+                                e.target.value
+                              )
+                            }
+                            className="bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4"
+                          >
+                            <option value="">Sex</option>
+                            <option>Male</option>
+                            <option>Female</option>
+                            <option>Other</option>
+                          </select>
+                        </div>
+                        <input
+                          value={owner.mobile}
+                          onChange={(e) =>
+                            updateOwner(
+                              index,
+                              "mobile",
+                              e.target.value
+                            )
+                          }
+                          placeholder="Mobile"
+                          className="bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4"
+                        />
+                        <input
+                          value={owner.email}
+                          onChange={(e) =>
+                            updateOwner(
+                              index,
+                              "email",
+                              e.target.value
+                            )
+                          }
+                          placeholder="Email"
+                          className="bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-2xl font-black">
+                      Students
+                    </h3>
+                    <button
+                      type="button"
+                      onClick={addStudent}
+                      className="bg-orange-500 text-black px-5 py-3 rounded-2xl font-bold"
+                    >
+                      + Add Student
+                    </button>
+                  </div>
+
+                  <div className="mt-5 space-y-5">
+                    {students.map((student, index) => (
+                      <div
+                        key={index}
+                        className="bg-black border border-zinc-700 rounded-2xl p-5 grid gap-4"
+                      >
+                        <input
+                          value={student.name}
+                          onChange={(e) =>
+                            updateStudent(
+                              index,
+                              "name",
+                              e.target.value
+                            )
+                          }
+                          placeholder="Student Name"
+                          className="bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4"
+                        />
+                        <div className="grid md:grid-cols-2 gap-4">
+                          <input
+                            value={student.age}
+                            onChange={(e) =>
+                              updateStudent(
+                                index,
+                                "age",
+                                e.target.value
+                              )
+                            }
+                            placeholder="Age"
+                            className="bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4"
+                          />
+                          <select
+                            value={student.sex}
+                            onChange={(e) =>
+                              updateStudent(
+                                index,
+                                "sex",
+                                e.target.value
+                              )
+                            }
+                            className="bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4"
+                          >
+                            <option value="">Sex</option>
+                            <option>Male</option>
+                            <option>Female</option>
+                            <option>Other</option>
+                          </select>
+                        </div>
+                        <input
+                          value={student.sports}
+                          onChange={(e) =>
+                            updateStudent(
+                              index,
+                              "sports",
+                              e.target.value
+                            )
+                          }
+                          placeholder="Sport"
+                          className="bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4"
+                        />
+                        <input
+                          value={student.school}
+                          onChange={(e) =>
+                            updateStudent(
+                              index,
+                              "school",
+                              e.target.value
+                            )
+                          }
+                          placeholder="School"
+                          className="bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4"
+                        />
+                        <textarea
+                          value={student.achievement}
+                          onChange={(e) =>
+                            updateStudent(
+                              index,
+                              "achievement",
+                              e.target.value
+                            )
+                          }
+                          placeholder="Achievements"
+                          className="bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4 min-h-28"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={createAdminAcademy}
+                disabled={saving}
+                className="mt-8 w-full bg-orange-500 hover:bg-orange-600 text-black py-5 rounded-2xl text-xl font-black"
+              >
+                {saving
+                  ? "Adding Academy..."
+                  : "Add Active Academy With ELITENETWORK"}
+              </button>
+            </div>
+          </>
+        )}
       </section>
 
       <Footer />
-
     </main>
-
   );
 }
