@@ -5,13 +5,16 @@ import { useEffect, useMemo, useState } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
-import { db } from "@/app/lib/firebase";
+import { auth, db } from "@/app/lib/firebase";
 
 import {
-  addDoc,
   collection,
+  doc,
   getDocs,
+  setDoc,
 } from "firebase/firestore";
+
+import { createUserWithEmailAndPassword } from "firebase/auth";
 
 const yearlyStudentFee = 99;
 
@@ -68,12 +71,80 @@ const getDefaultStudent = () => ({
   sports: "",
   school: "",
   achievement: "",
+  photoUrl: "",
   isEliteAthlete: false,
   isParaAthlete: false,
 });
 
 const adminLoginId = "jameelspeaks";
 const defaultAdminPassword = "Jameel@4121#";
+const academyDefaultPassword = "Elite123";
+
+const sportsList = [
+  "Cricket",
+  "Football",
+  "Hockey",
+  "Athletics",
+  "Rugby",
+  "Baseball",
+  "Softball",
+  "Basketball",
+  "Volleyball",
+  "Handball",
+  "Netball",
+  "Kho Kho",
+  "Kabaddi",
+  "Cycling",
+  "Archery",
+  "Shooting",
+  "Golf",
+  "Polo",
+  "Tennis",
+  "Table Tennis",
+  "Badminton",
+  "Squash",
+  "Skateboarding",
+  "Roller Skating",
+  "Rowing",
+  "Canoeing",
+  "Kayaking",
+  "Triathlon",
+  "Marathon",
+  "Chess",
+  "Carrom",
+  "Snooker",
+  "Billiards",
+  "Pool",
+  "Gymnastics",
+  "Yoga Sports",
+  "Martial Arts",
+  "Arm Wrestling",
+  "Powerlifting",
+  "Weightlifting",
+  "Bodybuilding",
+  "Wrestling",
+  "Boxing",
+  "Kickboxing",
+  "Wushu",
+  "Taekwondo",
+  "Karate",
+  "Judo",
+  "Ju-Jitsu",
+  "MMA (Mixed Martial Arts)",
+  "Muay Thai",
+  "Sambo",
+  "Kudo",
+  "Aikido",
+  "Kung Fu",
+  "Silambam",
+  "Mallakhamb",
+  "Gatka",
+  "Kalaripayattu",
+  "Brazilian Jiu-Jitsu",
+  "Grappling",
+  "Pickleball",
+  "Padel",
+];
 
 export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
@@ -108,7 +179,6 @@ export default function DashboardPage() {
   const [facebookLink, setFacebookLink] = useState("");
   const [hasOtherBranch, setHasOtherBranch] = useState("");
   const [googleLocation, setGoogleLocation] = useState("");
-  const [desiredSport, setDesiredSport] = useState("");
   const [mediaCoverageProofName, setMediaCoverageProofName] =
     useState("");
   const [declarationAccepted, setDeclarationAccepted] =
@@ -118,7 +188,10 @@ export default function DashboardPage() {
     string[]
   >([]);
   const [selectedYears, setSelectedYears] = useState(1);
-  const [sportsConducted, setSportsConducted] = useState("");
+  const [sportsConducted, setSportsConducted] = useState<string[]>(
+    []
+  );
+  const [customSport, setCustomSport] = useState("");
   const [owners, setOwners] = useState<any[]>([getDefaultOwner()]);
   const [students, setStudents] = useState<any[]>([getDefaultStudent()]);
 
@@ -161,9 +234,6 @@ export default function DashboardPage() {
   );
   const unpaidAcademies = academies.filter(
     (academy) => !academy.paymentDone
-  );
-  const sportRequests = academies.filter(
-    (academy) => academy.desiredSport
   );
   const totalActiveStudents = activeAcademies.reduce(
     (total, academy) =>
@@ -295,6 +365,50 @@ export default function DashboardPage() {
     setAcademyImageUrls([...academyImageUrls, ...urls]);
   };
 
+  const addSportToAcademy = (sport: string) => {
+    const cleanSport = sport.trim();
+
+    if (!cleanSport) return;
+
+    if (
+      sportsConducted.some(
+        (existingSport) =>
+          existingSport.toLowerCase() === cleanSport.toLowerCase()
+      )
+    ) {
+      setCustomSport("");
+      return;
+    }
+
+    setSportsConducted([...sportsConducted, cleanSport]);
+    setCustomSport("");
+  };
+
+  const removeSportFromAcademy = (sport: string) => {
+    setSportsConducted(
+      sportsConducted.filter((item) => item !== sport)
+    );
+    setStudents(
+      students.map((student) =>
+        student.sports === sport
+          ? {
+              ...student,
+              sports: "",
+            }
+          : student
+      )
+    );
+  };
+
+  const handleAdminStudentPhotoUpload = async (
+    index: number,
+    file?: File
+  ) => {
+    if (!file) return;
+
+    updateStudent(index, "photoUrl", await readFileAsDataUrl(file));
+  };
+
   const updateOwner = (
     index: number,
     field: string,
@@ -327,6 +441,11 @@ export default function DashboardPage() {
       return;
     }
 
+    if (!officialEmail) {
+      alert("Official email is required for academy login.");
+      return;
+    }
+
     try {
       setSaving(true);
 
@@ -348,7 +467,13 @@ export default function DashboardPage() {
       );
       studentFeeEndDate.setFullYear(today.getFullYear() + 1);
 
-      await addDoc(collection(db, "academies"), {
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        officialEmail,
+        academyDefaultPassword
+      );
+
+      await setDoc(doc(db, "academies", userCredential.user.uid), {
         academyName,
         academySlug: slug,
         academyDescription,
@@ -365,16 +490,12 @@ export default function DashboardPage() {
         facebookLink,
         hasOtherBranch,
         googleLocation,
-        desiredSport,
         mediaCoverageProofName,
         declarationAccepted,
         academyLogoUrl,
         logoURL: academyLogoUrl,
         academyImageUrls,
-        sportsConducted: sportsConducted
-          .split(",")
-          .map((sport) => sport.trim())
-          .filter(Boolean),
+        sportsConducted,
         owners,
         students,
         studentsCount: students.length,
@@ -396,10 +517,15 @@ export default function DashboardPage() {
         payableAmount: 0,
         amountPaid: 0,
         createdByAdmin: true,
+        email: officialEmail,
+        adminCreatedLoginEmail: officialEmail,
+        adminCreatedDefaultPassword: academyDefaultPassword,
         createdAt: new Date(),
       });
 
-      alert("Academy added with ELITENETWORK.");
+      alert(
+        `Academy added with ELITENETWORK. Login email: ${officialEmail}, password: ${academyDefaultPassword}`
+      );
 
       setAcademyName("");
       setAcademyDescription("");
@@ -416,13 +542,13 @@ export default function DashboardPage() {
       setFacebookLink("");
       setHasOtherBranch("");
       setGoogleLocation("");
-      setDesiredSport("");
       setMediaCoverageProofName("");
       setDeclarationAccepted(false);
       setAcademyLogoUrl("");
       setAcademyImageUrls([]);
       setSelectedYears(1);
-      setSportsConducted("");
+      setSportsConducted([]);
+      setCustomSport("");
       setOwners([getDefaultOwner()]);
       setStudents([getDefaultStudent()]);
       await loadAcademies();
@@ -587,10 +713,10 @@ export default function DashboardPage() {
           <>
             <div className="mt-12 grid md:grid-cols-4 gap-5">
               {[
+                ["Total Academies", academies.length],
                 ["Active Academies", activeAcademies.length],
                 ["Payment Pending", unpaidAcademies.length],
                 ["Active Students", totalActiveStudents],
-                ["Sport Requests", sportRequests.length],
               ].map(([label, value]) => (
                 <div
                   key={label}
@@ -654,7 +780,7 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div className="mt-10 grid lg:grid-cols-2 gap-8">
+            <div className="mt-10 grid gap-8">
               <div className="bg-zinc-900 border border-white/10 rounded-3xl p-8">
                 <h2 className="text-3xl font-black">
                   Payment Pending Leads
@@ -708,36 +834,13 @@ export default function DashboardPage() {
 
               <div className="bg-zinc-900 border border-white/10 rounded-3xl p-8">
                 <h2 className="text-3xl font-black">
-                  Sport Request Notifications
+                  Admin Notes
                 </h2>
 
-                <div className="mt-6 space-y-4">
-                  {sportRequests.length ? (
-                    sportRequests.map((academy) => (
-                      <div
-                        key={academy.id}
-                        className="bg-orange-500/10 border border-orange-500/30 rounded-2xl p-5"
-                      >
-                        <p className="text-orange-500 uppercase tracking-[0.2em] text-xs font-bold">
-                          Requested Sport
-                        </p>
-                        <p className="mt-2 text-2xl font-black">
-                          {academy.desiredSport}
-                        </p>
-                        <p className="mt-2 text-zinc-300">
-                          {academy.academyName || "Unnamed Academy"} •{" "}
-                          {[academy.state, academy.district]
-                            .filter(Boolean)
-                            .join(", ")}
-                        </p>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-zinc-400">
-                      No sport requests yet.
-                    </p>
-                  )}
-                </div>
+                <p className="mt-6 text-zinc-400">
+                  Sports can now be added directly while creating an
+                  academy profile.
+                </p>
               </div>
             </div>
 
@@ -870,20 +973,65 @@ export default function DashboardPage() {
                   placeholder="Google Location Of Academy"
                   className="md:col-span-2 bg-black border border-zinc-700 rounded-2xl px-5 py-4"
                 />
-                <input
-                  value={sportsConducted}
-                  onChange={(e) =>
-                    setSportsConducted(e.target.value)
-                  }
-                  placeholder="Sports Conducted, comma separated"
-                  className="md:col-span-2 bg-black border border-zinc-700 rounded-2xl px-5 py-4"
-                />
-                <input
-                  value={desiredSport}
-                  onChange={(e) => setDesiredSport(e.target.value)}
-                  placeholder="Federation Sport Request"
-                  className="md:col-span-2 bg-black border border-zinc-700 rounded-2xl px-5 py-4"
-                />
+                <div className="md:col-span-2 bg-black border border-zinc-700 rounded-2xl p-5">
+                  <h3 className="text-xl font-black">
+                    Sports Conducted
+                  </h3>
+                  <p className="mt-1 text-zinc-400 text-sm">
+                    Select from the master list or add a new sport.
+                  </p>
+
+                  <div className="mt-5 grid md:grid-cols-[1fr_auto] gap-4">
+                    <select
+                      value=""
+                      onChange={(e) =>
+                        addSportToAcademy(e.target.value)
+                      }
+                      className="bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4"
+                    >
+                      <option value="">Select Sport</option>
+                      {sportsList
+                        .filter(
+                          (sport) => !sportsConducted.includes(sport)
+                        )
+                        .map((sport) => (
+                          <option key={sport} value={sport}>
+                            {sport}
+                          </option>
+                        ))}
+                    </select>
+
+                    <button
+                      type="button"
+                      onClick={() => addSportToAcademy(customSport)}
+                      className="bg-orange-500 text-black rounded-2xl px-6 py-4 font-bold"
+                    >
+                      + Add Sport
+                    </button>
+                  </div>
+
+                  <input
+                    value={customSport}
+                    onChange={(e) => setCustomSport(e.target.value)}
+                    placeholder="Type new sport and click Add Sport"
+                    className="mt-4 w-full bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4"
+                  />
+
+                  {sportsConducted.length > 0 && (
+                    <div className="mt-5 flex flex-wrap gap-3">
+                      {sportsConducted.map((sport) => (
+                        <button
+                          type="button"
+                          key={sport}
+                          onClick={() => removeSportFromAcademy(sport)}
+                          className="bg-orange-500/10 border border-orange-500/30 text-orange-500 rounded-full px-4 py-2 font-bold"
+                        >
+                          {sport} x
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
                 <textarea
                   value={academyDescription}
                   onChange={(e) =>
@@ -1160,7 +1308,7 @@ export default function DashboardPage() {
                             <option>Other</option>
                           </select>
                         </div>
-                        <input
+                        <select
                           value={student.sports}
                           onChange={(e) =>
                             updateStudent(
@@ -1169,9 +1317,17 @@ export default function DashboardPage() {
                               e.target.value
                             )
                           }
-                          placeholder="Sport"
                           className="bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4"
-                        />
+                        >
+                          <option value="">
+                            Sports Conducted Same as Academy
+                          </option>
+                          {sportsConducted.map((sport) => (
+                            <option key={sport} value={sport}>
+                              {sport}
+                            </option>
+                          ))}
+                        </select>
                         <input
                           value={student.school}
                           onChange={(e) =>
@@ -1196,6 +1352,41 @@ export default function DashboardPage() {
                           placeholder="Achievements"
                           className="bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4 min-h-28"
                         />
+                        <div>
+                          <label className="inline-flex bg-white text-black px-5 py-3 rounded-2xl font-bold cursor-pointer">
+                            Upload Student Photo
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) =>
+                                handleAdminStudentPhotoUpload(
+                                  index,
+                                  e.target.files?.[0]
+                                )
+                              }
+                              className="hidden"
+                            />
+                          </label>
+
+                          {student.photoUrl && (
+                            <div className="mt-4 flex items-center gap-4">
+                              <img
+                                src={student.photoUrl}
+                                alt={`${student.name || "Student"} photo`}
+                                className="w-28 h-32 object-cover rounded-2xl border border-white/10"
+                              />
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  updateStudent(index, "photoUrl", "")
+                                }
+                                className="bg-red-500 px-4 py-2 rounded-xl font-bold"
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>

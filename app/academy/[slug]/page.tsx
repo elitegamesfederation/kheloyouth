@@ -207,6 +207,13 @@ export default function PublicAcademyPage() {
                       key={index}
                       className="bg-black border border-zinc-700 rounded-2xl p-5"
                     >
+                      {student.photoUrl && (
+                        <img
+                          src={student.photoUrl}
+                          alt={student.name || `Student ${index + 1}`}
+                          className="mb-4 w-24 h-28 object-cover rounded-2xl border border-white/10"
+                        />
+                      )}
                       <p className="text-xl font-bold">
                         {student.name || `Student ${index + 1}`}
                       </p>
