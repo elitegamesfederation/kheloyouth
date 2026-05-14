@@ -522,6 +522,98 @@ const sanitizeStudents = (items: any[]) =>
     };
   });
 
+const fileToResizedDataUrl = (
+  file: File,
+  maxWidth = 520,
+  maxHeight = 680
+) =>
+  new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      const image = new Image();
+
+      image.onload = () => {
+        const scale = Math.min(
+          maxWidth / image.width,
+          maxHeight / image.height,
+          1
+        );
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.round(image.width * scale);
+        canvas.height = Math.round(image.height * scale);
+
+        const context = canvas.getContext("2d");
+
+        if (!context) {
+          reject(new Error("Could not process image"));
+          return;
+        }
+
+        context.drawImage(image, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL("image/jpeg", 0.78));
+      };
+
+      image.onerror = reject;
+      image.src = String(reader.result || "");
+    };
+
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+
+const getSavedPhotoPreview = async (item: any) => {
+  if (isBrowserFile(item.photo)) {
+    return fileToResizedDataUrl(item.photo);
+  }
+
+  if (
+    typeof item.photoPreview === "string" &&
+    item.photoPreview &&
+    !item.photoPreview.startsWith("blob:")
+  ) {
+    return item.photoPreview;
+  }
+
+  if (typeof item.photoUrl === "string" && item.photoUrl) {
+    return item.photoUrl;
+  }
+
+  return "";
+};
+
+const preparePeopleForSave = async (items: any[]) => {
+  const sanitizedItems = sanitizePeople(items);
+
+  return Promise.all(
+    sanitizedItems.map(async (item, index) => {
+      const photoPreview = await getSavedPhotoPreview(items[index]);
+
+      return {
+        ...item,
+        photoPreview,
+        photoUrl: photoPreview,
+      };
+    })
+  );
+};
+
+const prepareStudentsForSave = async (items: any[]) => {
+  const sanitizedItems = sanitizeStudents(items);
+
+  return Promise.all(
+    sanitizedItems.map(async (item, index) => {
+      const photoPreview = await getSavedPhotoPreview(items[index]);
+
+      return {
+        ...item,
+        photoPreview,
+        photoUrl: photoPreview,
+      };
+    })
+  );
+};
+
 const academySlug = academyName
   .trim()
   .toLowerCase()
@@ -762,9 +854,15 @@ const buildAcademyPayload = async () => {
   const existingImageUrls = academyImages.filter(
     (image) => typeof image === "string"
   );
+  const savedOwners = await preparePeopleForSave(owners);
+  const savedCoaches = await preparePeopleForSave(coaches);
+  const savedStudents = await prepareStudentsForSave(students);
 
   return {
     ...academyPayload,
+    owners: savedOwners,
+    coaches: savedCoaches,
+    students: savedStudents,
     academyLogoUrl,
     academyImageUrls: [
       ...existingImageUrls,
@@ -1640,7 +1738,7 @@ const handleDownloadCertificate = async () => {
   link.click();
 };
 
-const getStudentsWithRenewedFee = () => {
+const getStudentsWithRenewedFee = async () => {
   const today = new Date();
   const endDate = new Date(today);
 
@@ -1666,7 +1764,7 @@ const getStudentsWithRenewedFee = () => {
     };
   });
 
-  return sanitizeStudents(renewedStudents);
+  return prepareStudentsForSave(renewedStudents);
 };
 
 const completeAffiliationWithCoupon = async () => {
@@ -1689,7 +1787,7 @@ const completeAffiliationWithCoupon = async () => {
 
     const payload = await buildAcademyPayload();
     const affiliationNumber = getAffiliationNumber();
-    const renewedStudents = getStudentsWithRenewedFee();
+    const renewedStudents = await getStudentsWithRenewedFee();
     const studentFeeEndDate = new Date(today);
 
     studentFeeEndDate.setFullYear(today.getFullYear() + 1);
@@ -1768,7 +1866,7 @@ const completeAffiliationWithCoupon = async () => {
 
     const payload = await buildAcademyPayload();
     const affiliationNumber = getAffiliationNumber();
-    const renewedStudents = getStudentsWithRenewedFee();
+    const renewedStudents = await getStudentsWithRenewedFee();
     const studentFeeEndDate = new Date(today);
 
     studentFeeEndDate.setFullYear(today.getFullYear() + 1);
