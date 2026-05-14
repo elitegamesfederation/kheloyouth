@@ -105,6 +105,7 @@ const [owners, setOwners] = useState([
   {
     fullName: "",
     role: "Owner",
+    sex: "",
     designation: "",
     mobile: "",
     email: "",
@@ -341,6 +342,7 @@ setOwners(
     {
       fullName: "",
       role: "Owner",
+      sex: "",
       designation: "",
       mobile: "",
       email: "",
@@ -971,6 +973,7 @@ setOwners(
     {
       fullName: "",
       role: "Owner",
+      sex: "",
       designation: "",
       mobile: "",
       email: "",
@@ -1026,6 +1029,7 @@ const addOwner = () => {
     {
       fullName: "",
       role: "Owner",
+      sex: "",
       designation: "",
       mobile: "",
       email: "",
@@ -2121,12 +2125,17 @@ console.log("Razorpay Loaded:", window.Razorpay);
                       )}
                     </div>
                     {userData?.desiredSport && (
-                      <p className="mt-5 text-zinc-300">
-                        Desired sport requested:{" "}
-                        <span className="font-bold text-white">
+                      <div className="mt-6 bg-orange-500/10 border border-orange-500/30 rounded-2xl p-5">
+                        <p className="text-orange-500 uppercase tracking-[0.25em] text-xs font-bold">
+                          Federation Sport Request
+                        </p>
+                        <p className="mt-2 text-xl font-black text-white">
                           {userData.desiredSport}
-                        </span>
-                      </p>
+                        </p>
+                        <p className="mt-2 text-zinc-400">
+                          Add this sport to the master sports list if approved by the federation.
+                        </p>
+                      </div>
                     )}
                   </div>
 
@@ -2179,6 +2188,11 @@ console.log("Razorpay Loaded:", window.Razorpay);
                               <p className="mt-1 text-orange-500 font-bold">
                                 {owner.role || "Owner"}
                               </p>
+                              {owner.sex && (
+                                <p className="mt-2 text-zinc-400">
+                                  {owner.sex}
+                                </p>
+                              )}
                               <p className="mt-2 text-zinc-400">
                                 {owner.designation || "Designation not added"}
                               </p>
@@ -2229,7 +2243,7 @@ console.log("Razorpay Loaded:", window.Razorpay);
                                 {student.school || "School not added"}
                               </p>
                               {student.achievement && (
-                                <p className="mt-2 text-zinc-300">
+                                <p className="mt-2 text-zinc-300 whitespace-pre-line">
                                   {student.achievement}
                                 </p>
                               )}
@@ -2838,6 +2852,35 @@ console.log("Razorpay Loaded:", window.Razorpay);
               <tr className="border-b border-white/10">
 
                 <td className="py-5 pr-5 font-semibold">
+                  Sex
+                </td>
+
+                <td className="py-5">
+
+                  <select
+                    value={(owner as any).sex || ""}
+                    onChange={(e) =>
+                      handleOwnerChange(
+                        index,
+                        "sex",
+                        e.target.value
+                      )
+                    }
+                    className="w-full bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+                  >
+                    <option value="">Sex</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  </select>
+
+                </td>
+
+              </tr>
+
+              <tr className="border-b border-white/10">
+
+                <td className="py-5 pr-5 font-semibold">
                   Designation
                 </td>
 
@@ -3138,14 +3181,13 @@ console.log("Razorpay Loaded:", window.Razorpay);
             ))}
           </select>
 
-          <input
-            type="text"
-            placeholder="Achievement"
+          <textarea
+            placeholder={"Achievements\nExample:\n1. State Champion 2026\n2. District Gold Medal\n- National camp selected"}
             value={student.achievement}
             onChange={(e) =>
               handleStudentChange(index, "achievement", e.target.value)
             }
-            className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+            className="md:col-span-2 bg-black border border-zinc-700 rounded-2xl px-5 py-4 min-h-36"
           />
 
         </div>

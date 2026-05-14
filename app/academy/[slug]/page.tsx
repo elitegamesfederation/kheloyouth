@@ -160,7 +160,9 @@ export default function PublicAcademyPage() {
                         {owner.fullName || `Owner ${index + 1}`}
                       </p>
                       <p className="mt-2 text-zinc-400">
-                        {owner.role || "Owner"} • {owner.designation || "Designation not added"}
+                        {[owner.role || "Owner", owner.sex, owner.designation || "Designation not added"]
+                          .filter(Boolean)
+                          .join(" • ")}
                       </p>
                     </div>
                   ))}
@@ -186,6 +188,11 @@ export default function PublicAcademyPage() {
                           .filter(Boolean)
                           .join(" • ")}
                       </p>
+                      {student.achievement && (
+                        <p className="mt-3 text-zinc-300 whitespace-pre-line">
+                          {student.achievement}
+                        </p>
+                      )}
                       {(student.isEliteAthlete || student.isParaAthlete) && (
                         <p className="mt-3 text-orange-500 font-bold">
                           {student.isEliteAthlete ? "Elite Athlete" : ""}
