@@ -72,19 +72,51 @@ const getDefaultStudent = () => ({
   isParaAthlete: false,
 });
 
+const adminLoginId = "jameelspeaks";
+const defaultAdminPassword = "Jameel@4121#";
+
 export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [academies, setAcademies] = useState<any[]>([]);
   const [selectedState, setSelectedState] = useState("All States");
+  const [adminUnlocked, setAdminUnlocked] = useState(false);
+  const [adminIdInput, setAdminIdInput] = useState("");
+  const [adminPasswordInput, setAdminPasswordInput] = useState("");
+  const [showAdminPassword, setShowAdminPassword] = useState(false);
+  const [showAdminReset, setShowAdminReset] = useState(false);
+  const [resetCurrentPassword, setResetCurrentPassword] = useState("");
+  const [resetNewPassword, setResetNewPassword] = useState("");
+  const [showResetCurrentPassword, setShowResetCurrentPassword] =
+    useState(false);
+  const [showResetNewPassword, setShowResetNewPassword] =
+    useState(false);
 
   const [academyName, setAcademyName] = useState("");
+  const [academyDescription, setAcademyDescription] =
+    useState("");
+  const [establishmentYear, setEstablishmentYear] = useState("");
   const [stateName, setStateName] = useState("");
   const [district, setDistrict] = useState("");
   const [city, setCity] = useState("");
+  const [fullAddress, setFullAddress] = useState("");
   const [pincode, setPincode] = useState("");
   const [contactNumber, setContactNumber] = useState("");
   const [officialEmail, setOfficialEmail] = useState("");
+  const [websiteLink, setWebsiteLink] = useState("");
+  const [instagramLink, setInstagramLink] = useState("");
+  const [facebookLink, setFacebookLink] = useState("");
+  const [hasOtherBranch, setHasOtherBranch] = useState("");
+  const [googleLocation, setGoogleLocation] = useState("");
+  const [desiredSport, setDesiredSport] = useState("");
+  const [mediaCoverageProofName, setMediaCoverageProofName] =
+    useState("");
+  const [declarationAccepted, setDeclarationAccepted] =
+    useState(false);
+  const [academyLogoUrl, setAcademyLogoUrl] = useState("");
+  const [academyImageUrls, setAcademyImageUrls] = useState<
+    string[]
+  >([]);
   const [selectedYears, setSelectedYears] = useState(1);
   const [sportsConducted, setSportsConducted] = useState("");
   const [owners, setOwners] = useState<any[]>([getDefaultOwner()]);
@@ -105,9 +137,24 @@ export default function DashboardPage() {
     setLoading(false);
   };
 
+  const getSavedAdminPassword = () =>
+    window.localStorage.getItem("eliteAdminPassword") ||
+    defaultAdminPassword;
+
   useEffect(() => {
-    loadAcademies();
+    if (window.localStorage.getItem("eliteAdminUnlocked") === "true") {
+      setAdminUnlocked(true);
+      return;
+    }
+
+    setLoading(false);
   }, []);
+
+  useEffect(() => {
+    if (adminUnlocked) {
+      loadAcademies();
+    }
+  }, [adminUnlocked]);
 
   const activeAcademies = academies.filter(
     (academy) => academy.paymentDone
@@ -179,6 +226,75 @@ export default function DashboardPage() {
   const addStudent = () =>
     setStudents([...students, getDefaultStudent()]);
 
+  const handleAdminLogin = () => {
+    if (
+      adminIdInput.trim() === adminLoginId &&
+      adminPasswordInput === getSavedAdminPassword()
+    ) {
+      window.localStorage.setItem("eliteAdminUnlocked", "true");
+      setAdminUnlocked(true);
+      setAdminPasswordInput("");
+      return;
+    }
+
+    alert("Invalid admin login details.");
+  };
+
+  const handleAdminLogout = () => {
+    window.localStorage.removeItem("eliteAdminUnlocked");
+    setAdminUnlocked(false);
+    setAcademies([]);
+  };
+
+  const handleAdminPasswordReset = () => {
+    if (resetCurrentPassword !== getSavedAdminPassword()) {
+      alert("Current admin password is incorrect.");
+      return;
+    }
+
+    if (resetNewPassword.length < 8) {
+      alert("New password must be at least 8 characters.");
+      return;
+    }
+
+    window.localStorage.setItem("eliteAdminPassword", resetNewPassword);
+    setResetCurrentPassword("");
+    setResetNewPassword("");
+    setShowAdminReset(false);
+    alert("Admin password updated for this browser.");
+  };
+
+  const readFileAsDataUrl = (file: File) =>
+    new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result || ""));
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
+  const handleAdminLogoUpload = async (file?: File) => {
+    if (!file) return;
+
+    setAcademyLogoUrl(await readFileAsDataUrl(file));
+  };
+
+  const handleAdminPhotosUpload = async (files: FileList | null) => {
+    const selectedFiles = Array.from(files || []);
+
+    if (!selectedFiles.length) return;
+
+    if (academyImageUrls.length + selectedFiles.length > 5) {
+      alert("Maximum 5 academy photos allowed.");
+      return;
+    }
+
+    const urls = await Promise.all(
+      selectedFiles.map((file) => readFileAsDataUrl(file))
+    );
+
+    setAcademyImageUrls([...academyImageUrls, ...urls]);
+  };
+
   const updateOwner = (
     index: number,
     field: string,
@@ -235,12 +351,26 @@ export default function DashboardPage() {
       await addDoc(collection(db, "academies"), {
         academyName,
         academySlug: slug,
+        academyDescription,
+        establishmentYear,
         state: stateName,
         district,
         city,
+        fullAddress,
         pincode,
         contactNumber,
         officialEmail,
+        websiteLink,
+        instagramLink,
+        facebookLink,
+        hasOtherBranch,
+        googleLocation,
+        desiredSport,
+        mediaCoverageProofName,
+        declarationAccepted,
+        academyLogoUrl,
+        logoURL: academyLogoUrl,
+        academyImageUrls,
         sportsConducted: sportsConducted
           .split(",")
           .map((sport) => sport.trim())
@@ -272,12 +402,25 @@ export default function DashboardPage() {
       alert("Academy added with ELITENETWORK.");
 
       setAcademyName("");
+      setAcademyDescription("");
+      setEstablishmentYear("");
       setStateName("");
       setDistrict("");
       setCity("");
+      setFullAddress("");
       setPincode("");
       setContactNumber("");
       setOfficialEmail("");
+      setWebsiteLink("");
+      setInstagramLink("");
+      setFacebookLink("");
+      setHasOtherBranch("");
+      setGoogleLocation("");
+      setDesiredSport("");
+      setMediaCoverageProofName("");
+      setDeclarationAccepted(false);
+      setAcademyLogoUrl("");
+      setAcademyImageUrls([]);
       setSelectedYears(1);
       setSportsConducted("");
       setOwners([getDefaultOwner()]);
@@ -289,6 +432,131 @@ export default function DashboardPage() {
       setSaving(false);
     }
   };
+
+  if (!adminUnlocked) {
+    return (
+      <main className="min-h-screen bg-black text-white">
+        <Navbar />
+
+        <section className="pt-44 pb-24 max-w-3xl mx-auto px-6">
+          <div className="bg-zinc-900 border border-white/10 rounded-3xl p-8">
+            <p className="text-orange-500 uppercase tracking-[0.35em] text-sm font-semibold">
+              Federation Admin
+            </p>
+            <h1 className="mt-5 text-5xl font-black">
+              Admin Login
+            </h1>
+
+            <div className="mt-8 space-y-5">
+              <input
+                value={adminIdInput}
+                onChange={(e) => setAdminIdInput(e.target.value)}
+                placeholder="Login ID"
+                className="w-full bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+              />
+
+              <div className="relative">
+                <input
+                  type={showAdminPassword ? "text" : "password"}
+                  value={adminPasswordInput}
+                  onChange={(e) =>
+                    setAdminPasswordInput(e.target.value)
+                  }
+                  placeholder="Password"
+                  className="w-full bg-black border border-zinc-700 rounded-2xl px-5 py-4 pr-24"
+                />
+                <button
+                  type="button"
+                  onClick={() =>
+                    setShowAdminPassword(!showAdminPassword)
+                  }
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-orange-500"
+                >
+                  {showAdminPassword ? "Hide" : "Show"}
+                </button>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleAdminLogin}
+                className="w-full bg-orange-500 hover:bg-orange-600 text-black rounded-2xl py-4 font-black"
+              >
+                Open Admin Dashboard
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setShowAdminReset(!showAdminReset)}
+                className="text-orange-500 font-bold"
+              >
+                Reset Admin Password
+              </button>
+            </div>
+
+            {showAdminReset && (
+              <div className="mt-8 border-t border-white/10 pt-8 space-y-5">
+                <div className="relative">
+                  <input
+                    type={
+                      showResetCurrentPassword ? "text" : "password"
+                    }
+                    value={resetCurrentPassword}
+                    onChange={(e) =>
+                      setResetCurrentPassword(e.target.value)
+                    }
+                    placeholder="Current Password"
+                    className="w-full bg-black border border-zinc-700 rounded-2xl px-5 py-4 pr-24"
+                  />
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setShowResetCurrentPassword(
+                        !showResetCurrentPassword
+                      )
+                    }
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-orange-500"
+                  >
+                    {showResetCurrentPassword ? "Hide" : "Show"}
+                  </button>
+                </div>
+
+                <div className="relative">
+                  <input
+                    type={showResetNewPassword ? "text" : "password"}
+                    value={resetNewPassword}
+                    onChange={(e) =>
+                      setResetNewPassword(e.target.value)
+                    }
+                    placeholder="New Password"
+                    className="w-full bg-black border border-zinc-700 rounded-2xl px-5 py-4 pr-24"
+                  />
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setShowResetNewPassword(!showResetNewPassword)
+                    }
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-orange-500"
+                  >
+                    {showResetNewPassword ? "Hide" : "Show"}
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleAdminPasswordReset}
+                  className="w-full bg-white text-black rounded-2xl py-4 font-black"
+                >
+                  Save New Admin Password
+                </button>
+              </div>
+            )}
+          </div>
+        </section>
+
+        <Footer />
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-black text-white">
@@ -302,6 +570,14 @@ export default function DashboardPage() {
         <h1 className="mt-5 text-6xl font-black">
           Academy Control Panel
         </h1>
+
+        <button
+          type="button"
+          onClick={handleAdminLogout}
+          className="mt-6 bg-red-500 hover:bg-red-600 px-6 py-3 rounded-2xl font-bold"
+        >
+          Admin Logout
+        </button>
 
         {loading ? (
           <p className="mt-10 text-zinc-400">
@@ -502,6 +778,20 @@ export default function DashboardPage() {
                   <option value={3}>3 Years</option>
                 </select>
                 <input
+                  value={establishmentYear}
+                  onChange={(e) =>
+                    setEstablishmentYear(e.target.value)
+                  }
+                  placeholder="Year Of Establishment"
+                  className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+                />
+                <input
+                  value={fullAddress}
+                  onChange={(e) => setFullAddress(e.target.value)}
+                  placeholder="Full Address"
+                  className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+                />
+                <input
                   value={stateName}
                   onChange={(e) => setStateName(e.target.value)}
                   placeholder="State"
@@ -542,6 +832,41 @@ export default function DashboardPage() {
                   className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
                 />
                 <input
+                  value={websiteLink}
+                  onChange={(e) => setWebsiteLink(e.target.value)}
+                  placeholder="Website Link"
+                  className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+                />
+                <input
+                  value={instagramLink}
+                  onChange={(e) => setInstagramLink(e.target.value)}
+                  placeholder="Instagram Link"
+                  className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+                />
+                <input
+                  value={facebookLink}
+                  onChange={(e) => setFacebookLink(e.target.value)}
+                  placeholder="Facebook Link"
+                  className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+                />
+                <select
+                  value={hasOtherBranch}
+                  onChange={(e) =>
+                    setHasOtherBranch(e.target.value)
+                  }
+                  className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+                >
+                  <option value="">Any Other Branch?</option>
+                  <option>Yes</option>
+                  <option>No</option>
+                </select>
+                <input
+                  value={googleLocation}
+                  onChange={(e) => setGoogleLocation(e.target.value)}
+                  placeholder="Google Location Of Academy"
+                  className="md:col-span-2 bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+                />
+                <input
                   value={sportsConducted}
                   onChange={(e) =>
                     setSportsConducted(e.target.value)
@@ -549,6 +874,113 @@ export default function DashboardPage() {
                   placeholder="Sports Conducted, comma separated"
                   className="md:col-span-2 bg-black border border-zinc-700 rounded-2xl px-5 py-4"
                 />
+                <input
+                  value={desiredSport}
+                  onChange={(e) => setDesiredSport(e.target.value)}
+                  placeholder="Federation Sport Request"
+                  className="md:col-span-2 bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+                />
+                <textarea
+                  value={academyDescription}
+                  onChange={(e) =>
+                    setAcademyDescription(e.target.value)
+                  }
+                  placeholder="Academy Description"
+                  className="md:col-span-2 bg-black border border-zinc-700 rounded-2xl px-5 py-4 min-h-32"
+                />
+                <input
+                  value={mediaCoverageProofName}
+                  onChange={(e) =>
+                    setMediaCoverageProofName(e.target.value)
+                  }
+                  placeholder="Press / Media Coverage Proof Name or Link"
+                  className="md:col-span-2 bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+                />
+              </div>
+
+              <div className="mt-8 grid lg:grid-cols-2 gap-8">
+                <div className="bg-black border border-zinc-700 rounded-2xl p-5">
+                  <h3 className="text-2xl font-black">
+                    Academy Logo
+                  </h3>
+                  <label className="mt-5 inline-flex bg-orange-500 text-black px-5 py-3 rounded-2xl font-bold cursor-pointer">
+                    Upload Logo
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) =>
+                        handleAdminLogoUpload(e.target.files?.[0])
+                      }
+                      className="hidden"
+                    />
+                  </label>
+
+                  {academyLogoUrl && (
+                    <div className="mt-5 flex items-center gap-4">
+                      <img
+                        src={academyLogoUrl}
+                        alt="Academy logo preview"
+                        className="w-28 h-28 object-cover rounded-2xl border border-white/10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setAcademyLogoUrl("")}
+                        className="bg-red-500 px-4 py-2 rounded-xl font-bold"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                <div className="bg-black border border-zinc-700 rounded-2xl p-5">
+                  <h3 className="text-2xl font-black">
+                    Academy Photos
+                  </h3>
+                  <p className="mt-1 text-zinc-400 text-sm">
+                    Minimum 3 photos, maximum 5 photos.
+                  </p>
+                  <label className="mt-5 inline-flex bg-white text-black px-5 py-3 rounded-2xl font-bold cursor-pointer">
+                    Upload Photos
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={(e) =>
+                        handleAdminPhotosUpload(e.target.files)
+                      }
+                      className="hidden"
+                    />
+                  </label>
+
+                  {academyImageUrls.length > 0 && (
+                    <div className="mt-5 grid grid-cols-2 gap-4">
+                      {academyImageUrls.map((imageUrl, index) => (
+                        <div key={imageUrl} className="relative">
+                          <img
+                            src={imageUrl}
+                            alt={`Academy photo ${index + 1}`}
+                            className="w-full h-32 object-cover rounded-2xl border border-white/10"
+                          />
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setAcademyImageUrls(
+                                academyImageUrls.filter(
+                                  (_image, photoIndex) =>
+                                    photoIndex !== index
+                                )
+                              )
+                            }
+                            className="absolute top-2 right-2 bg-red-500 w-8 h-8 rounded-full font-bold"
+                          >
+                            x
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="mt-8 grid lg:grid-cols-2 gap-8">
@@ -617,6 +1049,18 @@ export default function DashboardPage() {
                             <option>Other</option>
                           </select>
                         </div>
+                        <input
+                          value={owner.designation}
+                          onChange={(e) =>
+                            updateOwner(
+                              index,
+                              "designation",
+                              e.target.value
+                            )
+                          }
+                          placeholder="Designation"
+                          className="bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4"
+                        />
                         <input
                           value={owner.mobile}
                           onChange={(e) =>
@@ -749,6 +1193,23 @@ export default function DashboardPage() {
                   </div>
                 </div>
               </div>
+
+              <label className="mt-8 flex items-start gap-3 bg-black border border-zinc-700 rounded-2xl px-5 py-4">
+                <input
+                  type="checkbox"
+                  checked={declarationAccepted}
+                  onChange={(e) =>
+                    setDeclarationAccepted(e.target.checked)
+                  }
+                  className="mt-1"
+                />
+                <span className="text-sm text-zinc-300">
+                  I declare that all information, documents, photos,
+                  student details, and media proof submitted for this
+                  academy are true and correct to the best of my
+                  knowledge.
+                </span>
+              </label>
 
               <button
                 type="button"

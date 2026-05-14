@@ -42,6 +42,9 @@ export default function PublicAcademyPage() {
         academyStudents.length
     )
   );
+  const academyGallery = Array.isArray(academy?.academyImageUrls)
+    ? academy.academyImageUrls
+    : [];
 
   useEffect(() => {
     const loadAcademy = async () => {
@@ -112,7 +115,12 @@ export default function PublicAcademyPage() {
               </div>
 
               <img
-                src={academy.logoURL || fallbackImage}
+                src={
+                  academy.academyLogoUrl ||
+                  academy.logoURL ||
+                  academyGallery[0] ||
+                  fallbackImage
+                }
                 alt={academy.academyName}
                 className="w-full h-[320px] object-cover rounded-[35px] border border-white/10"
               />
@@ -143,6 +151,25 @@ export default function PublicAcademyPage() {
                 </div>
               ))}
             </div>
+
+            {academyGallery.length > 0 && (
+              <div className="mt-12 bg-zinc-900 border border-white/10 rounded-[35px] p-8">
+                <h2 className="text-4xl font-black">
+                  Academy Photos
+                </h2>
+
+                <div className="mt-6 grid md:grid-cols-3 gap-5">
+                  {academyGallery.map((imageUrl: string, index: number) => (
+                    <img
+                      key={`${imageUrl}-${index}`}
+                      src={imageUrl}
+                      alt={`${academy.academyName} photo ${index + 1}`}
+                      className="w-full h-56 object-cover rounded-3xl border border-white/10"
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div className="mt-12 grid lg:grid-cols-2 gap-8">
               <div className="bg-zinc-900 border border-white/10 rounded-[35px] p-8">

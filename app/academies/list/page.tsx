@@ -190,6 +190,11 @@ export default function AcademiesListPage() {
               academy.sportsConducted.length
                 ? academy.sportsConducted[0]
                 : "Academy";
+            const academyGallery = Array.isArray(
+              academy.academyImageUrls
+            )
+              ? academy.academyImageUrls
+              : [];
 
             return (
               <a
@@ -198,7 +203,12 @@ export default function AcademiesListPage() {
                 className="bg-zinc-900 border border-white/10 rounded-[35px] overflow-hidden hover:border-orange-500 transition block"
               >
                 <img
-                  src={academy.logoURL || fallbackImage}
+                  src={
+                    academy.academyLogoUrl ||
+                    academy.logoURL ||
+                    academyGallery[0] ||
+                    fallbackImage
+                  }
                   alt={academy.academyName || "Academy"}
                   className="w-full h-[240px] object-cover"
                 />

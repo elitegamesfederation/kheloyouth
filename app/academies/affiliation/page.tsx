@@ -11,6 +11,7 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   onAuthStateChanged,
+  sendPasswordResetEmail,
   signOut,
 } from "firebase/auth";
 
@@ -47,6 +48,7 @@ export default function AcademyAffiliationPage() {
 
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
 
   const [academyName, setAcademyName] = useState("");
   const [stateName, setStateName] = useState("");
@@ -56,6 +58,9 @@ export default function AcademyAffiliationPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showSignupPassword, setShowSignupPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] =
+    useState(false);
 
   // =========================
   // DASHBOARD STATES
@@ -1006,6 +1011,31 @@ setStudents(
   ]
 );
       }
+
+    } catch (error: any) {
+
+      alert(error.message);
+
+    } finally {
+
+      setLoading(false);
+    }
+  };
+
+  const handleResetPassword = async () => {
+
+    if (!loginEmail) {
+      alert("Please enter your academy login email first.");
+      return;
+    }
+
+    try {
+
+      setLoading(true);
+
+      await sendPasswordResetEmail(auth, loginEmail);
+
+      alert("Password reset link sent to your email.");
 
     } catch (error: any) {
 
@@ -3556,15 +3586,26 @@ console.log("Razorpay Loaded:", window.Razorpay);
                 className="w-full bg-black border border-zinc-700 rounded-2xl px-6 py-5"
               />
 
-              <input
-                type="password"
-                placeholder="Password"
-                value={loginPassword}
-                onChange={(e) =>
-                  setLoginPassword(e.target.value)
-                }
-                className="w-full bg-black border border-zinc-700 rounded-2xl px-6 py-5"
-              />
+              <div className="relative">
+                <input
+                  type={showLoginPassword ? "text" : "password"}
+                  placeholder="Password"
+                  value={loginPassword}
+                  onChange={(e) =>
+                    setLoginPassword(e.target.value)
+                  }
+                  className="w-full bg-black border border-zinc-700 rounded-2xl px-6 py-5 pr-24"
+                />
+                <button
+                  type="button"
+                  onClick={() =>
+                    setShowLoginPassword(!showLoginPassword)
+                  }
+                  className="absolute right-5 top-1/2 -translate-y-1/2 text-sm text-orange-500 font-bold"
+                >
+                  {showLoginPassword ? "Hide" : "Show"}
+                </button>
+              </div>
 
               <button
                 onClick={handleLogin}
@@ -3574,6 +3615,15 @@ console.log("Razorpay Loaded:", window.Razorpay);
                 {loading
                   ? "Logging In..."
                   : "Login To Dashboard"}
+              </button>
+
+              <button
+                type="button"
+                onClick={handleResetPassword}
+                disabled={loading}
+                className="w-full bg-black border border-orange-500/40 text-orange-500 hover:bg-orange-500/10 transition py-4 rounded-2xl text-lg font-bold"
+              >
+                Reset Password
               </button>
 
             </div>
@@ -3648,27 +3698,49 @@ console.log("Razorpay Loaded:", window.Razorpay);
                 className="w-full bg-black border border-zinc-700 rounded-2xl px-6 py-5"
               />
 
-              <input
-                type="password"
-                placeholder="Create Password"
-                value={password}
-                onChange={(e) =>
-                  setPassword(e.target.value)
-                }
-                className="w-full bg-black border border-zinc-700 rounded-2xl px-6 py-5"
-              />
+              <div className="relative">
+                <input
+                  type={showSignupPassword ? "text" : "password"}
+                  placeholder="Create Password"
+                  value={password}
+                  onChange={(e) =>
+                    setPassword(e.target.value)
+                  }
+                  className="w-full bg-black border border-zinc-700 rounded-2xl px-6 py-5 pr-24"
+                />
+                <button
+                  type="button"
+                  onClick={() =>
+                    setShowSignupPassword(!showSignupPassword)
+                  }
+                  className="absolute right-5 top-1/2 -translate-y-1/2 text-sm text-orange-500 font-bold"
+                >
+                  {showSignupPassword ? "Hide" : "Show"}
+                </button>
+              </div>
 
-              <input
-                type="password"
-                placeholder="Retype Password"
-                value={confirmPassword}
-                onChange={(e) =>
-                  setConfirmPassword(
-                    e.target.value
-                  )
-                }
-                className="w-full bg-black border border-zinc-700 rounded-2xl px-6 py-5"
-              />
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="Retype Password"
+                  value={confirmPassword}
+                  onChange={(e) =>
+                    setConfirmPassword(
+                      e.target.value
+                    )
+                  }
+                  className="w-full bg-black border border-zinc-700 rounded-2xl px-6 py-5 pr-24"
+                />
+                <button
+                  type="button"
+                  onClick={() =>
+                    setShowConfirmPassword(!showConfirmPassword)
+                  }
+                  className="absolute right-5 top-1/2 -translate-y-1/2 text-sm text-orange-500 font-bold"
+                >
+                  {showConfirmPassword ? "Hide" : "Show"}
+                </button>
+              </div>
 
               <button
                 onClick={handleSignup}
