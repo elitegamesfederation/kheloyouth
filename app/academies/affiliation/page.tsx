@@ -541,7 +541,7 @@ const formatCertificateDate = (value: Date | string | null | undefined) => {
     month: "short",
   });
 
-  return `${day}${suffix} ${month} ${date.getFullYear()}`;
+  return `${String(day).padStart(2, "0")}${suffix} ${month} ${date.getFullYear()}`;
 };
 
 const uploadAcademyFile = async (
@@ -1254,33 +1254,44 @@ const handleDownloadCertificate = async () => {
   context.drawImage(image, 0, 0);
   context.textBaseline = "alphabetic";
 
+  const scale = canvas.width / 2000;
+  const position = (value: number) => value * scale;
+  const certificateAcademyName =
+    userData?.academyName || academyName || "Academy";
+  const certificateLocation =
+    userData?.state ||
+    stateName ||
+    userData?.district ||
+    district ||
+    "India";
+
   fitCanvasText(
     context,
-    userData?.academyName || academyName,
-    735,
-    665,
-    1000,
-    118,
+    certificateAcademyName.toUpperCase(),
+    position(735),
+    position(650),
+    position(1000),
+    position(118),
     "Arial, sans-serif"
   );
 
   fitCanvasText(
     context,
-    userData?.district || district || userData?.state || stateName,
-    735,
-    765,
-    700,
-    72,
+    certificateLocation,
+    position(735),
+    position(760),
+    position(700),
+    position(72),
     "Arial, sans-serif"
   );
 
   fitCanvasText(
     context,
     `From ${formatCertificateDate(userData?.affiliationStartDate)} To ${formatCertificateDate(userData?.affiliationEndDate)}`,
-    735,
-    990,
-    900,
-    36,
+    position(735),
+    position(980),
+    position(900),
+    position(36),
     "Arial, sans-serif",
     "#2c2835",
     "700"
@@ -1289,10 +1300,10 @@ const handleDownloadCertificate = async () => {
   fitCanvasText(
     context,
     getAffiliationNumber(),
-    142,
-    1184,
-    430,
-    42,
+    position(142),
+    position(1184),
+    position(430),
+    position(42),
     "Arial, sans-serif",
     "#2c2835",
     "800"
