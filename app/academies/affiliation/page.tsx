@@ -1214,7 +1214,8 @@ const fitCanvasText = (
   fontSize: number,
   fontFamily: string,
   color = "#1c3455",
-  weight = "800"
+  weight = "800",
+  align: CanvasTextAlign = "left"
 ) => {
   let size = fontSize;
 
@@ -1227,7 +1228,9 @@ const fitCanvasText = (
   );
 
   context.fillStyle = color;
+  context.textAlign = align;
   context.fillText(text, x, y);
+  context.textAlign = "left";
 };
 
 const handleDownloadCertificate = async () => {
@@ -1268,33 +1271,40 @@ const handleDownloadCertificate = async () => {
   fitCanvasText(
     context,
     certificateAcademyName.toUpperCase(),
-    position(735),
-    position(650),
-    position(1000),
+    position(1265),
+    position(720),
+    position(1080),
     position(118),
-    "Arial, sans-serif"
+    "Arial, sans-serif",
+    "#1c3455",
+    "900",
+    "center"
   );
 
   fitCanvasText(
     context,
     certificateLocation,
-    position(735),
-    position(760),
+    position(1265),
+    position(830),
     position(700),
-    position(72),
-    "Arial, sans-serif"
+    position(64),
+    "Arial, sans-serif",
+    "#1c3455",
+    "800",
+    "center"
   );
 
   fitCanvasText(
     context,
     `From ${formatCertificateDate(userData?.affiliationStartDate)} To ${formatCertificateDate(userData?.affiliationEndDate)}`,
-    position(735),
-    position(980),
+    position(1265),
+    position(1080),
     position(900),
     position(36),
     "Arial, sans-serif",
     "#2c2835",
-    "700"
+    "700",
+    "center"
   );
 
   fitCanvasText(
