@@ -94,6 +94,7 @@ const [websiteLink, setWebsiteLink] = useState("");
 const [instagramLink, setInstagramLink] = useState("");
 const [facebookLink, setFacebookLink] = useState("");
 const [sportsConducted, setSportsConducted] = useState<string[]>([]);
+const [adminSports, setAdminSports] = useState<string[]>([]);
 const [desiredSport, setDesiredSport] = useState("");
 const [hasOtherBranch, setHasOtherBranch] = useState("");
 const [googleLocation, setGoogleLocation] = useState("");
@@ -456,7 +457,11 @@ const sportsList = [
 
 ];
 
-const filteredSports = sportsList.filter(
+const combinedSportsList = Array.from(
+  new Set([...sportsList, ...adminSports])
+).sort((a, b) => a.localeCompare(b));
+
+const filteredSports = combinedSportsList.filter(
 (sport) =>
 sport.toLowerCase().includes(
 sportsSearch.toLowerCase()
@@ -466,6 +471,19 @@ sportsSearch.toLowerCase()
 const selectedSports = Array.isArray(sportsConducted)
   ? sportsConducted
   : [];
+
+useEffect(() => {
+  const loadAdminSports = async () => {
+    const sportsSnap = await getDoc(doc(db, "siteSettings", "sports"));
+    const data = sportsSnap.exists() ? sportsSnap.data() : {};
+
+    setAdminSports(
+      Array.isArray(data.extraSports) ? data.extraSports : []
+    );
+  };
+
+  loadAdminSports();
+}, []);
 
 const isBrowserFile = (value: any) =>
   typeof File !== "undefined" && value instanceof File;

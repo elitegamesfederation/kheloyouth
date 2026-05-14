@@ -10,8 +10,10 @@ import { auth, db } from "@/app/lib/firebase";
 import {
   collection,
   doc,
+  getDoc,
   getDocs,
   setDoc,
+  updateDoc,
 } from "firebase/firestore";
 
 import { createUserWithEmailAndPassword } from "firebase/auth";
@@ -151,6 +153,7 @@ export default function DashboardPage() {
   const [saving, setSaving] = useState(false);
   const [academies, setAcademies] = useState<any[]>([]);
   const [selectedState, setSelectedState] = useState("All States");
+  const [activeAdminTool, setActiveAdminTool] = useState("create");
   const [adminUnlocked, setAdminUnlocked] = useState(false);
   const [adminIdInput, setAdminIdInput] = useState("");
   const [adminPasswordInput, setAdminPasswordInput] = useState("");
@@ -192,6 +195,18 @@ export default function DashboardPage() {
     []
   );
   const [customSport, setCustomSport] = useState("");
+  const [adminSports, setAdminSports] = useState<string[]>([]);
+  const [newMasterSport, setNewMasterSport] = useState("");
+  const [editAcademyId, setEditAcademyId] = useState("");
+  const [editAcademyForm, setEditAcademyForm] = useState<any>({
+    academyName: "",
+    state: "",
+    district: "",
+    city: "",
+    contactNumber: "",
+    officialEmail: "",
+    sportsConducted: "",
+  });
   const [owners, setOwners] = useState<any[]>([getDefaultOwner()]);
   const [students, setStudents] = useState<any[]>([getDefaultStudent()]);
 
@@ -210,6 +225,14 @@ export default function DashboardPage() {
     setLoading(false);
   };
 
+  const loadAdminSports = async () => {
+    const sportsSnap = await getDoc(doc(db, "siteSettings", "sports"));
+    const data = sportsSnap.exists() ? sportsSnap.data() : {};
+    setAdminSports(
+      Array.isArray(data.extraSports) ? data.extraSports : []
+    );
+  };
+
   const getSavedAdminPassword = () =>
     window.localStorage.getItem("eliteAdminPassword") ||
     defaultAdminPassword;
@@ -226,6 +249,7 @@ export default function DashboardPage() {
   useEffect(() => {
     if (adminUnlocked) {
       loadAcademies();
+      loadAdminSports();
     }
   }, [adminUnlocked]);
 
@@ -234,6 +258,19 @@ export default function DashboardPage() {
   );
   const unpaidAcademies = academies.filter(
     (academy) => !academy.paymentDone
+  );
+  const liveAcademies = academies.filter(
+    (academy) => academy.paymentDone
+  );
+  const sportRequests = academies.filter(
+    (academy) => academy.desiredSport && !academy.sportRequestResolved
+  );
+  const masterSports = useMemo(
+    () =>
+      Array.from(new Set([...sportsList, ...adminSports])).sort(
+        (a, b) => a.localeCompare(b)
+      ),
+    [adminSports]
   );
   const totalActiveStudents = activeAcademies.reduce(
     (total, academy) =>
@@ -407,6 +444,97 @@ export default function DashboardPage() {
     if (!file) return;
 
     updateStudent(index, "photoUrl", await readFileAsDataUrl(file));
+  };
+
+  const handleAddMasterSport = async () => {
+    const cleanSport = newMasterSport.trim();
+
+    if (!cleanSport) {
+      alert("Enter sport name.");
+      return;
+    }
+
+    if (
+      masterSports.some(
+        (sport) => sport.toLowerCase() === cleanSport.toLowerCase()
+      )
+    ) {
+      alert("This sport is already available.");
+      setNewMasterSport("");
+      return;
+    }
+
+    const updatedSports = [...adminSports, cleanSport].sort((a, b) =>
+      a.localeCompare(b)
+    );
+
+    await setDoc(
+      doc(db, "siteSettings", "sports"),
+      {
+        extraSports: updatedSports,
+        updatedAt: new Date(),
+      },
+      { merge: true }
+    );
+
+    setAdminSports(updatedSports);
+    setNewMasterSport("");
+    alert("Sport added live.");
+  };
+
+  const resolveSportRequest = async (academyId: string) => {
+    await updateDoc(doc(db, "academies", academyId), {
+      sportRequestResolved: true,
+      sportRequestResolvedAt: new Date(),
+    });
+
+    await loadAcademies();
+  };
+
+  const loadEditAcademy = (academyId: string) => {
+    setEditAcademyId(academyId);
+    const academy = liveAcademies.find(
+      (item) => item.id === academyId
+    );
+
+    if (!academy) return;
+
+    setEditAcademyForm({
+      academyName: academy.academyName || "",
+      state: academy.state || "",
+      district: academy.district || "",
+      city: academy.city || "",
+      contactNumber: academy.contactNumber || "",
+      officialEmail: academy.officialEmail || academy.email || "",
+      sportsConducted: Array.isArray(academy.sportsConducted)
+        ? academy.sportsConducted.join(", ")
+        : "",
+    });
+  };
+
+  const saveEditAcademy = async () => {
+    if (!editAcademyId) {
+      alert("Select a live academy first.");
+      return;
+    }
+
+    await updateDoc(doc(db, "academies", editAcademyId), {
+      academyName: editAcademyForm.academyName,
+      academySlug: slugify(editAcademyForm.academyName),
+      state: editAcademyForm.state,
+      district: editAcademyForm.district,
+      city: editAcademyForm.city,
+      contactNumber: editAcademyForm.contactNumber,
+      officialEmail: editAcademyForm.officialEmail,
+      sportsConducted: String(editAcademyForm.sportsConducted || "")
+        .split(",")
+        .map((sport) => sport.trim())
+        .filter(Boolean),
+      updatedAt: new Date(),
+    });
+
+    alert("Live academy updated.");
+    await loadAcademies();
   };
 
   const updateOwner = (
@@ -780,6 +908,184 @@ export default function DashboardPage() {
               </div>
             </div>
 
+            <div className="mt-10 grid md:grid-cols-4 gap-4">
+              {[
+                ["create", "Create New Academy"],
+                ["edit", "Edit Live Academy"],
+                ["sports", "Add Sports"],
+                ["requests", `Sport Requests (${sportRequests.length})`],
+              ].map(([tool, label]) => (
+                <button
+                  key={tool}
+                  type="button"
+                  onClick={() => setActiveAdminTool(tool)}
+                  className={`rounded-2xl px-5 py-4 font-black transition ${
+                    activeAdminTool === tool
+                      ? "bg-orange-500 text-black"
+                      : "bg-zinc-900 border border-white/10 text-white"
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            {activeAdminTool === "requests" && (
+              <div className="mt-10 bg-zinc-900 border border-white/10 rounded-3xl p-8">
+                <h2 className="text-3xl font-black">
+                  Academy Sport Requests
+                </h2>
+
+                <div className="mt-6 space-y-4">
+                  {sportRequests.length ? (
+                    sportRequests.map((academy) => (
+                      <div
+                        key={academy.id}
+                        className="bg-black border border-zinc-700 rounded-2xl p-5"
+                      >
+                        <p className="text-orange-500 uppercase tracking-[0.2em] text-xs font-bold">
+                          Requested Sport
+                        </p>
+                        <p className="mt-2 text-2xl font-black">
+                          {academy.desiredSport}
+                        </p>
+                        <p className="mt-2 text-zinc-300">
+                          {academy.academyName || "Unnamed Academy"} -{" "}
+                          {[academy.state, academy.district]
+                            .filter(Boolean)
+                            .join(", ")}
+                        </p>
+                        <label className="mt-5 flex items-center gap-3 text-zinc-300">
+                          <input
+                            type="checkbox"
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                resolveSportRequest(academy.id);
+                              }
+                            }}
+                          />
+                          Request has been handled
+                        </label>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-zinc-400">
+                      No pending sport requests.
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {activeAdminTool === "sports" && (
+              <div className="mt-10 bg-zinc-900 border border-white/10 rounded-3xl p-8">
+                <h2 className="text-3xl font-black">
+                  Add Sports
+                </h2>
+                <p className="mt-2 text-zinc-400">
+                  Added sports become available in academy forms and
+                  dashboards.
+                </p>
+
+                <div className="mt-6 grid md:grid-cols-[1fr_auto] gap-4">
+                  <input
+                    value={newMasterSport}
+                    onChange={(e) => setNewMasterSport(e.target.value)}
+                    placeholder="Sport name"
+                    className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddMasterSport}
+                    className="bg-orange-500 text-black rounded-2xl px-6 py-4 font-black"
+                  >
+                    Add Sport Live
+                  </button>
+                </div>
+
+                <div className="mt-6 flex flex-wrap gap-3">
+                  {masterSports.map((sport) => (
+                    <span
+                      key={sport}
+                      className="bg-black border border-zinc-700 rounded-full px-4 py-2 text-sm"
+                    >
+                      {sport}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {activeAdminTool === "edit" && (
+              <div className="mt-10 bg-zinc-900 border border-white/10 rounded-3xl p-8">
+                <h2 className="text-3xl font-black">
+                  Edit Existing Live Academy
+                </h2>
+
+                <select
+                  value={editAcademyId}
+                  onChange={(e) => loadEditAcademy(e.target.value)}
+                  className="mt-6 w-full bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+                >
+                  <option value="">Select live academy</option>
+                  {liveAcademies.map((academy) => (
+                    <option key={academy.id} value={academy.id}>
+                      {academy.academyName} - {academy.state}
+                    </option>
+                  ))}
+                </select>
+
+                {editAcademyId && (
+                  <div className="mt-6 grid md:grid-cols-2 gap-5">
+                    {[
+                      ["academyName", "Academy Name"],
+                      ["state", "State"],
+                      ["district", "District"],
+                      ["city", "City"],
+                      ["contactNumber", "Contact Number"],
+                      ["officialEmail", "Official Email"],
+                    ].map(([field, placeholder]) => (
+                      <input
+                        key={field}
+                        value={editAcademyForm[field] || ""}
+                        onChange={(e) =>
+                          setEditAcademyForm({
+                            ...editAcademyForm,
+                            [field]:
+                              field === "contactNumber"
+                                ? e.target.value
+                                    .replace(/\D/g, "")
+                                    .slice(0, 10)
+                                : e.target.value,
+                          })
+                        }
+                        placeholder={placeholder}
+                        className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+                      />
+                    ))}
+                    <input
+                      value={editAcademyForm.sportsConducted || ""}
+                      onChange={(e) =>
+                        setEditAcademyForm({
+                          ...editAcademyForm,
+                          sportsConducted: e.target.value,
+                        })
+                      }
+                      placeholder="Sports Conducted, comma separated"
+                      className="md:col-span-2 bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+                    />
+                    <button
+                      type="button"
+                      onClick={saveEditAcademy}
+                      className="md:col-span-2 bg-orange-500 text-black rounded-2xl px-6 py-4 font-black"
+                    >
+                      Save Live Academy Changes
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
             <div className="mt-10 grid gap-8">
               <div className="bg-zinc-900 border border-white/10 rounded-3xl p-8">
                 <h2 className="text-3xl font-black">
@@ -844,6 +1150,7 @@ export default function DashboardPage() {
               </div>
             </div>
 
+            {activeAdminTool === "create" && (
             <div className="mt-10 bg-zinc-900 border border-white/10 rounded-3xl p-8">
               <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-5">
                 <div>
@@ -990,7 +1297,7 @@ export default function DashboardPage() {
                       className="bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4"
                     >
                       <option value="">Select Sport</option>
-                      {sportsList
+                      {masterSports
                         .filter(
                           (sport) => !sportsConducted.includes(sport)
                         )
@@ -1421,6 +1728,7 @@ export default function DashboardPage() {
                   : "Add Active Academy With ELITENETWORK"}
               </button>
             </div>
+            )}
           </>
         )}
       </section>
