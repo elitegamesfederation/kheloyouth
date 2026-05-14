@@ -31,6 +31,18 @@ export default function PublicAcademyPage() {
   const [academy, setAcademy] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
+  const academyStudents = Array.isArray(academy?.students)
+    ? academy.students
+    : [];
+  const liveStudents = academyStudents.slice(
+    0,
+    Number(
+      academy?.paidStudentsCount ??
+        academy?.studentsCount ??
+        academyStudents.length
+    )
+  );
+
   useEffect(() => {
     const loadAcademy = async () => {
       const academyQuery = query(
@@ -114,7 +126,7 @@ export default function PublicAcademyPage() {
                 ["Contact", academy.contactNumber],
                 ["Email", academy.officialEmail],
                 ["Sports", (Array.isArray(academy.sportsConducted) ? academy.sportsConducted : []).join(", ")],
-                ["Students", `${academy.students?.length || 0}`],
+                ["Students", `${liveStudents.length}`],
                 ["Owners / Coaches", `${academy.owners?.length || 0}`],
                 ["Google Location", academy.googleLocation],
               ].map(([label, value]) => (
@@ -161,7 +173,7 @@ export default function PublicAcademyPage() {
                 </h2>
 
                 <div className="mt-6 space-y-4">
-                  {(academy.students || []).map((student: any, index: number) => (
+                  {liveStudents.map((student: any, index: number) => (
                     <div
                       key={index}
                       className="bg-black border border-zinc-700 rounded-2xl p-5"

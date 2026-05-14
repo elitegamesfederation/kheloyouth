@@ -153,11 +153,28 @@ const [students, setStudents] = useState<any[]>([
   const affiliationAmount =
     affiliationFees[selectedYears];
 
+  const isPaidAcademy = Boolean(userData?.paymentDone);
+  const paidStudentsCount = isPaidAcademy
+    ? Number(
+        userData?.paidStudentsCount ??
+          userData?.studentsCount ??
+          0
+      )
+    : 0;
+  const additionalStudentsCount = isPaidAcademy
+    ? Math.max(students.length - paidStudentsCount, 0)
+    : 0;
+  const payableAffiliationAmount = isPaidAcademy
+    ? 0
+    : affiliationAmount;
+
   const studentsAmount =
-    students.length * yearlyStudentFee;
+    (isPaidAcademy
+      ? additionalStudentsCount
+      : students.length) * yearlyStudentFee;
 
   const totalAmount =
-    affiliationAmount + studentsAmount;
+    payableAffiliationAmount + studentsAmount;
 
   const couponDiscountAmount =
     appliedCoupon ? totalAmount : 0;
@@ -430,6 +447,9 @@ const academyPayload = {
   coaches,
   students,
   studentsCount: students.length,
+  paidStudentsCount: isPaidAcademy
+    ? paidStudentsCount
+    : 0,
   selectedYears,
   totalAmount,
   payableAmount,
@@ -449,6 +469,21 @@ const dashboardOwners = Array.isArray(userData?.owners)
 const dashboardStudents = Array.isArray(userData?.students)
   ? userData.students
   : [];
+const dashboardPaidStudentsCount = userData?.paymentDone
+  ? Number(
+      userData?.paidStudentsCount ??
+        userData?.studentsCount ??
+        dashboardStudents.length
+    )
+  : 0;
+const dashboardLiveStudents = dashboardStudents.slice(
+  0,
+  dashboardPaidStudentsCount
+);
+const dashboardPendingStudentsCount = Math.max(
+  dashboardStudents.length - dashboardLiveStudents.length,
+  0
+);
 
 const dashboardGallery =
   Array.isArray(userData?.academyImageUrls) &&
@@ -1454,8 +1489,13 @@ const completeAffiliationWithCoupon = async () => {
         payableAmount: 0,
         amountPaid: 0,
         affiliationNumber,
-        affiliationStartDate: today.toDateString(),
-        affiliationEndDate: endDate.toDateString(),
+        affiliationStartDate: userData?.paymentDone
+          ? userData?.affiliationStartDate
+          : today.toDateString(),
+        affiliationEndDate: userData?.paymentDone
+          ? userData?.affiliationEndDate
+          : endDate.toDateString(),
+        paidStudentsCount: students.length,
         totalAmount,
       }
     );
@@ -1486,6 +1526,11 @@ const completeAffiliationWithCoupon = async () => {
 
     if (appliedCoupon && payableAmount === 0) {
       await completeAffiliationWithCoupon();
+      return;
+    }
+
+    if (payableAmount === 0) {
+      await handleSaveDashboard();
       return;
     }
 
@@ -1529,12 +1574,17 @@ const completeAffiliationWithCoupon = async () => {
               response.razorpay_payment_id,
 
             affiliationStartDate:
-              today.toDateString(),
+              userData?.paymentDone
+                ? userData?.affiliationStartDate
+                : today.toDateString(),
 
             affiliationEndDate:
-              endDate.toDateString(),
+              userData?.paymentDone
+                ? userData?.affiliationEndDate
+                : endDate.toDateString(),
 
             affiliationNumber,
+            paidStudentsCount: students.length,
 
             paymentMode: "razorpay",
             couponCode: appliedCoupon,
@@ -1776,8 +1826,13 @@ console.log("Razorpay Loaded:", window.Razorpay);
                           </span>
 
                           <span className="px-5 py-3 rounded-2xl font-bold bg-zinc-900 border border-white/10">
-                            {dashboardStudents.length} Students
+                            {dashboardLiveStudents.length} Students
                           </span>
+                          {dashboardPendingStudentsCount > 0 && (
+                            <span className="px-5 py-3 rounded-2xl font-bold bg-orange-500 text-black">
+                              {dashboardPendingStudentsCount} Students Pending Payment
+                            </span>
+                          )}
                           <span className="px-5 py-3 rounded-2xl font-bold bg-zinc-900 border border-white/10">
                             {dashboardOwners.length} Owners / Coaches
                           </span>
@@ -1945,8 +2000,8 @@ console.log("Razorpay Loaded:", window.Razorpay);
                       Student Details
                     </h3>
                     <div className="mt-6 space-y-5">
-                      {dashboardStudents.length ? (
-                        dashboardStudents.map((student: any, index: number) => (
+                      {dashboardLiveStudents.length ? (
+                        dashboardLiveStudents.map((student: any, index: number) => (
                           <div
                             key={index}
                             className="flex gap-5 bg-zinc-950 border border-white/10 rounded-2xl p-5"
@@ -1997,7 +2052,7 @@ console.log("Razorpay Loaded:", window.Razorpay);
                           </div>
                         ))
                       ) : (
-                        <p className="text-zinc-400">No student details added yet.</p>
+                        <p className="text-zinc-400">No paid student details are live yet.</p>
                       )}
                     </div>
                   </div>
@@ -3000,6 +3055,7 @@ console.log("Razorpay Loaded:", window.Razorpay);
 
           {/* PLAN */}
 
+          {!isPaidAcademy && (
           <div className="md:col-span-2 mt-10 bg-zinc-900 border border-white/10 rounded-[35px] p-10">
 
             <h2 className="text-4xl font-black">
@@ -3038,6 +3094,7 @@ console.log("Razorpay Loaded:", window.Razorpay);
             </div>
 
           </div>
+          )}
 
           {/* FEES */}
 
@@ -3052,12 +3109,13 @@ console.log("Razorpay Loaded:", window.Razorpay);
               <div className="flex items-center justify-between">
 
                 <p>
-                  Academy Affiliation (
-                  {selectedYears} Year)
+                  {isPaidAcademy
+                    ? "Academy Affiliation already paid"
+                    : `Academy Affiliation (${selectedYears} Year)`}
                 </p>
 
                 <p>
-                  ₹{affiliationAmount}
+                  ₹{payableAffiliationAmount}
                 </p>
 
               </div>
@@ -3065,8 +3123,9 @@ console.log("Razorpay Loaded:", window.Razorpay);
               <div className="flex items-center justify-between">
 
                 <p>
-                  Students ({students.length} ×
-                  ₹99)
+                  {isPaidAcademy
+                    ? `New students (${additionalStudentsCount} × ₹99)`
+                    : `Students (${students.length} × ₹99)`}
                 </p>
 
                 <p>
@@ -3105,6 +3164,7 @@ console.log("Razorpay Loaded:", window.Razorpay);
 
             )}
 
+            {payableAmount > 0 && (
             <div className="mt-8 bg-black/10 border border-black/20 rounded-3xl p-6">
 
               <h3 className="text-2xl font-black">
@@ -3142,6 +3202,7 @@ console.log("Razorpay Loaded:", window.Razorpay);
               )}
 
             </div>
+            )}
 
             {/* PAYMENT */}
 
@@ -3152,14 +3213,18 @@ console.log("Razorpay Loaded:", window.Razorpay);
                 className="flex-1 bg-black text-white hover:bg-zinc-900 transition py-5 rounded-2xl text-xl font-bold"
               >
                 {payableAmount === 0
-                  ? "Complete Affiliation"
+                  ? "Save Profile Updates"
+                  : isPaidAcademy
+                  ? "Pay Additional Student Fee"
                   : "Make Payment Now"}
               </button>
 
               <button
                 onClick={handleSaveDashboard}                
                 className="flex-1 bg-white text-black hover:bg-gray-200 transition py-5 rounded-2xl text-xl font-bold"              >
-                Save & Continue Later                
+                {isPaidAcademy && additionalStudentsCount > 0
+                  ? "Save Changes (New Students Hidden Until Paid)"
+                  : "Save & Continue Later"}                
               </button>
 
             </div>
