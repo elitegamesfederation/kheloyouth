@@ -153,6 +153,23 @@ const [students, setStudents] = useState<any[]>([
   const affiliationAmount =
     affiliationFees[selectedYears];
 
+  const parseSavedDate = (value: Date | string | null | undefined) => {
+    if (!value) return null;
+
+    const date = value instanceof Date ? value : new Date(value);
+
+    return Number.isNaN(date.getTime()) ? null : date;
+  };
+
+  const addOneYear = (value: Date | null) => {
+    if (!value) return null;
+
+    const date = new Date(value);
+    date.setFullYear(date.getFullYear() + 1);
+    return date;
+  };
+
+  const todayForRenewal = new Date();
   const isPaidAcademy = Boolean(userData?.paymentDone);
   const paidStudentsCount = isPaidAcademy
     ? Number(
@@ -164,14 +181,30 @@ const [students, setStudents] = useState<any[]>([
   const additionalStudentsCount = isPaidAcademy
     ? Math.max(students.length - paidStudentsCount, 0)
     : 0;
+  const studentFeeStartDate = parseSavedDate(
+    userData?.studentFeeStartDate ||
+      userData?.affiliationStartDate
+  );
+  const studentFeeEndDate =
+    parseSavedDate(userData?.studentFeeEndDate) ||
+    addOneYear(studentFeeStartDate);
+  const studentRenewalDue = Boolean(
+    isPaidAcademy &&
+      studentFeeEndDate &&
+      studentFeeEndDate < todayForRenewal
+  );
+  const renewalStudentsCount = studentRenewalDue
+    ? Math.min(paidStudentsCount, students.length)
+    : 0;
+  const payableStudentsCount = isPaidAcademy
+    ? additionalStudentsCount + renewalStudentsCount
+    : students.length;
   const payableAffiliationAmount = isPaidAcademy
     ? 0
     : affiliationAmount;
 
   const studentsAmount =
-    (isPaidAcademy
-      ? additionalStudentsCount
-      : students.length) * yearlyStudentFee;
+    payableStudentsCount * yearlyStudentFee;
 
   const totalAmount =
     payableAffiliationAmount + studentsAmount;
@@ -484,6 +517,33 @@ const dashboardPendingStudentsCount = Math.max(
   dashboardStudents.length - dashboardLiveStudents.length,
   0
 );
+const dashboardAffiliationEndDate = parseSavedDate(
+  userData?.affiliationEndDate
+);
+const dashboardAffiliationRenewalDue = Boolean(
+  userData?.paymentDone &&
+    dashboardAffiliationEndDate &&
+    dashboardAffiliationEndDate < todayForRenewal
+);
+const dashboardStudentFeeStartDate = parseSavedDate(
+  userData?.studentFeeStartDate ||
+    userData?.affiliationStartDate
+);
+const dashboardStudentFeeEndDate =
+  parseSavedDate(userData?.studentFeeEndDate) ||
+  addOneYear(dashboardStudentFeeStartDate);
+const dashboardStudentRenewalDue = Boolean(
+  userData?.paymentDone &&
+    dashboardStudentFeeEndDate &&
+    dashboardStudentFeeEndDate < todayForRenewal &&
+    dashboardLiveStudents.length
+);
+const dashboardStudentRenewalNames =
+  dashboardLiveStudents
+    .map((student: any, index: number) =>
+      student.name || `Student ${index + 1}`
+    )
+    .join(", ");
 
 const dashboardGallery =
   Array.isArray(userData?.academyImageUrls) &&
@@ -1457,6 +1517,33 @@ const handleDownloadCertificate = async () => {
   link.click();
 };
 
+const getStudentsWithRenewedFee = () => {
+  const today = new Date();
+  const endDate = new Date(today);
+
+  endDate.setFullYear(today.getFullYear() + 1);
+
+  return students.map((student, index) => {
+    const existingStudentFeeEndDate = parseSavedDate(
+      student.studentFeeEndDate
+    );
+    const shouldRenewStudent =
+      index >= paidStudentsCount ||
+      !existingStudentFeeEndDate ||
+      existingStudentFeeEndDate < today;
+
+    if (!shouldRenewStudent) {
+      return student;
+    }
+
+    return {
+      ...student,
+      studentFeeStartDate: today.toDateString(),
+      studentFeeEndDate: endDate.toDateString(),
+    };
+  });
+};
+
 const completeAffiliationWithCoupon = async () => {
   if (!currentUser || !appliedCoupon) return;
 
@@ -1477,11 +1564,16 @@ const completeAffiliationWithCoupon = async () => {
 
     const payload = await buildAcademyPayload();
     const affiliationNumber = getAffiliationNumber();
+    const renewedStudents = getStudentsWithRenewedFee();
+    const studentFeeEndDate = new Date(today);
+
+    studentFeeEndDate.setFullYear(today.getFullYear() + 1);
 
     await updateDoc(
       doc(db, "academies", currentUser.uid),
       {
         ...payload,
+        students: renewedStudents,
         paymentDone: true,
         paymentMode: "coupon",
         couponCode: appliedCoupon,
@@ -1495,6 +1587,8 @@ const completeAffiliationWithCoupon = async () => {
         affiliationEndDate: userData?.paymentDone
           ? userData?.affiliationEndDate
           : endDate.toDateString(),
+        studentFeeStartDate: today.toDateString(),
+        studentFeeEndDate: studentFeeEndDate.toDateString(),
         paidStudentsCount: students.length,
         totalAmount,
       }
@@ -1549,6 +1643,10 @@ const completeAffiliationWithCoupon = async () => {
 
     const payload = await buildAcademyPayload();
     const affiliationNumber = getAffiliationNumber();
+    const renewedStudents = getStudentsWithRenewedFee();
+    const studentFeeEndDate = new Date(today);
+
+    studentFeeEndDate.setFullYear(today.getFullYear() + 1);
 
     console.log("RAZORPAY KEY:", process.env.NEXT_PUBLIC_RAZORPAY_KEY);
     const options = {
@@ -1568,6 +1666,7 @@ const completeAffiliationWithCoupon = async () => {
           doc(db, "academies", currentUser.uid),
           {
             ...payload,
+            students: renewedStudents,
             paymentDone: true,
 
             razorpayPaymentId:
@@ -1585,6 +1684,8 @@ const completeAffiliationWithCoupon = async () => {
 
             affiliationNumber,
             paidStudentsCount: students.length,
+            studentFeeStartDate: today.toDateString(),
+            studentFeeEndDate: studentFeeEndDate.toDateString(),
 
             paymentMode: "razorpay",
             couponCode: appliedCoupon,
@@ -1716,6 +1817,31 @@ console.log("Razorpay Loaded:", window.Razorpay);
                 >
                   Download Affiliation Certificate
                 </button>
+
+                {(dashboardAffiliationRenewalDue ||
+                  dashboardStudentRenewalDue) && (
+                  <div className="mt-8 bg-orange-500/15 border border-orange-500 rounded-3xl p-6">
+                    <h3 className="text-2xl font-black text-orange-400">
+                      Renewal Required
+                    </h3>
+
+                    {dashboardAffiliationRenewalDue && (
+                      <p className="mt-3 text-gray-200 text-lg">
+                        Academy affiliation has expired. Please renew the academy affiliation to keep it active.
+                      </p>
+                    )}
+
+                    {dashboardStudentRenewalDue && (
+                      <p className="mt-3 text-gray-200 text-lg">
+                        Student yearly fee is due for:{" "}
+                        <span className="font-bold">
+                          {dashboardStudentRenewalNames}
+                        </span>
+                        . Student fee is ₹99 per student per year.
+                      </p>
+                    )}
+                  </div>
+                )}
 
               </div>
 
@@ -3104,6 +3230,10 @@ console.log("Razorpay Loaded:", window.Razorpay);
               Fee Calculation
             </h2>
 
+            <p className="mt-4 text-lg font-bold">
+              Student fee is ₹99 per student per year.
+            </p>
+
             <div className="mt-10 space-y-5 text-2xl">
 
               <div className="flex items-center justify-between">
@@ -3124,7 +3254,7 @@ console.log("Razorpay Loaded:", window.Razorpay);
 
                 <p>
                   {isPaidAcademy
-                    ? `New students (${additionalStudentsCount} × ₹99)`
+                    ? `Students due now (${payableStudentsCount} × ₹99/year)`
                     : `Students (${students.length} × ₹99)`}
                 </p>
 
@@ -3147,6 +3277,12 @@ console.log("Razorpay Loaded:", window.Razorpay);
               </h3>
 
             </div>
+
+            {isPaidAcademy && studentRenewalDue && (
+              <p className="mt-5 bg-black/10 border border-black/20 rounded-2xl px-5 py-4 font-bold">
+                Student yearly renewal is due for the paid students. Their fee is ₹99 per student per year.
+              </p>
+            )}
 
             {appliedCoupon && (
 
