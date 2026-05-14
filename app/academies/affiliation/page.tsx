@@ -1268,26 +1268,123 @@ const handleDownloadCertificate = async () => {
     district ||
     "India";
 
-  fitCanvasText(
-    context,
-    certificateAcademyName.toUpperCase(),
-    position(1265),
-    position(700),
-    position(1080),
-    position(105),
-    "Arial, sans-serif",
-    "#1c3455",
-    "900",
-    "center"
-  );
+  const drawAcademyName = () => {
+    const name = certificateAcademyName.toUpperCase();
+    const centerX = position(1265);
+    const maxWidth = position(1080);
+    const maxFontSize = position(86);
+    const minFontSize = position(42);
+    const oneLineY = position(660);
+    const twoLineFirstY = position(610);
+
+    const wrapName = (fontSize: number) => {
+      context.font = `900 ${fontSize}px Arial, sans-serif`;
+
+      const words: string[] = name.split(/\s+/).filter(Boolean);
+      const lines: string[] = [];
+      let currentLine = "";
+
+      words.forEach((word) => {
+        const nextLine = currentLine
+          ? `${currentLine} ${word}`
+          : word;
+
+        if (
+          context.measureText(nextLine).width <= maxWidth ||
+          !currentLine
+        ) {
+          currentLine = nextLine;
+          return;
+        }
+
+        lines.push(currentLine);
+        currentLine = word;
+      });
+
+      if (currentLine) {
+        lines.push(currentLine);
+      }
+
+      if (
+        lines.length > 2 ||
+        lines.some(
+          (line) => context.measureText(line).width > maxWidth
+        )
+      ) {
+        return null;
+      }
+
+      return lines;
+    };
+
+    for (
+      let fontSize = maxFontSize;
+      fontSize >= minFontSize;
+      fontSize -= 2
+    ) {
+      context.font = `900 ${fontSize}px Arial, sans-serif`;
+
+      if (context.measureText(name).width <= maxWidth) {
+        context.fillStyle = "#1c3455";
+        context.textAlign = "center";
+        context.fillText(name, centerX, oneLineY);
+        context.textAlign = "left";
+        return position(760);
+      }
+
+      const lines = wrapName(fontSize);
+
+      if (lines) {
+        const lineHeight = Math.max(
+          position(70),
+          fontSize * 0.92
+        );
+
+        context.fillStyle = "#1c3455";
+        context.textAlign = "center";
+
+        lines.forEach((line, index) => {
+          context.fillText(
+            line,
+            centerX,
+            twoLineFirstY + index * lineHeight
+          );
+        });
+
+        context.textAlign = "left";
+        return (
+          twoLineFirstY +
+          (lines.length - 1) * lineHeight +
+          position(88)
+        );
+      }
+    }
+
+    fitCanvasText(
+      context,
+      name,
+      centerX,
+      oneLineY,
+      maxWidth,
+      minFontSize,
+      "Arial, sans-serif",
+      "#1c3455",
+      "900",
+      "center"
+    );
+
+    return position(760);
+  };
+
+  const stateY = drawAcademyName();
 
   fitCanvasText(
     context,
     certificateLocation,
     position(1265),
-    position(800),
+    stateY,
     position(700),
-    position(48),
+    position(56),
     "Arial, sans-serif",
     "#1c3455",
     "800",
@@ -1298,9 +1395,9 @@ const handleDownloadCertificate = async () => {
     context,
     `From ${formatCertificateDate(userData?.affiliationStartDate)} To ${formatCertificateDate(userData?.affiliationEndDate)}`,
     position(1265),
-    position(985),
-    position(760),
-    position(28),
+    position(972),
+    position(820),
+    position(32),
     "Arial, sans-serif",
     "#2c2835",
     "700",
