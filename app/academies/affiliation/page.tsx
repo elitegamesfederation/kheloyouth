@@ -450,6 +450,43 @@ const selectedSports = Array.isArray(sportsConducted)
   ? sportsConducted
   : [];
 
+const isBrowserFile = (value: any) =>
+  typeof File !== "undefined" && value instanceof File;
+
+const sanitizePeople = (items: any[]) =>
+  items.map((item) => {
+    const {
+      photo,
+      idProof,
+      ...safeItem
+    } = item;
+
+    return {
+      ...safeItem,
+      photoName: isBrowserFile(photo)
+        ? photo.name
+        : item.photoName || "",
+      idProofName: isBrowserFile(idProof)
+        ? idProof.name
+        : item.idProofName || "",
+    };
+  });
+
+const sanitizeStudents = (items: any[]) =>
+  items.map((item) => {
+    const {
+      photo,
+      ...safeItem
+    } = item;
+
+    return {
+      ...safeItem,
+      photoName: isBrowserFile(photo)
+        ? photo.name
+        : item.photoName || "",
+    };
+  });
+
 const academySlug = academyName
   .trim()
   .toLowerCase()
@@ -476,9 +513,9 @@ const academyPayload = {
   googleLocation,
   mediaCoverageProofName,
   declarationAccepted,
-  owners,
-  coaches,
-  students,
+  owners: sanitizePeople(owners),
+  coaches: sanitizePeople(coaches),
+  students: sanitizeStudents(students),
   studentsCount: students.length,
   paidStudentsCount: isPaidAcademy
     ? paidStudentsCount
@@ -661,15 +698,29 @@ const uploadAcademyFile = async (
 };
 
 const buildAcademyPayload = async () => {
-  const academyLogoUrl = academyLogo
-    ? await uploadAcademyFile(academyLogo, "logo")
-    : userData?.academyLogoUrl || "";
+  const safeUploadAcademyFile = async (
+    file: File,
+    folder: string
+  ) => {
+    try {
+      return await uploadAcademyFile(file, folder);
+    } catch (error) {
+      console.warn("Academy file upload skipped", error);
+      return "";
+    }
+  };
+
+  const uploadedLogoUrl = academyLogo
+    ? await safeUploadAcademyFile(academyLogo, "logo")
+    : "";
+  const academyLogoUrl =
+    uploadedLogoUrl || userData?.academyLogoUrl || "";
 
   const uploadedImageUrls = await Promise.all(
     academyImages
-      .filter((image) => image instanceof File)
+      .filter((image) => isBrowserFile(image))
       .map((image) =>
-        uploadAcademyFile(image as File, "photos")
+        safeUploadAcademyFile(image as File, "photos")
       )
   );
 
@@ -1523,7 +1574,7 @@ const getStudentsWithRenewedFee = () => {
 
   endDate.setFullYear(today.getFullYear() + 1);
 
-  return students.map((student, index) => {
+  const renewedStudents = students.map((student, index) => {
     const existingStudentFeeEndDate = parseSavedDate(
       student.studentFeeEndDate
     );
@@ -1542,6 +1593,8 @@ const getStudentsWithRenewedFee = () => {
       studentFeeEndDate: endDate.toDateString(),
     };
   });
+
+  return sanitizeStudents(renewedStudents);
 };
 
 const completeAffiliationWithCoupon = async () => {
