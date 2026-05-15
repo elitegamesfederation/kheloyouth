@@ -13,9 +13,12 @@ import {
 
 import {
   collection,
+  deleteDoc,
   doc,
   getDoc,
   getDocs,
+  orderBy,
+  query,
   setDoc,
   updateDoc,
 } from "firebase/firestore";
@@ -156,6 +159,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [academies, setAcademies] = useState<any[]>([]);
+  const [contactMessages, setContactMessages] = useState<any[]>([]);
   const [selectedState, setSelectedState] = useState("All States");
   const [activeAdminTool, setActiveAdminTool] = useState("create");
   const [adminUnlocked, setAdminUnlocked] = useState(false);
@@ -194,6 +198,8 @@ export default function DashboardPage() {
   const [academyImageUrls, setAcademyImageUrls] = useState<
     string[]
   >([]);
+  const [featuredAcademyImageUrl, setFeaturedAcademyImageUrl] =
+    useState("");
   const [selectedYears, setSelectedYears] = useState(1);
   const [sportsConducted, setSportsConducted] = useState<string[]>(
     []
@@ -210,6 +216,8 @@ export default function DashboardPage() {
     contactNumber: "",
     officialEmail: "",
     sportsConducted: "",
+    academyImageUrls: [],
+    featuredAcademyImageUrl: "",
   });
   const [owners, setOwners] = useState<any[]>([getDefaultOwner()]);
   const [students, setStudents] = useState<any[]>([getDefaultStudent()]);
@@ -237,6 +245,32 @@ export default function DashboardPage() {
     );
   };
 
+  const loadContactMessages = async () => {
+    try {
+      const messageSnap = await getDocs(
+        query(
+          collection(db, "contactMessages"),
+          orderBy("createdAt", "desc")
+        )
+      );
+
+      setContactMessages(
+        messageSnap.docs.map((messageDoc) => ({
+          id: messageDoc.id,
+          ...messageDoc.data(),
+        }))
+      );
+    } catch {
+      const messageSnap = await getDocs(collection(db, "contactMessages"));
+      setContactMessages(
+        messageSnap.docs.map((messageDoc) => ({
+          id: messageDoc.id,
+          ...messageDoc.data(),
+        }))
+      );
+    }
+  };
+
   const getSavedAdminPassword = () =>
     window.localStorage.getItem("eliteAdminPassword") ||
     defaultAdminPassword;
@@ -254,6 +288,7 @@ export default function DashboardPage() {
     if (adminUnlocked) {
       loadAcademies();
       loadAdminSports();
+      loadContactMessages();
     }
   }, [adminUnlocked]);
 
@@ -435,10 +470,12 @@ export default function DashboardPage() {
     );
     setStudents(
       students.map((student) =>
-        student.sports === sport
+        getStudentSports(student).includes(sport)
           ? {
               ...student,
-              sports: "",
+              sports: getStudentSports(student).filter(
+                (studentSport: string) => studentSport !== sport
+              ),
             }
           : student
       )
@@ -515,6 +552,14 @@ export default function DashboardPage() {
       academyDescription: academy.academyDescription || "",
       contactNumber: academy.contactNumber || "",
       officialEmail: academy.officialEmail || academy.email || "",
+      academyImageUrls: Array.isArray(academy.academyImageUrls)
+        ? academy.academyImageUrls
+        : [],
+      featuredAcademyImageUrl:
+        academy.featuredAcademyImageUrl ||
+        (Array.isArray(academy.academyImageUrls)
+          ? academy.academyImageUrls[0]
+          : ""),
       sportsConducted: Array.isArray(academy.sportsConducted)
         ? academy.sportsConducted.join(", ")
         : "",
@@ -555,11 +600,29 @@ export default function DashboardPage() {
       contactNumber: editAcademyForm.contactNumber,
       officialEmail: editAcademyForm.officialEmail,
       sportsConducted: editSports,
+      featuredAcademyImageUrl: editAcademyForm.featuredAcademyImageUrl || "",
       updatedAt: new Date(),
     });
 
     alert("Live academy updated.");
     await loadAcademies();
+  };
+
+  const deleteAcademy = async (academyId: string, academyName = "") => {
+    const confirmed = window.confirm(
+      `Delete ${academyName || "this academy"} from the database? This removes it from admin and public academy lists.`
+    );
+
+    if (!confirmed) return;
+
+    await deleteDoc(doc(db, "academies", academyId));
+
+    if (editAcademyId === academyId) {
+      setEditAcademyId("");
+    }
+
+    await loadAcademies();
+    alert("Academy deleted.");
   };
 
   const updateOwner = (
@@ -681,6 +744,8 @@ export default function DashboardPage() {
         academyLogoUrl,
         logoURL: academyLogoUrl,
         academyImageUrls,
+        featuredAcademyImageUrl:
+          featuredAcademyImageUrl || academyImageUrls[0] || "",
         sportsConducted,
         owners,
         students,
@@ -732,6 +797,7 @@ export default function DashboardPage() {
       setDeclarationAccepted(false);
       setAcademyLogoUrl("");
       setAcademyImageUrls([]);
+      setFeaturedAcademyImageUrl("");
       setSelectedYears(1);
       setSportsConducted([]);
       setCustomSport("");
@@ -1201,12 +1267,71 @@ export default function DashboardPage() {
                       placeholder="Academy Description"
                       className="md:col-span-2 bg-black border border-zinc-700 rounded-2xl px-5 py-4 min-h-36"
                     />
+                    {Array.isArray(editAcademyForm.academyImageUrls) &&
+                      editAcademyForm.academyImageUrls.length > 0 && (
+                        <div className="md:col-span-2 bg-black border border-zinc-700 rounded-2xl p-5">
+                          <h3 className="text-xl font-black">
+                            Highlight / Banner Photo
+                          </h3>
+                          <p className="mt-1 text-zinc-400 text-sm">
+                            Select the academy photo used as the main banner.
+                          </p>
+                          <div className="mt-5 grid grid-cols-2 md:grid-cols-4 gap-4">
+                            {editAcademyForm.academyImageUrls.map(
+                              (imageUrl: string, index: number) => (
+                                <label
+                                  key={`${imageUrl}-${index}`}
+                                  className={`block rounded-2xl border p-2 cursor-pointer ${
+                                    editAcademyForm.featuredAcademyImageUrl ===
+                                    imageUrl
+                                      ? "border-orange-500 bg-orange-500/10"
+                                      : "border-zinc-700 bg-zinc-950"
+                                  }`}
+                                >
+                                  <input
+                                    type="radio"
+                                    name="editFeaturedAcademyImage"
+                                    checked={
+                                      editAcademyForm.featuredAcademyImageUrl ===
+                                      imageUrl
+                                    }
+                                    onChange={() =>
+                                      setEditAcademyForm({
+                                        ...editAcademyForm,
+                                        featuredAcademyImageUrl: imageUrl,
+                                      })
+                                    }
+                                    className="mb-2"
+                                  />
+                                  <img
+                                    src={imageUrl}
+                                    alt={`Banner option ${index + 1}`}
+                                    className="w-full aspect-video object-cover rounded-xl"
+                                  />
+                                </label>
+                              )
+                            )}
+                          </div>
+                        </div>
+                      )}
                     <button
                       type="button"
                       onClick={saveEditAcademy}
-                      className="md:col-span-2 bg-orange-500 text-black rounded-2xl px-6 py-4 font-black"
+                      className="bg-orange-500 text-black rounded-2xl px-6 py-4 font-black"
                     >
                       Save Live Academy Changes
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        deleteAcademy(
+                          editAcademyId,
+                          editAcademyForm.academyName
+                        )
+                      }
+                      className="bg-red-500 text-white rounded-2xl px-6 py-4 font-black"
+                    >
+                      Delete This Academy
                     </button>
                   </div>
                 )}
@@ -1254,12 +1379,75 @@ export default function DashboardPage() {
                                 }`
                               : ""}
                           </p>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              deleteAcademy(
+                                academy.id,
+                                academy.academyName
+                              )
+                            }
+                            className="mt-4 bg-red-500 text-white px-4 py-2 rounded-xl font-bold"
+                          >
+                            Delete Academy
+                          </button>
                         </div>
                       );
                     })
                   ) : (
                     <p className="text-zinc-400">
                       No unpaid academies right now.
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="bg-zinc-900 border border-white/10 rounded-3xl p-8">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                  <h2 className="text-3xl font-black">
+                    Contact Messages
+                  </h2>
+                  <button
+                    type="button"
+                    onClick={loadContactMessages}
+                    className="bg-black border border-zinc-700 rounded-2xl px-5 py-3 font-bold"
+                  >
+                    Refresh
+                  </button>
+                </div>
+
+                <div className="mt-6 space-y-4">
+                  {contactMessages.length ? (
+                    contactMessages.map((message) => (
+                      <div
+                        key={message.id}
+                        className="bg-black border border-zinc-700 rounded-2xl p-5"
+                      >
+                        <p className="text-xl font-black">
+                          {message.subject || "No subject"}
+                        </p>
+                        <p className="mt-2 text-zinc-300">
+                          {message.name || "Unknown"}{" "}
+                          {message.email ? (
+                            <>
+                              -{" "}
+                              <a
+                                href={`mailto:${message.email}`}
+                                className="text-orange-500"
+                              >
+                                {message.email}
+                              </a>
+                            </>
+                          ) : null}
+                        </p>
+                        <p className="mt-3 text-zinc-400 whitespace-pre-line">
+                          {message.message}
+                        </p>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-zinc-400">
+                      No contact messages yet.
                     </p>
                   )}
                 </div>
@@ -1568,16 +1756,35 @@ export default function DashboardPage() {
                             alt={`Academy photo ${index + 1}`}
                             className="w-full h-32 object-cover rounded-2xl border border-white/10"
                           />
+                          <label className="mt-2 flex items-center gap-2 text-sm text-zinc-300">
+                            <input
+                              type="radio"
+                              name="adminFeaturedAcademyImage"
+                              checked={
+                                featuredAcademyImageUrl === imageUrl ||
+                                (!featuredAcademyImageUrl && index === 0)
+                              }
+                              onChange={() =>
+                                setFeaturedAcademyImageUrl(imageUrl)
+                              }
+                            />
+                            Banner photo
+                          </label>
                           <button
                             type="button"
-                            onClick={() =>
-                              setAcademyImageUrls(
+                            onClick={() => {
+                              const updatedImages =
                                 academyImageUrls.filter(
                                   (_image, photoIndex) =>
                                     photoIndex !== index
-                                )
-                              )
-                            }
+                                );
+                              setAcademyImageUrls(updatedImages);
+                              if (featuredAcademyImageUrl === imageUrl) {
+                                setFeaturedAcademyImageUrl(
+                                  updatedImages[0] || ""
+                                );
+                              }
+                            }}
                             className="absolute top-2 right-2 bg-red-500 w-8 h-8 rounded-full font-bold"
                           >
                             x

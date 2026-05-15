@@ -110,6 +110,10 @@ const [showSports, setShowSports] = useState(false);
 const [sportsSearch, setSportsSearch] = useState("");
 const [logoPreview, setLogoPreview] = useState("");
 const [academyImages, setAcademyImages] = useState<any[]>([]);
+const [featuredAcademyImageUrl, setFeaturedAcademyImageUrl] =
+  useState("");
+const [featuredAcademyImageIndex, setFeaturedAcademyImageIndex] =
+  useState(0);
 
 const [owners, setOwners] = useState([
   {
@@ -341,6 +345,21 @@ setAcademyImages(
   Array.isArray(data.academyImageUrls)
     ? data.academyImageUrls
     : []
+);
+
+setFeaturedAcademyImageUrl(
+  data.featuredAcademyImageUrl ||
+    (Array.isArray(data.academyImageUrls)
+      ? data.academyImageUrls[0]
+      : "")
+);
+setFeaturedAcademyImageIndex(
+  Array.isArray(data.academyImageUrls)
+    ? Math.max(
+        data.academyImageUrls.indexOf(data.featuredAcademyImageUrl),
+        0
+      )
+    : 0
 );
 
 setDeclarationAccepted(
@@ -763,6 +782,11 @@ const dashboardLogo =
   userData?.academyLogoUrl ||
   logoPreview ||
   "";
+const dashboardFeaturedImage =
+  userData?.featuredAcademyImageUrl ||
+  featuredAcademyImageUrl ||
+  dashboardGallery[0] ||
+  "";
 
 const stateCodes: any = {
   "Andhra Pradesh": "AP",
@@ -898,16 +922,23 @@ const buildAcademyPayload = async () => {
   const savedCoaches = await preparePeopleForSave(coaches);
   const savedStudents = await prepareStudentsForSave(students);
 
+  const savedAcademyImageUrls = [
+    ...existingImageUrls,
+    ...uploadedImageUrls.filter(Boolean),
+  ];
+
   return {
     ...academyPayload,
     owners: savedOwners,
     coaches: savedCoaches,
     students: savedStudents,
     academyLogoUrl,
-    academyImageUrls: [
-      ...existingImageUrls,
-      ...uploadedImageUrls.filter(Boolean),
-    ],
+    academyImageUrls: savedAcademyImageUrls,
+    featuredAcademyImageUrl:
+      savedAcademyImageUrls[featuredAcademyImageIndex] ||
+      featuredAcademyImageUrl ||
+      savedAcademyImageUrls[0] ||
+      "",
   };
 };
 
@@ -2190,9 +2221,9 @@ console.log("Razorpay Loaded:", window.Razorpay);
                 <>
                   <div className="md:col-span-2 overflow-hidden rounded-[35px] border border-white/10 bg-black">
                     <div className="relative h-72 bg-gradient-to-r from-zinc-950 via-orange-500/20 to-zinc-900">
-                      {dashboardGallery[0] && (
+                      {dashboardFeaturedImage && (
                         <img
-                          src={dashboardGallery[0]}
+                          src={dashboardFeaturedImage}
                           alt="Academy cover"
                           className="absolute inset-0 w-full h-full object-cover opacity-45"
                         />
@@ -2843,41 +2874,75 @@ console.log("Razorpay Loaded:", window.Razorpay);
         return;
       }
 
-      setAcademyImages([
+      const nextImages = [
         ...academyImages,
         file
-      ]);
+      ];
+
+      setAcademyImages(nextImages);
+
+      if (!featuredAcademyImageUrl) {
+        setFeaturedAcademyImageIndex(0);
+      }
     }}
   />
 
   <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-8">
 
-    {academyImages.map((image: any, index: number) => (
+    {academyImages.map((image: any, index: number) => {
+      const imageUrl =
+        typeof image === "string"
+          ? image
+          : URL.createObjectURL(image);
 
+      return (
       <div
         key={index}
         className="relative"
       >
 
         <img
-          src={
-            typeof image === "string"
-              ? image
-              : URL.createObjectURL(image)
-          }
+          src={imageUrl}
           alt="academy"
           className="w-full h-52 object-cover rounded-3xl border border-white/10"
         />
 
+        <label className="mt-3 flex items-center gap-2 text-sm text-zinc-300">
+          <input
+            type="radio"
+            name="featuredAcademyImage"
+            checked={
+              featuredAcademyImageIndex === index
+            }
+            onChange={() => {
+              setFeaturedAcademyImageIndex(index);
+              setFeaturedAcademyImageUrl(imageUrl);
+            }}
+          />
+          Use as banner photo
+        </label>
+
         <button
           type="button"
           onClick={() => {
-
-            setAcademyImages(
+            const updatedImages =
               academyImages.filter(
                 (_: any, i: number) => i !== index
-              )
-            );
+              );
+
+            setAcademyImages(updatedImages);
+
+            if (featuredAcademyImageUrl === imageUrl) {
+              const nextImage = updatedImages[0];
+              setFeaturedAcademyImageIndex(0);
+              setFeaturedAcademyImageUrl(
+                typeof nextImage === "string" ? nextImage : ""
+              );
+            } else if (featuredAcademyImageIndex >= updatedImages.length) {
+              setFeaturedAcademyImageIndex(
+                Math.max(updatedImages.length - 1, 0)
+              );
+            }
 
           }}
           className="absolute top-2 right-2 bg-red-500 text-white w-8 h-8 rounded-full text-sm font-bold"
@@ -2886,8 +2951,8 @@ console.log("Razorpay Loaded:", window.Razorpay);
         </button>
 
       </div>
-
-    ))}
+      );
+    })}
 
   </div>
 

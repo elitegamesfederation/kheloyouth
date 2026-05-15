@@ -97,7 +97,10 @@ export default function PublicAcademyPage() {
   const eliteStudents = liveStudents.filter(
     (student: any) => student.isEliteAthlete
   );
-  const coverImage = academyGallery[0] || fallbackImage;
+  const coverImage =
+    academy?.featuredAcademyImageUrl ||
+    academyGallery[0] ||
+    fallbackImage;
   const logoImage = academy?.academyLogoUrl || academy?.logoURL || "";
   const location = [academy?.city, academy?.district, academy?.state]
     .filter(Boolean)
