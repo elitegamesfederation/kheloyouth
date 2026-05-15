@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "KheloYouth | Elite Games Federation",
     short_name: "KheloYouth",
     description:
-      "Sports academy affiliation, athlete profiles, donations, and FitStreak by Elite Games Federation.",
+      "India's growing grassroots sports network by Elite Games Federation.",
     start_url: "/",
     display: "standalone",
     background_color: "#000000",

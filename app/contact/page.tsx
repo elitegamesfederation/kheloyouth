@@ -62,7 +62,7 @@ export default function ContactPage() {
           </h1>
 
           <p className="mt-8 text-xl text-gray-300 leading-relaxed max-w-4xl mx-auto">
-            Reach out for academy affiliations, sponsorships, partnerships,
+            Reach out for academy network support, sponsorships, partnerships,
             athlete support, events, media collaborations, and sports initiatives.
           </p>
         </div>

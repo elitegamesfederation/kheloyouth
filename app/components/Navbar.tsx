@@ -80,7 +80,7 @@ export default function Navbar() {
                     href="/academies/affiliation"
                     className="block px-5 py-4 rounded-2xl hover:bg-orange-500/10 hover:text-orange-500 text-gray-300 transition"
                   >
-                    Academy Affiliation
+                    Join Network
                   </Link>
 
                   <Link
@@ -241,7 +241,7 @@ export default function Navbar() {
                     onClick={() => setMenuOpen(false)}
                     className="block px-4 py-3 rounded-xl bg-black/40 text-gray-300"
                   >
-                    Academy Affiliation
+                    Join Network
                   </Link>
 
                   <Link

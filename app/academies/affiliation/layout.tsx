@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Academy Affiliation Form",
+  title: "Join India's Grassroots Sports Network",
   description:
-    "Apply for Elite Games Federation academy affiliation, submit academy details, upload student and coach profiles, and get an affiliation certificate.",
+    "Join KheloYouth, India's growing grassroots sports network for academy webpages, athlete features, federation ID, social promotion, PAN India listing, events, and collaboration.",
   alternates: {
     canonical: "/academies/affiliation",
   },

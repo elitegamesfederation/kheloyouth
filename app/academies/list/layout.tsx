@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "List Of Affiliated Sports Academies",
   description:
-    "Browse verified Elite Games Federation affiliated sports academies by sport, state, and district on KheloYouth.",
+    "Browse verified academies in the Elite Games Federation grassroots sports network by sport, state, and district on KheloYouth.",
   alternates: {
     canonical: "/academies/list",
   },

@@ -5,9 +5,9 @@ import Script from "next/script";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Sports Academy Affiliation, Athlete Profiles & FitStreak",
+  title: "India's Growing Grassroots Sports Network",
   description:
-    "KheloYouth by Elite Games Federation helps sports academies get affiliated, showcase athletes, receive visibility, and connect with India's sports ecosystem.",
+    "KheloYouth by Elite Games Federation is India's growing grassroots sports network for academies, athletes, events, visibility, donations, and FitStreak.",
   alternates: {
     canonical: "/",
   },
@@ -42,9 +42,9 @@ export default function Home() {
             </h1>
 
             <p className="mt-8 text-lg md:text-xl text-gray-300 leading-relaxed max-w-2xl">
-              India’s next-generation sports ecosystem empowering academies,
-              athletes, and fitness communities through technology,
-              affiliations, and elite opportunities.
+              India's growing grassroots sports network empowering academies,
+              athletes, and fitness communities through visibility,
+              collaboration, events, and elite opportunities.
             </p>
 
             {/* BUTTONS */}
@@ -61,7 +61,7 @@ export default function Home() {
                 href="/academies/affiliation"
                 className="border border-white/20 hover:border-orange-500 hover:bg-orange-500/10 transition px-8 py-4 rounded-2xl text-lg font-semibold"
               >
-                Get Affiliated
+                Join The Network
               </Link>
 
             </div>
@@ -127,8 +127,8 @@ export default function Home() {
                 </h3>
 
                 <p className="mt-3 text-gray-300">
-                  Discover opportunities, affiliations, and elite sports
-                  communities across India.
+                  Discover academies, athlete stories, events, and grassroots
+                  sports communities across India.
                 </p>
 
               </div>

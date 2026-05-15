@@ -165,6 +165,17 @@ const [students, setStudents] = useState<any[]>([
     "ELITE100-05",
   ];
 
+  const academyNetworkBenefits = [
+    "Dedicated Academy Webpage",
+    "Official Affiliation Certificate",
+    "Federation ID",
+    "Social Media Promotion",
+    "PAN India Listing",
+    "Event Access",
+    "Athlete Features",
+    "Collaboration Opportunities",
+  ];
+
   const affiliationAmount =
     affiliationFees[selectedYears];
 
@@ -1978,7 +1989,7 @@ const completeAffiliationWithCoupon = async () => {
 
       name: "Elite Games Federation",
 
-      description: "Academy Affiliation",
+      description: "Academy Network Membership",
 
       handler: async function (response: any) {
 
@@ -2147,7 +2158,7 @@ console.log("Razorpay Loaded:", window.Razorpay);
 
                     {dashboardAffiliationRenewalDue && (
                       <p className="mt-3 text-gray-200 text-lg">
-                        Academy affiliation has expired. Please renew the academy affiliation to keep it active.
+                        Academy network membership has expired. Please renew to keep the academy active.
                       </p>
                     )}
 
@@ -2652,7 +2663,7 @@ console.log("Razorpay Loaded:", window.Razorpay);
           </p>
 
           <h1 className="mt-6 text-6xl font-black">
-            Academy Affiliation Form
+            Academy Network Profile Form
           </h1>
 
           {/* FORM */}
@@ -3695,8 +3706,8 @@ console.log("Razorpay Loaded:", window.Razorpay);
 
                 <p>
                   {isPaidAcademy
-                    ? "Academy Affiliation already paid"
-                    : `Academy Affiliation (${selectedYears} Year)`}
+                    ? "Academy network membership already paid"
+                    : `Academy Network Membership (${selectedYears} Year)`}
                 </p>
 
                 <p>
@@ -3850,18 +3861,64 @@ console.log("Razorpay Loaded:", window.Razorpay);
         <div className="max-w-7xl mx-auto px-6 relative z-10 text-center">
 
           <p className="text-orange-500 uppercase tracking-[0.45em] font-semibold">
-            Elite Games Federation
+            India's Growing Grassroots Sports Network
           </p>
 
           <h1 className="mt-6 text-6xl md:text-8xl font-black leading-none">
-            ACADEMY
+            JOIN THE
             <span className="text-orange-500 block mt-3">
-              AFFILIATION
+              NETWORK
             </span>
           </h1>
 
+          <p className="mt-8 text-xl text-zinc-300 max-w-4xl mx-auto leading-relaxed">
+            Build visibility for your academy, feature your athletes, access
+            federation opportunities, and become part of India's growing
+            grassroots sports network.
+          </p>
+
         </div>
 
+      </section>
+
+      <section className="max-w-7xl mx-auto px-6 pb-20">
+        <div className="bg-zinc-900/80 border border-white/10 rounded-[35px] p-8 md:p-10">
+          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+            <div>
+              <p className="text-orange-500 uppercase tracking-[0.35em] text-sm font-semibold">
+                What Every Academy Gets
+              </p>
+              <h2 className="mt-4 text-4xl md:text-5xl font-black">
+                More Than A Certificate
+              </h2>
+              <p className="mt-5 text-zinc-400 text-lg max-w-3xl leading-relaxed">
+                KheloYouth gives academies a public identity, athlete visibility,
+                federation recognition, and access to a growing sports network
+                across India.
+              </p>
+            </div>
+
+            <div className="bg-orange-500 text-black rounded-3xl px-7 py-5">
+              <p className="text-sm uppercase tracking-[0.2em] font-black">
+                Starts As Low As
+              </p>
+              <p className="mt-2 text-4xl font-black">
+                999/- per year
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {academyNetworkBenefits.map((benefit) => (
+              <div
+                key={benefit}
+                className="bg-black border border-zinc-700 rounded-2xl px-5 py-4 font-bold"
+              >
+                {benefit}
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
 
       <section className="max-w-7xl mx-auto px-6 pb-28">

@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Academies",
   description:
-    "Explore Elite Games Federation affiliated sports academies or apply for academy affiliation through KheloYouth.",
+    "Explore India's growing grassroots sports network of academies, athletes, coaches, events, and collaboration opportunities through KheloYouth.",
   alternates: {
     canonical: "/academies",
   },
@@ -34,8 +34,8 @@ export default function AcademiesPage() {
           </h1>
 
           <p className="mt-8 text-xl text-gray-400 max-w-3xl mx-auto leading-relaxed">
-            Explore affiliated academies across India or apply
-            for official Elite Games Federation affiliation.
+            Explore academies across India or join the Elite Games Federation
+            grassroots sports network.
           </p>
 
           {/* BUTTONS */}
@@ -45,7 +45,7 @@ export default function AcademiesPage() {
               href="/academies/affiliation"
               className="bg-orange-500 hover:bg-orange-600 transition px-10 py-5 rounded-2xl text-lg font-bold shadow-[0_0_40px_rgba(255,115,0,0.4)]"
             >
-              Academy Affiliation
+              Join The Network
             </a>
 
             <a

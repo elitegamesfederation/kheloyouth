@@ -22,11 +22,12 @@ export const metadata: Metadata = {
     template: "%s | KheloYouth",
   },
   description:
-    "KheloYouth by Elite Games Federation connects Indian sports academies, athletes, donors, and fitness communities through affiliations, athlete profiles, FitStreak, and grassroots sports opportunities.",
+    "KheloYouth by Elite Games Federation is India's growing grassroots sports network connecting academies, athletes, donors, events, fitness communities, and sports opportunities.",
   keywords: [
     "KheloYouth",
     "Elite Games Federation",
-    "sports academy affiliation",
+    "grassroots sports network India",
+    "sports academy network",
     "sports academies in India",
     "athlete profiles",
     "grassroots sports India",
@@ -46,7 +47,7 @@ export const metadata: Metadata = {
     siteName: "KheloYouth",
     title: "KheloYouth | Elite Games Federation",
     description:
-      "India's sports ecosystem for academy affiliation, athlete visibility, donations, FitStreak, and elite opportunities.",
+      "India's growing grassroots sports network for academies, athlete visibility, donations, FitStreak, events, and elite opportunities.",
     images: [
       {
         url: "/elite-logo.png",
@@ -60,7 +61,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "KheloYouth | Elite Games Federation",
     description:
-      "India's sports ecosystem for academy affiliation, athlete visibility, donations, FitStreak, and elite opportunities.",
+      "India's growing grassroots sports network for academies, athlete visibility, donations, FitStreak, events, and elite opportunities.",
     images: ["/elite-logo.png"],
   },
   robots: {
