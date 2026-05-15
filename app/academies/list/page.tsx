@@ -210,7 +210,7 @@ export default function AcademiesListPage() {
                     fallbackImage
                   }
                   alt={academy.academyName || "Academy"}
-                  className="w-full h-[240px] object-cover"
+                  className="w-full aspect-square object-contain bg-black p-6"
                 />
 
                 <div className="p-8">

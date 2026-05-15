@@ -6,6 +6,10 @@ import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 
 import { auth, db, storage } from "@/app/lib/firebase";
+import {
+  getDistrictsForState,
+  states as indiaStates,
+} from "@/app/lib/indiaLocations";
 
 import {
   createUserWithEmailAndPassword,
@@ -471,6 +475,7 @@ sportsSearch.toLowerCase()
 const selectedSports = Array.isArray(sportsConducted)
   ? sportsConducted
   : [];
+const districtOptions = getDistrictsForState(stateName);
 
 useEffect(() => {
   const loadAdminSports = async () => {
@@ -653,6 +658,26 @@ const academyPayload = {
   couponCode: appliedCoupon,
   couponDiscountAmount,
   profileCompleted: true,
+};
+
+const validateAcademyProfile = () => {
+  if (
+    !academyName ||
+    !stateName ||
+    !district ||
+    pincode.length !== 6 ||
+    contactNumber.length !== 10 ||
+    !selectedSports.length ||
+    !owners.some((owner) => owner.fullName) ||
+    !students.some((student) => student.name)
+  ) {
+    alert(
+      "Please fill compulsory fields: academy name, state, district, 6-digit pincode, 10-digit contact, sports conducted, at least one owner/coach, and at least one student."
+    );
+    return false;
+  }
+
+  return true;
 };
 
 const dashboardSports = Array.isArray(userData?.sportsConducted)
@@ -886,6 +911,11 @@ const buildAcademyPayload = async () => {
       !password
     ) {
       alert("Please fill all fields");
+      return;
+    }
+
+    if (pincode.length !== 6) {
+      alert("Please enter a valid 6-digit pincode");
       return;
     }
 
@@ -1407,6 +1437,8 @@ const copyOwnerToCoach = (
 
     if (!currentUser) return;
 
+    if (!validateAcademyProfile()) return;
+
     if (!userData?.profileCompleted && academyImages.length < 3) {
   alert("Please upload minimum 3 academy photos");
   return;
@@ -1770,6 +1802,8 @@ const getStudentsWithRenewedFee = async () => {
 const completeAffiliationWithCoupon = async () => {
   if (!currentUser || !appliedCoupon) return;
 
+  if (!validateAcademyProfile()) return;
+
   if (!userData?.profileCompleted && academyImages.length < 3) {
     alert("Please upload minimum 3 academy photos");
     return;
@@ -1840,6 +1874,8 @@ const completeAffiliationWithCoupon = async () => {
   const handlePayment = async () => {
 
     if (!currentUser) return;
+
+    if (!validateAcademyProfile()) return;
 
     if (appliedCoupon && payableAmount === 0) {
       await completeAffiliationWithCoupon();
@@ -2441,32 +2477,47 @@ console.log("Razorpay Loaded:", window.Razorpay);
                 className="bg-black border border-zinc-700 rounded-2xl px-6 py-5"
               />
 
-              <input
-                type="text"
+              <select
                 value={stateName}
                 disabled={!editMode}
-                onChange={(e) =>
-                  setStateName(e.target.value)
-                }
+                onChange={(e) => {
+                  setStateName(e.target.value);
+                  setDistrict("");
+                }}
                 className="bg-black border border-zinc-700 rounded-2xl px-6 py-5"
-              />
+              >
+                <option value="">Select State</option>
+                {indiaStates.map((state) => (
+                  <option key={state} value={state}>
+                    {state}
+                  </option>
+                ))}
+              </select>
 
-              <input
-                type="text"
+              <select
                 value={district}
                 disabled={!editMode}
                 onChange={(e) =>
                   setDistrict(e.target.value)
                 }
                 className="bg-black border border-zinc-700 rounded-2xl px-6 py-5"
-              />
+              >
+                <option value="">Select District</option>
+                {districtOptions.map((districtOption) => (
+                  <option key={districtOption} value={districtOption}>
+                    {districtOption}
+                  </option>
+                ))}
+              </select>
 
               <input
                 type="text"
                 value={pincode}
                 disabled={!editMode}
                 onChange={(e) =>
-                  setPincode(e.target.value)
+                  setPincode(
+                    e.target.value.replace(/\D/g, "").slice(0, 6)
+                  )
                 }
                 className="bg-black border border-zinc-700 rounded-2xl px-6 py-5"
               />
@@ -2565,27 +2616,49 @@ console.log("Razorpay Loaded:", window.Razorpay);
     className="bg-black border border-zinc-700 rounded-2xl px-6 py-5"
   />
 
-  <input
-    type="text"
-    placeholder="District"
-    value={districtName}
-    onChange={(e) => setDistrictName(e.target.value)}
-    className="bg-black border border-zinc-700 rounded-2xl px-6 py-5"
-  />
-
-  <input
-    type="text"
-    placeholder="State"
+  <select
     value={stateName}
-    onChange={(e) => setStateName(e.target.value)}
+    onChange={(e) => {
+      setStateName(e.target.value);
+      setDistrict("");
+      setDistrictName("");
+    }}
     className="bg-black border border-zinc-700 rounded-2xl px-6 py-5"
-  />
+  >
+    <option value="">Select State</option>
+    {indiaStates.map((state) => (
+      <option key={state} value={state}>
+        {state}
+      </option>
+    ))}
+  </select>
+
+  <select
+    value={district}
+    onChange={(e) => {
+      setDistrict(e.target.value);
+      setDistrictName(e.target.value);
+    }}
+    className="bg-black border border-zinc-700 rounded-2xl px-6 py-5"
+  >
+    <option value="">Select District</option>
+    {districtOptions.map((districtOption) => (
+      <option key={districtOption} value={districtOption}>
+        {districtOption}
+      </option>
+    ))}
+  </select>
 
   <input
     type="text"
     placeholder="Pincode"
     value={pincode}
-    onChange={(e) => setPincode(e.target.value)}
+    maxLength={6}
+    onChange={(e) =>
+      setPincode(
+        e.target.value.replace(/\D/g, "").slice(0, 6)
+      )
+    }
     className="bg-black border border-zinc-700 rounded-2xl px-6 py-5"
   />
 
@@ -3777,25 +3850,36 @@ console.log("Razorpay Loaded:", window.Razorpay);
 
               <div className="grid md:grid-cols-2 gap-6">
 
-                <input
-                  type="text"
-                  placeholder="State"
+                <select
                   value={stateName}
-                  onChange={(e) =>
-                    setStateName(e.target.value)
-                  }
+                  onChange={(e) => {
+                    setStateName(e.target.value);
+                    setDistrict("");
+                  }}
                   className="w-full bg-black border border-zinc-700 rounded-2xl px-6 py-5"
-                />
+                >
+                  <option value="">Select State</option>
+                  {indiaStates.map((state) => (
+                    <option key={state} value={state}>
+                      {state}
+                    </option>
+                  ))}
+                </select>
 
-                <input
-                  type="text"
-                  placeholder="District"
+                <select
                   value={district}
                   onChange={(e) =>
                     setDistrict(e.target.value)
                   }
                   className="w-full bg-black border border-zinc-700 rounded-2xl px-6 py-5"
-                />
+                >
+                  <option value="">Select District</option>
+                  {districtOptions.map((districtOption) => (
+                    <option key={districtOption} value={districtOption}>
+                      {districtOption}
+                    </option>
+                  ))}
+                </select>
 
               </div>
 
@@ -3804,7 +3888,9 @@ console.log("Razorpay Loaded:", window.Razorpay);
                 placeholder="Pincode"
                 value={pincode}
                 onChange={(e) =>
-                  setPincode(e.target.value)
+                  setPincode(
+                    e.target.value.replace(/\D/g, "").slice(0, 6)
+                  )
                 }
                 className="w-full bg-black border border-zinc-700 rounded-2xl px-6 py-5"
               />

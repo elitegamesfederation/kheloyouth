@@ -6,6 +6,10 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
 import { auth, db } from "@/app/lib/firebase";
+import {
+  getDistrictsForState,
+  states as indiaStates,
+} from "@/app/lib/indiaLocations";
 
 import {
   collection,
@@ -284,6 +288,10 @@ export default function DashboardPage() {
       ),
     0
   );
+  const adminDistrictOptions = getDistrictsForState(stateName);
+  const editDistrictOptions = getDistrictsForState(
+    editAcademyForm.state || ""
+  );
 
   const stateRows = useMemo(() => {
     const rows: any = {};
@@ -518,6 +526,24 @@ export default function DashboardPage() {
       return;
     }
 
+    const editSports = String(editAcademyForm.sportsConducted || "")
+      .split(",")
+      .map((sport) => sport.trim())
+      .filter(Boolean);
+
+    if (
+      !editAcademyForm.academyName ||
+      !editAcademyForm.state ||
+      !editAcademyForm.district ||
+      editAcademyForm.contactNumber.length !== 10 ||
+      !editSports.length
+    ) {
+      alert(
+        "Please fill compulsory fields: academy name, state, district, 10-digit contact, and sports conducted."
+      );
+      return;
+    }
+
     await updateDoc(doc(db, "academies", editAcademyId), {
       academyName: editAcademyForm.academyName,
       academySlug: slugify(editAcademyForm.academyName),
@@ -526,10 +552,7 @@ export default function DashboardPage() {
       city: editAcademyForm.city,
       contactNumber: editAcademyForm.contactNumber,
       officialEmail: editAcademyForm.officialEmail,
-      sportsConducted: String(editAcademyForm.sportsConducted || "")
-        .split(",")
-        .map((sport) => sport.trim())
-        .filter(Boolean),
+      sportsConducted: editSports,
       updatedAt: new Date(),
     });
 
@@ -564,8 +587,19 @@ export default function DashboardPage() {
   };
 
   const createAdminAcademy = async () => {
-    if (!academyName || !stateName || !district) {
-      alert("Academy name, state, and district are required.");
+    if (
+      !academyName ||
+      !stateName ||
+      !district ||
+      pincode.length !== 6 ||
+      contactNumber.length !== 10 ||
+      !sportsConducted.length ||
+      !owners.some((owner) => owner.fullName) ||
+      !students.some((student) => student.name)
+    ) {
+      alert(
+        "Please fill compulsory fields: academy name, state, district, 6-digit pincode, 10-digit contact, sports conducted, at least one owner/coach, and at least one student."
+      );
       return;
     }
 
@@ -1037,32 +1071,90 @@ export default function DashboardPage() {
 
                 {editAcademyId && (
                   <div className="mt-6 grid md:grid-cols-2 gap-5">
-                    {[
-                      ["academyName", "Academy Name"],
-                      ["state", "State"],
-                      ["district", "District"],
-                      ["city", "City"],
-                      ["contactNumber", "Contact Number"],
-                      ["officialEmail", "Official Email"],
-                    ].map(([field, placeholder]) => (
-                      <input
-                        key={field}
-                        value={editAcademyForm[field] || ""}
-                        onChange={(e) =>
-                          setEditAcademyForm({
-                            ...editAcademyForm,
-                            [field]:
-                              field === "contactNumber"
-                                ? e.target.value
-                                    .replace(/\D/g, "")
-                                    .slice(0, 10)
-                                : e.target.value,
-                          })
-                        }
-                        placeholder={placeholder}
-                        className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
-                      />
-                    ))}
+                    <input
+                      value={editAcademyForm.academyName || ""}
+                      onChange={(e) =>
+                        setEditAcademyForm({
+                          ...editAcademyForm,
+                          academyName: e.target.value,
+                        })
+                      }
+                      placeholder="Academy Name"
+                      className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+                    />
+                    <select
+                      value={editAcademyForm.state || ""}
+                      onChange={(e) =>
+                        setEditAcademyForm({
+                          ...editAcademyForm,
+                          state: e.target.value,
+                          district: "",
+                        })
+                      }
+                      className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+                    >
+                      <option value="">Select State</option>
+                      {indiaStates.map((state) => (
+                        <option key={state} value={state}>
+                          {state}
+                        </option>
+                      ))}
+                    </select>
+                    <select
+                      value={editAcademyForm.district || ""}
+                      onChange={(e) =>
+                        setEditAcademyForm({
+                          ...editAcademyForm,
+                          district: e.target.value,
+                        })
+                      }
+                      className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+                    >
+                      <option value="">Select District</option>
+                      {editDistrictOptions.map((districtOption) => (
+                        <option
+                          key={districtOption}
+                          value={districtOption}
+                        >
+                          {districtOption}
+                        </option>
+                      ))}
+                    </select>
+                    <input
+                      value={editAcademyForm.city || ""}
+                      onChange={(e) =>
+                        setEditAcademyForm({
+                          ...editAcademyForm,
+                          city: e.target.value,
+                        })
+                      }
+                      placeholder="City"
+                      className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+                    />
+                    <input
+                      value={editAcademyForm.contactNumber || ""}
+                      onChange={(e) =>
+                        setEditAcademyForm({
+                          ...editAcademyForm,
+                          contactNumber: e.target.value
+                            .replace(/\D/g, "")
+                            .slice(0, 10),
+                        })
+                      }
+                      placeholder="Contact Number"
+                      className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+                    />
+                    <input
+                      value={editAcademyForm.officialEmail || ""}
+                      onChange={(e) =>
+                        setEditAcademyForm({
+                          ...editAcademyForm,
+                          officialEmail: e.target.value,
+                        })
+                      }
+                      placeholder="Official Email"
+                      className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+                    />
                     <input
                       value={editAcademyForm.sportsConducted || ""}
                       onChange={(e) =>
@@ -1201,18 +1293,33 @@ export default function DashboardPage() {
                   placeholder="Full Address"
                   className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
                 />
-                <input
+                <select
                   value={stateName}
-                  onChange={(e) => setStateName(e.target.value)}
-                  placeholder="State"
+                  onChange={(e) => {
+                    setStateName(e.target.value);
+                    setDistrict("");
+                  }}
                   className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
-                />
-                <input
+                >
+                  <option value="">Select State</option>
+                  {indiaStates.map((state) => (
+                    <option key={state} value={state}>
+                      {state}
+                    </option>
+                  ))}
+                </select>
+                <select
                   value={district}
                   onChange={(e) => setDistrict(e.target.value)}
-                  placeholder="District"
                   className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
-                />
+                >
+                  <option value="">Select District</option>
+                  {adminDistrictOptions.map((districtOption) => (
+                    <option key={districtOption} value={districtOption}>
+                      {districtOption}
+                    </option>
+                  ))}
+                </select>
                 <input
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
@@ -1221,7 +1328,12 @@ export default function DashboardPage() {
                 />
                 <input
                   value={pincode}
-                  onChange={(e) => setPincode(e.target.value)}
+                  maxLength={6}
+                  onChange={(e) =>
+                    setPincode(
+                      e.target.value.replace(/\D/g, "").slice(0, 6)
+                    )
+                  }
                   placeholder="Pincode"
                   className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
                 />
