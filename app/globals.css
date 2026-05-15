@@ -200,3 +200,21 @@ button {
     min-width: 620px;
   }
 }
+
+@media (min-width: 1800px) {
+  [class*="max-w-7xl"],
+  [class*="max-w-6xl"] {
+    width: 82vw !important;
+    max-width: none !important;
+  }
+
+  nav [class*="max-w-7xl"],
+  footer [class*="max-w-7xl"] {
+    width: 82vw !important;
+    max-width: none !important;
+  }
+
+  section[class*="min-h-screen"] {
+    min-height: 100vh;
+  }
+}
