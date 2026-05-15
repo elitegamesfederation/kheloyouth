@@ -1,5 +1,15 @@
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "FitStreak",
+  description:
+    "FitStreak is a fitness and challenge tracking platform by Elite Games Federation for workouts, steps, calories, streaks, and performance.",
+  alternates: {
+    canonical: "/fitstreak",
+  },
+};
 
 export default function FitStreakPage() {
   return (

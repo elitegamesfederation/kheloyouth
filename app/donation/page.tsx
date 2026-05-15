@@ -1,5 +1,15 @@
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Donation",
+  description:
+    "Support Elite Games Federation through one-time donations or monthly contributions. Contributions are exempted U/s 80G of Income Tax Act 1961.",
+  alternates: {
+    canonical: "/donation",
+  },
+};
 
 const oneTimeDonationLink = "https://rzp.io/rzp/EliteGamesFederation";
 

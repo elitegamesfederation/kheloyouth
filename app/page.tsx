@@ -2,7 +2,16 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Link from "next/link";
 import Script from "next/script";
+import type { Metadata } from "next";
 
+export const metadata: Metadata = {
+  title: "Sports Academy Affiliation, Athlete Profiles & FitStreak",
+  description:
+    "KheloYouth by Elite Games Federation helps sports academies get affiliated, showcase athletes, receive visibility, and connect with India's sports ecosystem.",
+  alternates: {
+    canonical: "/",
+  },
+};
 
 export default function Home() {
   return (

@@ -1,5 +1,15 @@
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Academies",
+  description:
+    "Explore Elite Games Federation affiliated sports academies or apply for academy affiliation through KheloYouth.",
+  alternates: {
+    canonical: "/academies",
+  },
+};
 
 export default function AcademiesPage() {
   return (
