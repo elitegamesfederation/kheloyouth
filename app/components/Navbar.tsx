@@ -44,7 +44,7 @@ export default function Navbar() {
           </Link>
 
           {/* DESKTOP NAVIGATION */}
-          <div className="hidden md:flex items-center gap-3 bg-white/5 border border-white/10 rounded-full px-3 py-3 backdrop-blur-xl shadow-[0_0_50px_rgba(255,115,0,0.08)]">
+          <div className="hidden lg:flex items-center gap-3 bg-white/5 border border-white/10 rounded-full px-3 py-3 backdrop-blur-xl shadow-[0_0_50px_rgba(255,115,0,0.08)]">
 
             {/* HOME */}
             <Link
@@ -137,7 +137,7 @@ export default function Navbar() {
           {/* MOBILE MENU BUTTON */}
           <button
             onClick={() => setMenuOpen(true)}
-            className="md:hidden flex flex-col gap-1.5 z-50"
+            className="lg:hidden flex flex-col gap-1.5 z-50"
           >
 
             <span className="w-7 h-[3px] bg-orange-500 rounded-full"></span>

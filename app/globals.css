@@ -24,3 +24,167 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+img,
+video,
+canvas,
+svg {
+  max-width: 100%;
+}
+
+input,
+select,
+textarea,
+button {
+  max-width: 100%;
+}
+
+@media (max-width: 640px) {
+  main {
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  section[class*="pt-52"],
+  section[class*="pt-44"] {
+    padding-top: 8.5rem !important;
+  }
+
+  section[class*="pb-28"],
+  section[class*="pb-24"],
+  section[class*="py-28"],
+  section[class*="py-24"] {
+    padding-bottom: 4rem !important;
+  }
+
+  [class*="max-w-7xl"] {
+    max-width: 100% !important;
+  }
+
+  [class*="px-6"] {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  [class*="px-10"],
+  [class*="px-8"],
+  [class*="px-7"] {
+    padding-left: 1.25rem !important;
+    padding-right: 1.25rem !important;
+  }
+
+  [class*="p-10"] {
+    padding: 1.25rem !important;
+  }
+
+  [class*="p-8"] {
+    padding: 1rem !important;
+  }
+
+  [class*="rounded-[35px]"],
+  [class*="rounded-[40px]"] {
+    border-radius: 1.25rem !important;
+  }
+
+  [class*="text-8xl"],
+  [class*="text-7xl"],
+  [class*="text-6xl"] {
+    font-size: clamp(2.35rem, 13vw, 3.65rem) !important;
+    line-height: 0.95 !important;
+  }
+
+  [class*="text-5xl"] {
+    font-size: clamp(2rem, 10vw, 3rem) !important;
+    line-height: 1.02 !important;
+  }
+
+  [class*="text-4xl"] {
+    font-size: clamp(1.65rem, 8vw, 2.25rem) !important;
+    line-height: 1.08 !important;
+  }
+
+  [class*="tracking-[0.45em]"],
+  [class*="tracking-[0.4em]"],
+  [class*="tracking-[0.35em]"] {
+    letter-spacing: 0.18em !important;
+  }
+
+  [class*="gap-20"],
+  [class*="gap-16"],
+  [class*="gap-14"],
+  [class*="gap-10"] {
+    gap: 1.5rem !important;
+  }
+
+  [class*="mt-16"],
+  [class*="mt-14"],
+  [class*="mt-12"],
+  [class*="mt-10"] {
+    margin-top: 2rem !important;
+  }
+
+  [class*="min-h-[430px]"],
+  [class*="min-h-[470px]"] {
+    min-height: 34rem !important;
+  }
+
+  [class*="h-[680px]"],
+  [class*="h-[650px]"],
+  [class*="h-[620px]"],
+  [class*="h-[600px]"] {
+    height: auto !important;
+    min-height: 28rem !important;
+  }
+
+  [class*="w-[500px]"],
+  [class*="w-[450px]"],
+  [class*="w-[400px]"],
+  [class*="w-[350px]"],
+  [class*="w-[340px]"],
+  [class*="w-[320px]"] {
+    max-width: calc(100vw - 2rem) !important;
+  }
+
+  [class*="w-[340px]"],
+  [class*="w-[320px]"] {
+    width: 100% !important;
+  }
+
+  [class*="left-8"] {
+    left: 1rem !important;
+  }
+
+  [class*="right-8"] {
+    right: 1rem !important;
+  }
+
+  [class*="bottom-8"] {
+    bottom: 1rem !important;
+  }
+
+  .grid,
+  .flex {
+    min-width: 0;
+  }
+
+  input,
+  select,
+  textarea {
+    width: 100%;
+    font-size: 16px;
+  }
+
+  table {
+    min-width: 620px;
+  }
+}
