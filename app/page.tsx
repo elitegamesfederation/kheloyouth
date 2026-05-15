@@ -10,14 +10,14 @@ export default function Home() {
         <Navbar />
 
       {/* HERO SECTION */}
-      <section className="relative min-h-screen pt-40 md:pt-0 flex items-center pt-40 md:pt-0">
+      <section className="relative min-h-screen pt-32 md:pt-0 flex items-start md:items-center">
 
         {/* BACKGROUND GLOW */}
         <div className="absolute top-20 right-0 w-[500px] h-[500px] bg-orange-500/20 blur-[140px] rounded-full"></div>
 
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-orange-400/10 blur-[120px] rounded-full"></div>
 
-       <div className="max-w-7xl mx-auto px-5 md:px-6 grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] gap-14 lg:gap-28 items-center relative z-10 pt-24 md:pt-32">
+       <div className="max-w-7xl mx-auto px-5 md:px-6 grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] gap-14 lg:gap-28 items-center relative z-10 pt-0 md:pt-32">
 
           {/* LEFT CONTENT */}
           <div className="text-center lg:text-left">
