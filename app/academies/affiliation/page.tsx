@@ -1829,7 +1829,7 @@ const handleDownloadIdCard = async (
     try {
       const photo = await loadCanvasImage(photoUrl);
       context.save();
-      drawRoundedRectClip(context, p(230), p(335), p(780), p(750), p(70));
+      drawRoundedRectClip(context, p(230), p(335), p(780), p(750), p(46));
       drawCoverImage(context, photo, p(230), p(335), p(780), p(750));
       context.restore();
     } catch (error) {
@@ -1844,16 +1844,16 @@ const handleDownloadIdCard = async (
     context,
     memberName.toUpperCase(),
     canvas.width / 2,
-    p(1215),
+    p(1212),
     p(980),
     p(56)
   );
-  drawCenteredText(context, memberRole, canvas.width / 2, p(1278), p(900), p(34), "#ffffff", "500");
+  drawCenteredText(context, memberRole, canvas.width / 2, p(1280), p(900), p(34), "#ffffff", "500");
   drawCenteredText(
     context,
     (userData?.academyName || academyName || "Academy").toUpperCase(),
     canvas.width / 2,
-    p(1334),
+    p(1340),
     p(930),
     p(36),
     "#ffffff",
@@ -1863,7 +1863,7 @@ const handleDownloadIdCard = async (
     context,
     (userData?.state || stateName || "India").toUpperCase(),
     canvas.width / 2,
-    p(1386),
+    p(1395),
     p(900),
     p(32),
     "#ffffff",
@@ -1873,7 +1873,7 @@ const handleDownloadIdCard = async (
     context,
     `ID Number : ${memberId}`,
     canvas.width / 2,
-    p(1446),
+    p(1460),
     p(1060),
     p(34),
     "#ffffff",
@@ -1883,7 +1883,7 @@ const handleDownloadIdCard = async (
     context,
     `Blood Group : ${member.bloodGroup || "Not added"}`,
     canvas.width / 2,
-    p(1492),
+    p(1514),
     p(900),
     p(26),
     "#ffffff",
@@ -1893,7 +1893,7 @@ const handleDownloadIdCard = async (
     context,
     `Valid From ${formatCertificateDate(userData?.affiliationStartDate)} To ${formatCertificateDate(userData?.affiliationEndDate)}`,
     canvas.width / 2,
-    p(1542),
+    p(1568),
     p(1050),
     p(28),
     "#ffffff",
@@ -1903,7 +1903,7 @@ const handleDownloadIdCard = async (
   const qrDataUrl = await QRCode.toDataURL(verificationUrl, {
     errorCorrectionLevel: "H",
     margin: 1,
-    width: Math.round(p(230)),
+    width: Math.round(p(280)),
     color: {
       dark: "#000000",
       light: "#ffffff",
@@ -1911,13 +1911,13 @@ const handleDownloadIdCard = async (
   });
   const qrImage = await loadCanvasImage(qrDataUrl);
   context.fillStyle = "#ffffff";
-  context.fillRect(p(505), p(1580), p(230), p(230));
-  context.drawImage(qrImage, p(505), p(1580), p(230), p(230));
+  context.fillRect(p(480), p(1610), p(280), p(280));
+  context.drawImage(qrImage, p(480), p(1610), p(280), p(280));
   drawCenteredText(
     context,
     "Scan this to check authenticity",
     canvas.width / 2,
-    p(1858),
+    p(1960),
     p(900),
     p(28),
     "#ffffff",
@@ -2129,19 +2129,19 @@ const handleDownloadCertificate = async () => {
   });
   const certificateQrImage = await loadCanvasImage(certificateQrDataUrl);
   context.fillStyle = "#ffffff";
-  context.fillRect(position(1712), position(1078), position(170), position(170));
+  context.fillRect(position(265), position(895), position(170), position(170));
   context.drawImage(
     certificateQrImage,
-    position(1722),
-    position(1088),
+    position(275),
+    position(905),
     position(150),
     position(150)
   );
   fitCanvasText(
     context,
     "Scan to verify",
-    position(1797),
-    position(1278),
+    position(350),
+    position(1098),
     position(180),
     position(18),
     "Arial, sans-serif",
