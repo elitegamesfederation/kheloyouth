@@ -239,7 +239,7 @@ export default function AcademiesListPage() {
 
         {filteredAcademies.length === 0 && (
           <p className="mt-16 text-center text-zinc-400">
-            No paid affiliated academies are live yet.
+            Academy data is being uploaded. Please check back soon.
           </p>
         )}
       </section>
