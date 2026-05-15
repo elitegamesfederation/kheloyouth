@@ -1,6 +1,7 @@
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Link from "next/link";
+import Script from "next/script";
 
 
 export default function Home() {
@@ -174,7 +175,7 @@ export default function Home() {
 
         <img
           src="/surajpodcast.png"
-          alt="Suraj Gaiwal Podcast"
+          alt="Suraj Gaywal Podcast"
           className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-700"
         />
 
@@ -200,7 +201,7 @@ export default function Home() {
           </p>
 
           <h3 className="mt-4 text-4xl font-black leading-tight">
-            Suraj Gaiwal
+            Suraj Gaywal
           </h3>
 
           <p className="mt-5 text-gray-300 leading-relaxed text-lg">
@@ -579,7 +580,7 @@ export default function Home() {
           </p>
 
           <h3 className="mt-3 text-xl font-black">
-            Navdeep Singhji
+            Suraj Gaywal
           </h3>
 
         </div>
@@ -664,6 +665,76 @@ export default function Home() {
     </div>
 
   </div>
+
+</section>
+
+{/* INSTAGRAM FEED */}
+<section className="relative py-20 md:py-24 overflow-hidden border-t border-white/10">
+
+  <div className="absolute top-0 right-0 w-[420px] h-[420px] bg-orange-500/10 blur-[140px] rounded-full"></div>
+
+  <div className="relative z-10 max-w-7xl mx-auto px-5 md:px-6">
+
+    <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+
+      <div>
+
+        <p className="text-orange-500 uppercase tracking-[0.35em] text-sm font-semibold">
+          Instagram
+        </p>
+
+        <h2 className="mt-5 text-4xl md:text-6xl font-black leading-tight">
+          Follow
+          <span className="text-orange-500"> Elite Games Federation</span>
+        </h2>
+
+        <p className="mt-6 text-gray-400 text-lg leading-relaxed max-w-3xl">
+          Watch academy updates, athlete stories, tournaments, and federation
+          moments from our official Instagram page.
+        </p>
+
+      </div>
+
+      <a
+        href="https://www.instagram.com/elitegamesfederation/"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="w-fit bg-orange-500 hover:bg-orange-600 transition px-8 py-4 rounded-2xl text-lg font-bold shadow-[0_0_40px_rgba(255,115,0,0.35)]"
+      >
+        Open Instagram
+      </a>
+
+    </div>
+
+    <div className="mt-12 rounded-[36px] border border-white/10 bg-zinc-900/70 backdrop-blur-xl p-4 md:p-8 overflow-hidden">
+      <blockquote
+        className="instagram-media"
+        data-instgrm-permalink="https://www.instagram.com/elitegamesfederation/"
+        data-instgrm-version="14"
+        style={{
+          background: "#000",
+          border: 0,
+          borderRadius: "28px",
+          margin: "0 auto",
+          maxWidth: "920px",
+          minWidth: "326px",
+          width: "100%",
+        }}
+      >
+        <a
+          href="https://www.instagram.com/elitegamesfederation/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block text-center text-orange-500 font-bold py-16"
+        >
+          View @elitegamesfederation on Instagram
+        </a>
+      </blockquote>
+    </div>
+
+  </div>
+
+  <Script src="https://www.instagram.com/embed.js" strategy="afterInteractive" />
 
 </section>
 

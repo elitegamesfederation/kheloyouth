@@ -29,7 +29,7 @@ export default function Navbar() {
               className="w-12 h-12 md:w-16 md:h-16 object-contain drop-shadow-[0_0_30px_rgba(255,115,0,0.8)]"
             />
 
-            <div className="flex flex-col">
+            <div className="flex flex-col items-center text-center">
 
               <h1 className="text-3xl md:text-5xl font-black tracking-[0.18em] text-orange-500 uppercase leading-none">
                 Elite
