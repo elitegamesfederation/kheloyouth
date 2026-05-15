@@ -55,9 +55,21 @@ button {
     overflow-x: hidden;
   }
 
+  main[class*="pt-40"] {
+    padding-top: 0 !important;
+  }
+
+  section[class*="min-h-screen"] {
+    min-height: auto !important;
+  }
+
   section[class*="pt-52"],
   section[class*="pt-44"] {
-    padding-top: 8.5rem !important;
+    padding-top: 5.5rem !important;
+  }
+
+  section[class*="pt-40"] {
+    padding-top: 5.5rem !important;
   }
 
   section[class*="pb-28"],
