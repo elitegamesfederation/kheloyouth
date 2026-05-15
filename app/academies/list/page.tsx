@@ -238,9 +238,17 @@ export default function AcademiesListPage() {
         </div>
 
         {filteredAcademies.length === 0 && (
-          <p className="mt-16 text-center text-zinc-400">
-            Academy data is being uploaded. Please check back soon.
-          </p>
+          <div className="mt-16 text-center">
+            <p className="text-zinc-400">
+              Academy data is being uploaded. Please check back soon.
+            </p>
+            <a
+              href="/academy/sample-academy"
+              className="mt-6 inline-flex bg-orange-500 text-black px-6 py-3 rounded-2xl font-black"
+            >
+              View Sample Academy
+            </a>
+          </div>
         )}
       </section>
 

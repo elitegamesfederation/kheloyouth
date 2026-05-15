@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import QRCode from "qrcode";
 
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
@@ -120,9 +121,11 @@ const [owners, setOwners] = useState([
     fullName: "",
     role: "Owner",
     sex: "",
+    bloodGroup: "",
     designation: "",
     mobile: "",
     email: "",
+    memberId: "",
     photo: null,
     photoPreview: "",
     idProof: null,
@@ -137,7 +140,9 @@ const [students, setStudents] = useState<any[]>([
     school: "",
     achievement: "",
     sex: "",
+    bloodGroup: "",
     sports: "",
+    memberId: "",
     photo: null,
     photoPreview: "",
     isEliteAthlete: false,
@@ -174,6 +179,17 @@ const [students, setStudents] = useState<any[]>([
     "Event Access",
     "Athlete Features",
     "Collaboration Opportunities",
+  ];
+
+  const bloodGroupOptions = [
+    "A+",
+    "A-",
+    "B+",
+    "B-",
+    "AB+",
+    "AB-",
+    "O+",
+    "O-",
   ];
 
   const affiliationAmount =
@@ -383,9 +399,11 @@ setOwners(
       fullName: "",
       role: "Owner",
       sex: "",
+      bloodGroup: "",
       designation: "",
       mobile: "",
       email: "",
+      memberId: "",
       photo: null,
       photoPreview: "",
       idProof: null,
@@ -402,7 +420,9 @@ setStudents(
       school: "",
       achievement: "",
       sex: "",
+      bloodGroup: "",
       sports: "",
+      memberId: "",
       photo: null,
       photoPreview: "",
       isEliteAthlete: false,
@@ -641,6 +661,7 @@ const preparePeopleForSave = async (items: any[]) => {
 
       return {
         ...item,
+        memberId: getMemberId(item.memberId || "", "OC", index),
         photoPreview,
         photoUrl: photoPreview,
       };
@@ -657,6 +678,7 @@ const prepareStudentsForSave = async (items: any[]) => {
 
       return {
         ...item,
+        memberId: getMemberId(item.memberId || "", "ST", index),
         photoPreview,
         photoUrl: photoPreview,
       };
@@ -701,9 +723,9 @@ const academyPayload = {
   totalAmount,
   payableAmount,
   couponCode: appliedCoupon,
-  couponDiscountAmount,
-  profileCompleted: true,
-};
+    couponDiscountAmount,
+    profileCompleted: true,
+  };
 
 const validateAcademyProfile = () => {
   if (
@@ -854,6 +876,33 @@ const getAffiliationNumber = () => {
   return `${getStateCode(stateName)}/${year}/${uidSeed}`;
 };
 
+const getMemberId = (
+  existingId: string,
+  type: "OC" | "ST",
+  index: number
+) => {
+  if (existingId) return existingId;
+
+  const seed = (currentUser?.uid || academySlug || "sample")
+    .replace(/[^a-z0-9]/gi, "")
+    .slice(-5)
+    .toUpperCase()
+    .padStart(5, "0");
+
+  return `EGF-${getStateCode(stateName)}-${type}-${seed}${String(
+    index + 1
+  ).padStart(2, "0")}`;
+};
+
+const getCertificateVerificationId = () =>
+  (
+    userData?.certificateVerificationId ||
+    getAffiliationNumber()
+  )
+    .replace(/[^a-z0-9]+/gi, "-")
+    .replace(/^-+|-+$/g, "")
+    .toUpperCase();
+
 const formatCertificateDate = (value: Date | string | null | undefined) => {
   if (!value) return "";
 
@@ -940,6 +989,7 @@ const buildAcademyPayload = async () => {
 
   return {
     ...academyPayload,
+    certificateVerificationId: getCertificateVerificationId(),
     owners: savedOwners,
     coaches: savedCoaches,
     students: savedStudents,
@@ -1182,9 +1232,11 @@ setOwners(
       fullName: "",
       role: "Owner",
       sex: "",
+      bloodGroup: "",
       designation: "",
       mobile: "",
       email: "",
+      memberId: "",
       photo: null,
       photoPreview: "",
       idProof: null,
@@ -1205,7 +1257,9 @@ setStudents(
       school: "",
       achievement: "",
       sex: "",
+      bloodGroup: "",
       sports: "",
+      memberId: "",
       photo: null,
       photoPreview: "",
       isEliteAthlete: false,
@@ -1263,9 +1317,11 @@ const addOwner = () => {
       fullName: "",
       role: "Owner",
       sex: "",
+      bloodGroup: "",
       designation: "",
       mobile: "",
       email: "",
+      memberId: "",
       photo: null,
       photoPreview: "",
       idProof: null,
@@ -1322,7 +1378,9 @@ const addStudent = () => {
       school: "",
       achievement: "",
       sex: "",
+      bloodGroup: "",
       sports: "",
+      memberId: "",
       photo: null,
       photoPreview: "",
       isEliteAthlete: false,
@@ -1653,6 +1711,227 @@ const fitCanvasText = (
   context.textAlign = "left";
 };
 
+const getPublicOrigin = () =>
+  typeof window !== "undefined"
+    ? window.location.origin
+    : "https://kheloyouth.com";
+
+const loadCanvasImage = (src: string) =>
+  new Promise<HTMLImageElement>((resolve, reject) => {
+    const image = new Image();
+    image.crossOrigin = "anonymous";
+    image.onload = () => resolve(image);
+    image.onerror = reject;
+    image.src = src;
+  });
+
+const drawCoverImage = (
+  context: CanvasRenderingContext2D,
+  image: HTMLImageElement,
+  x: number,
+  y: number,
+  width: number,
+  height: number
+) => {
+  const scale = Math.max(width / image.width, height / image.height);
+  const scaledWidth = image.width * scale;
+  const scaledHeight = image.height * scale;
+
+  context.drawImage(
+    image,
+    x + (width - scaledWidth) / 2,
+    y + (height - scaledHeight) / 2,
+    scaledWidth,
+    scaledHeight
+  );
+};
+
+const drawRoundedRectClip = (
+  context: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  radius: number
+) => {
+  context.beginPath();
+  context.moveTo(x + radius, y);
+  context.lineTo(x + width - radius, y);
+  context.quadraticCurveTo(x + width, y, x + width, y + radius);
+  context.lineTo(x + width, y + height - radius);
+  context.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+  context.lineTo(x + radius, y + height);
+  context.quadraticCurveTo(x, y + height, x, y + height - radius);
+  context.lineTo(x, y + radius);
+  context.quadraticCurveTo(x, y, x + radius, y);
+  context.closePath();
+  context.clip();
+};
+
+const drawCenteredText = (
+  context: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+  maxWidth: number,
+  fontSize: number,
+  color = "#ffffff",
+  weight = "900"
+) => {
+  fitCanvasText(
+    context,
+    text,
+    x,
+    y,
+    maxWidth,
+    fontSize,
+    "Arial, sans-serif",
+    color,
+    weight,
+    "center"
+  );
+};
+
+const handleDownloadIdCard = async (
+  member: any,
+  type: "OC" | "ST",
+  index: number
+) => {
+  const template = await loadCanvasImage("/elite-id-card-template.png");
+  const canvas = document.createElement("canvas");
+  canvas.width = template.naturalWidth;
+  canvas.height = template.naturalHeight;
+
+  const context = canvas.getContext("2d");
+  if (!context) return;
+
+  context.drawImage(template, 0, 0);
+
+  const scale = canvas.width / 1240;
+  const p = (value: number) => value * scale;
+  const memberName =
+    type === "ST"
+      ? member.name || `Student ${index + 1}`
+      : member.fullName || `Member ${index + 1}`;
+  const memberRole =
+    type === "ST"
+      ? member.isEliteAthlete
+        ? "ELITE ATHLETE"
+        : "STUDENT"
+      : (member.role || "OWNER / COACH").toUpperCase();
+  const memberId = getMemberId(member.memberId || "", type, index);
+  const verificationUrl = `${getPublicOrigin()}/id-card/${encodeURIComponent(
+    memberId
+  )}`;
+  const photoUrl = member.photoPreview || member.photoUrl || "";
+
+  if (photoUrl) {
+    try {
+      const photo = await loadCanvasImage(photoUrl);
+      context.save();
+      drawRoundedRectClip(context, p(230), p(335), p(780), p(750), p(70));
+      drawCoverImage(context, photo, p(230), p(335), p(780), p(750));
+      context.restore();
+    } catch (error) {
+      console.warn("ID photo skipped", error);
+    }
+  }
+
+  context.fillStyle = "#000000";
+  context.fillRect(0, p(1125), canvas.width, canvas.height - p(1125));
+
+  drawCenteredText(
+    context,
+    memberName.toUpperCase(),
+    canvas.width / 2,
+    p(1215),
+    p(980),
+    p(56)
+  );
+  drawCenteredText(context, memberRole, canvas.width / 2, p(1278), p(900), p(34), "#ffffff", "500");
+  drawCenteredText(
+    context,
+    (userData?.academyName || academyName || "Academy").toUpperCase(),
+    canvas.width / 2,
+    p(1334),
+    p(930),
+    p(36),
+    "#ffffff",
+    "500"
+  );
+  drawCenteredText(
+    context,
+    (userData?.state || stateName || "India").toUpperCase(),
+    canvas.width / 2,
+    p(1386),
+    p(900),
+    p(32),
+    "#ffffff",
+    "500"
+  );
+  drawCenteredText(
+    context,
+    `ID Number : ${memberId}`,
+    canvas.width / 2,
+    p(1446),
+    p(1060),
+    p(34),
+    "#ffffff",
+    "500"
+  );
+  drawCenteredText(
+    context,
+    `Blood Group : ${member.bloodGroup || "Not added"}`,
+    canvas.width / 2,
+    p(1492),
+    p(900),
+    p(26),
+    "#ffffff",
+    "500"
+  );
+  drawCenteredText(
+    context,
+    `Valid From ${formatCertificateDate(userData?.affiliationStartDate)} To ${formatCertificateDate(userData?.affiliationEndDate)}`,
+    canvas.width / 2,
+    p(1542),
+    p(1050),
+    p(28),
+    "#ffffff",
+    "500"
+  );
+
+  const qrDataUrl = await QRCode.toDataURL(verificationUrl, {
+    errorCorrectionLevel: "H",
+    margin: 1,
+    width: Math.round(p(230)),
+    color: {
+      dark: "#000000",
+      light: "#ffffff",
+    },
+  });
+  const qrImage = await loadCanvasImage(qrDataUrl);
+  context.fillStyle = "#ffffff";
+  context.fillRect(p(505), p(1580), p(230), p(230));
+  context.drawImage(qrImage, p(505), p(1580), p(230), p(230));
+  drawCenteredText(
+    context,
+    "Scan this to check authenticity",
+    canvas.width / 2,
+    p(1858),
+    p(900),
+    p(28),
+    "#ffffff",
+    "500"
+  );
+
+  const link = document.createElement("a");
+  link.href = canvas.toDataURL("image/png");
+  link.download = `${memberName
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")}-elite-id-card.png`;
+  link.click();
+};
+
 const handleDownloadCertificate = async () => {
   if (!userData?.paymentDone) {
     alert("Certificate is available after payment.");
@@ -1836,6 +2115,41 @@ const handleDownloadCertificate = async () => {
     "800"
   );
 
+  const certificateQrUrl = `${getPublicOrigin()}/certificate/${encodeURIComponent(
+    getCertificateVerificationId()
+  )}`;
+  const certificateQrDataUrl = await QRCode.toDataURL(certificateQrUrl, {
+    errorCorrectionLevel: "H",
+    margin: 1,
+    width: Math.round(position(150)),
+    color: {
+      dark: "#000000",
+      light: "#ffffff",
+    },
+  });
+  const certificateQrImage = await loadCanvasImage(certificateQrDataUrl);
+  context.fillStyle = "#ffffff";
+  context.fillRect(position(1712), position(1078), position(170), position(170));
+  context.drawImage(
+    certificateQrImage,
+    position(1722),
+    position(1088),
+    position(150),
+    position(150)
+  );
+  fitCanvasText(
+    context,
+    "Scan to verify",
+    position(1797),
+    position(1278),
+    position(180),
+    position(18),
+    "Arial, sans-serif",
+    "#1c3455",
+    "700",
+    "center"
+  );
+
   const link = document.createElement("a");
   link.href = canvas.toDataURL("image/png");
   link.download = `${academySlug || "academy"}-affiliation-certificate.png`;
@@ -1910,6 +2224,7 @@ const completeAffiliationWithCoupon = async () => {
         payableAmount: 0,
         amountPaid: 0,
         affiliationNumber,
+        certificateVerificationId: getCertificateVerificationId(),
         affiliationStartDate: userData?.paymentDone
           ? userData?.affiliationStartDate
           : today.toDateString(),
@@ -2014,6 +2329,7 @@ const completeAffiliationWithCoupon = async () => {
                 : endDate.toDateString(),
 
             affiliationNumber,
+            certificateVerificationId: getCertificateVerificationId(),
             paidStudentsCount: students.length,
             studentFeeStartDate: today.toDateString(),
             studentFeeEndDate: studentFeeEndDate.toDateString(),
@@ -2435,11 +2751,26 @@ console.log("Razorpay Loaded:", window.Razorpay);
                                 </p>
                               )}
                               <p className="mt-2 text-zinc-400">
+                                Blood Group: {owner.bloodGroup || "Not added"}
+                              </p>
+                              <p className="mt-2 text-zinc-400">
+                                ID: {getMemberId(owner.memberId || "", "OC", index)}
+                              </p>
+                              <p className="mt-2 text-zinc-400">
                                 {owner.designation || "Designation not added"}
                               </p>
                               <p className="mt-2 text-zinc-400">
                                 {owner.mobile || "Mobile not added"} • {owner.email || "Email not added"}
                               </p>
+                              {userData?.paymentDone && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleDownloadIdCard(owner, "OC", index)}
+                                  className="mt-4 bg-white text-black px-4 py-2 rounded-xl text-sm font-bold"
+                                >
+                                  Download ID Card
+                                </button>
+                              )}
                             </div>
                           </div>
                         ))
@@ -2483,6 +2814,12 @@ console.log("Razorpay Loaded:", window.Razorpay);
                               <p className="mt-2 text-zinc-400">
                                 {student.school || "School not added"}
                               </p>
+                              <p className="mt-2 text-zinc-400">
+                                Blood Group: {student.bloodGroup || "Not added"}
+                              </p>
+                              <p className="mt-2 text-zinc-400">
+                                ID: {getMemberId(student.memberId || "", "ST", index)}
+                              </p>
                               {getAchievementLines(student.achievement).length > 0 && (
                                 <ol className="mt-2 list-decimal list-inside text-zinc-300 space-y-1">
                                   {getAchievementLines(student.achievement).map(
@@ -2507,6 +2844,15 @@ console.log("Razorpay Loaded:", window.Razorpay);
                                     </span>
                                   )}
                                 </div>
+                              )}
+                              {userData?.paymentDone && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleDownloadIdCard(student, "ST", index)}
+                                  className="mt-4 bg-white text-black px-4 py-2 rounded-xl text-sm font-bold"
+                                >
+                                  Download ID Card
+                                </button>
                               )}
                             </div>
                           </div>
@@ -3152,6 +3498,37 @@ console.log("Razorpay Loaded:", window.Razorpay);
               <tr className="border-b border-white/10">
 
                 <td className="py-5 pr-5 font-semibold">
+                  Blood Group
+                </td>
+
+                <td className="py-5">
+
+                  <select
+                    value={(owner as any).bloodGroup || ""}
+                    onChange={(e) =>
+                      handleOwnerChange(
+                        index,
+                        "bloodGroup",
+                        e.target.value
+                      )
+                    }
+                    className="w-full bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+                  >
+                    <option value="">Blood Group</option>
+                    {bloodGroupOptions.map((bloodGroup) => (
+                      <option key={bloodGroup} value={bloodGroup}>
+                        {bloodGroup}
+                      </option>
+                    ))}
+                  </select>
+
+                </td>
+
+              </tr>
+
+              <tr className="border-b border-white/10">
+
+                <td className="py-5 pr-5 font-semibold">
                   Role
                 </td>
 
@@ -3484,6 +3861,21 @@ console.log("Razorpay Loaded:", window.Razorpay);
             <option value="Male">Male</option>
             <option value="Female">Female</option>
             <option value="Other">Other</option>
+          </select>
+
+          <select
+            value={student.bloodGroup || ""}
+            onChange={(e) =>
+              handleStudentChange(index, "bloodGroup", e.target.value)
+            }
+            className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+          >
+            <option value="">Blood Group</option>
+            {bloodGroupOptions.map((bloodGroup) => (
+              <option key={bloodGroup} value={bloodGroup}>
+                {bloodGroup}
+              </option>
+            ))}
           </select>
 
           <div className="md:col-span-2 bg-black border border-zinc-700 rounded-2xl p-5">

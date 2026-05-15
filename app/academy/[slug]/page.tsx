@@ -339,6 +339,12 @@ export default function PublicAcademyPage() {
                               "Designation not added"}
                           </p>
                           <p className="mt-2 text-zinc-400">
+                            Blood Group: {owner.bloodGroup || "Not added"}
+                          </p>
+                          <p className="mt-2 text-zinc-400">
+                            ID: {owner.memberId || "Not generated"}
+                          </p>
+                          <p className="mt-2 text-zinc-400">
                             {owner.mobile || "Mobile not added"} | {owner.email || "Email not added"}
                           </p>
                         </div>
@@ -392,6 +398,12 @@ export default function PublicAcademyPage() {
                           </p>
                           <p className="mt-2 text-zinc-400">
                             {student.school || "School not added"}
+                          </p>
+                          <p className="mt-2 text-zinc-400">
+                            Blood Group: {student.bloodGroup || "Not added"}
+                          </p>
+                          <p className="mt-2 text-zinc-400">
+                            ID: {student.memberId || "Not generated"}
                           </p>
                           {getAchievementLines(student.achievement).length > 0 && (
                             <ol className="mt-3 list-decimal list-inside text-zinc-300 space-y-1">

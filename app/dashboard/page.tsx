@@ -68,18 +68,22 @@ const getDefaultOwner = () => ({
   fullName: "",
   role: "Owner",
   sex: "",
+  bloodGroup: "",
   mobile: "",
   email: "",
   designation: "",
+  memberId: "",
 });
 
 const getDefaultStudent = () => ({
   name: "",
   age: "",
   sex: "",
+  bloodGroup: "",
   sports: [],
   school: "",
   achievement: "",
+  memberId: "",
   photoUrl: "",
   isEliteAthlete: false,
   isParaAthlete: false,
@@ -88,6 +92,17 @@ const getDefaultStudent = () => ({
 const adminLoginId = "jameelspeaks";
 const defaultAdminPassword = "Jameel@4121#";
 const academyDefaultPassword = "Elite123";
+
+const bloodGroupOptions = [
+  "A+",
+  "A-",
+  "B+",
+  "B-",
+  "AB+",
+  "AB-",
+  "O+",
+  "O-",
+];
 
 const sportsList = [
   "Cricket",
@@ -658,7 +673,7 @@ export default function DashboardPage() {
       ? [student.sports]
       : [];
 
-  const toggleStudentSport = (
+const toggleStudentSport = (
     index: number,
     sport: string,
     checked: boolean
@@ -671,6 +686,19 @@ export default function DashboardPage() {
         ? Array.from(new Set([...currentSports, sport]))
         : currentSports.filter((item: string) => item !== sport)
     );
+  };
+
+  const getAdminMemberId = (
+    existingId: string,
+    type: "OC" | "ST",
+    index: number,
+    academySeed: string
+  ) => {
+    if (existingId) return existingId;
+
+    return `EGF-${getStateCode(stateName)}-${type}-${academySeed}${String(
+      index + 1
+    ).padStart(2, "0")}`;
   };
 
   const createAdminAcademy = async () => {
@@ -710,6 +738,25 @@ export default function DashboardPage() {
         .getFullYear()
         .toString()
         .slice(-2)}/${randomId}`;
+      const memberSeed = randomId.slice(0, 5);
+      const ownersWithIds = owners.map((owner, index) => ({
+        ...owner,
+        memberId: getAdminMemberId(
+          owner.memberId || "",
+          "OC",
+          index,
+          memberSeed
+        ),
+      }));
+      const studentsWithIds = students.map((student, index) => ({
+        ...student,
+        memberId: getAdminMemberId(
+          student.memberId || "",
+          "ST",
+          index,
+          memberSeed
+        ),
+      }));
 
       affiliationEndDate.setFullYear(
         today.getFullYear() + Number(selectedYears)
@@ -747,12 +794,16 @@ export default function DashboardPage() {
         featuredAcademyImageUrl:
           featuredAcademyImageUrl || academyImageUrls[0] || "",
         sportsConducted,
-        owners,
-        students,
+        owners: ownersWithIds,
+        students: studentsWithIds,
         studentsCount: students.length,
         paidStudentsCount: students.length,
         selectedYears: Number(selectedYears),
         affiliationNumber,
+        certificateVerificationId: affiliationNumber
+          .replace(/[^a-z0-9]+/gi, "-")
+          .replace(/^-+|-+$/g, "")
+          .toUpperCase(),
         affiliationStartDate: today.toDateString(),
         affiliationEndDate: affiliationEndDate.toDateString(),
         studentFeeStartDate: today.toDateString(),
@@ -1861,6 +1912,24 @@ export default function DashboardPage() {
                             <option>Female</option>
                             <option>Other</option>
                           </select>
+                          <select
+                            value={owner.bloodGroup || ""}
+                            onChange={(e) =>
+                              updateOwner(
+                                index,
+                                "bloodGroup",
+                                e.target.value
+                              )
+                            }
+                            className="bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4"
+                          >
+                            <option value="">Blood Group</option>
+                            {bloodGroupOptions.map((bloodGroup) => (
+                              <option key={bloodGroup} value={bloodGroup}>
+                                {bloodGroup}
+                              </option>
+                            ))}
+                          </select>
                         </div>
                         <input
                           value={owner.designation}
@@ -1967,6 +2036,24 @@ export default function DashboardPage() {
                             <option>Male</option>
                             <option>Female</option>
                             <option>Other</option>
+                          </select>
+                          <select
+                            value={student.bloodGroup || ""}
+                            onChange={(e) =>
+                              updateStudent(
+                                index,
+                                "bloodGroup",
+                                e.target.value
+                              )
+                            }
+                            className="bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4"
+                          >
+                            <option value="">Blood Group</option>
+                            {bloodGroupOptions.map((bloodGroup) => (
+                              <option key={bloodGroup} value={bloodGroup}>
+                                {bloodGroup}
+                              </option>
+                            ))}
                           </select>
                         </div>
                         <div className="bg-zinc-950 border border-zinc-700 rounded-2xl p-5">
