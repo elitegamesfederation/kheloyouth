@@ -956,8 +956,13 @@ const buildAcademyPayload = async () => {
     try {
       return await uploadAcademyFile(file, folder);
     } catch (error) {
-      console.warn("Academy file upload skipped", error);
-      return "";
+      console.warn("Academy file upload skipped; saving compressed fallback", error);
+
+      return fileToResizedDataUrl(
+        file,
+        folder === "logo" ? 720 : 1280,
+        folder === "logo" ? 720 : 900
+      );
     }
   };
 
@@ -1828,9 +1833,9 @@ const handleDownloadIdCard = async (
   if (photoUrl) {
     try {
       const photo = await loadCanvasImage(photoUrl);
-      const photoSize = p(780);
+      const photoSize = p(740);
       const photoX = (canvas.width - photoSize) / 2;
-      const photoY = p(380);
+      const photoY = p(405);
 
       context.save();
       drawRoundedRectClip(context, photoX, photoY, photoSize, photoSize, p(42));
@@ -1842,116 +1847,109 @@ const handleDownloadIdCard = async (
   }
 
   context.fillStyle = "#000000";
-  context.fillRect(0, p(1125), canvas.width, canvas.height - p(1125));
+  context.fillRect(0, p(1115), canvas.width, canvas.height - p(1115));
 
   drawCenteredText(
     context,
     memberName.toUpperCase(),
     canvas.width / 2,
-    p(1255),
-    p(980),
-    p(50)
+    p(1212),
+    p(1020),
+    p(66)
   );
-  drawCenteredText(context, memberRole, canvas.width / 2, p(1316), p(900), p(31), "#ffffff", "500");
+  drawCenteredText(context, memberRole, canvas.width / 2, p(1292), p(960), p(43), "#ffffff", "600");
   drawCenteredText(
     context,
     (userData?.academyName || academyName || "Academy").toUpperCase(),
     canvas.width / 2,
-    p(1370),
-    p(930),
-    p(32),
+    p(1362),
+    p(1000),
+    p(42),
     "#ffffff",
-    "500"
+    "600"
   );
   drawCenteredText(
     context,
     (userData?.state || stateName || "India").toUpperCase(),
     canvas.width / 2,
-    p(1420),
-    p(900),
-    p(29),
+    p(1426),
+    p(950),
+    p(38),
     "#ffffff",
-    "500"
+    "600"
   );
   drawCenteredText(
     context,
     `ID Number : ${memberId}`,
     canvas.width / 2,
-    p(1480),
-    p(1060),
-    p(30),
+    p(1498),
+    p(1120),
+    p(37),
     "#ffffff",
-    "500"
+    "600"
   );
   drawCenteredText(
     context,
     `Blood Group : ${member.bloodGroup || "Not added"}`,
     canvas.width / 2,
-    p(1534),
-    p(900),
-    p(25),
+    p(1560),
+    p(980),
+    p(32),
     "#ffffff",
-    "500"
+    "600"
   );
   drawCenteredText(
     context,
     `Valid From ${formatCertificateDate(userData?.affiliationStartDate)} To ${formatCertificateDate(userData?.affiliationEndDate)}`,
     canvas.width / 2,
-    p(1588),
-    p(1050),
-    p(25),
+    p(1620),
+    p(1120),
+    p(31),
     "#ffffff",
-    "500"
+    "600"
   );
 
   const qrDataUrl = await QRCode.toDataURL(verificationUrl, {
     errorCorrectionLevel: "H",
     margin: 1,
-    width: Math.round(p(280)),
+    width: Math.round(p(300)),
     color: {
       dark: "#000000",
       light: "#ffffff",
     },
   });
   const qrImage = await loadCanvasImage(qrDataUrl);
+  const qrSize = p(300);
+  const qrX = (canvas.width - qrSize) / 2;
+  const qrY = p(1672);
   context.fillStyle = "#ffffff";
-  context.fillRect(p(480), p(1642), p(280), p(280));
-  context.drawImage(qrImage, p(480), p(1642), p(280), p(280));
+  context.fillRect(qrX, qrY, qrSize, qrSize);
+  context.drawImage(qrImage, qrX, qrY, qrSize, qrSize);
   drawCenteredText(
     context,
     "Scan this to check authenticity",
     canvas.width / 2,
-    p(1996),
-    p(900),
-    p(28),
+    p(2016),
+    p(960),
+    p(34),
     "#ffffff",
-    "500"
+    "600"
   );
   context.strokeStyle = "rgba(255,255,255,0.42)";
   context.lineWidth = p(1.5);
   context.beginPath();
-  context.moveTo(p(360), p(2045));
-  context.lineTo(p(880), p(2045));
+  context.moveTo(p(340), p(2055));
+  context.lineTo(p(900), p(2055));
   context.stroke();
   drawCenteredText(
     context,
     "AUTHORIZED FEDERATION ID",
     canvas.width / 2,
-    p(2095),
+    p(2100),
     p(900),
-    p(24),
+    p(29),
     "#ff6b00",
     "800"
-  );
-  drawCenteredText(
-    context,
-    "Verify online at kheloyouth.com",
-    canvas.width / 2,
-    p(2140),
-    p(900),
-    p(22),
-    "#ffffff",
-    "500"
   );
 
   const link = document.createElement("a");
