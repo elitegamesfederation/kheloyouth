@@ -477,6 +477,21 @@ const selectedSports = Array.isArray(sportsConducted)
   : [];
 const districtOptions = getDistrictsForState(stateName);
 
+const getStudentSports = (student: any) =>
+  Array.isArray(student.sports)
+    ? student.sports
+    : student.sports
+    ? [student.sports]
+    : [];
+
+const getAchievementLines = (achievement: string) =>
+  String(achievement || "")
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => line.replace(/^[-*\d.)\s]+/, "").trim())
+    .filter(Boolean);
+
 useEffect(() => {
   const loadAdminSports = async () => {
     const sportsSnap = await getDoc(doc(db, "siteSettings", "sports"));
@@ -946,7 +961,7 @@ const buildAcademyPayload = async () => {
           pincode,
           email,
 
-          academyDescription: "",
+          academyDescription,
 
           establishmentYear: "",
 fullAddress: "",
@@ -1292,6 +1307,21 @@ const handleStudentChange = (
   updated[index][field] = value;
 
   setStudents(updated);
+};
+
+const toggleStudentSport = (
+  index: number,
+  sport: string,
+  checked: boolean
+) => {
+  const currentSports = getStudentSports(students[index]);
+  handleStudentChange(
+    index,
+    "sports",
+    checked
+      ? Array.from(new Set([...currentSports, sport]))
+      : currentSports.filter((item: string) => item !== sport)
+  );
 };
 
 const handleStudentPhoto = (
@@ -2404,17 +2434,23 @@ console.log("Razorpay Loaded:", window.Razorpay);
                                 {student.name || `Student ${index + 1}`}
                               </p>
                               <p className="mt-1 text-zinc-400">
-                                {[student.sports, student.sex, student.age && `${student.age} yrs`]
+                                {[getStudentSports(student).join(", "), student.sex, student.age && `${student.age} yrs`]
                                   .filter(Boolean)
                                   .join(" • ") || "Sport not added"}
                               </p>
                               <p className="mt-2 text-zinc-400">
                                 {student.school || "School not added"}
                               </p>
-                              {student.achievement && (
-                                <p className="mt-2 text-zinc-300 whitespace-pre-line">
-                                  {student.achievement}
-                                </p>
+                              {getAchievementLines(student.achievement).length > 0 && (
+                                <ol className="mt-2 list-decimal list-inside text-zinc-300 space-y-1">
+                                  {getAchievementLines(student.achievement).map(
+                                    (achievement, achievementIndex) => (
+                                      <li key={achievementIndex}>
+                                        {achievement}
+                                      </li>
+                                    )
+                                  )}
+                                </ol>
                               )}
                               {(student.isEliteAthlete || student.isParaAthlete) && (
                                 <div className="mt-3 flex flex-wrap gap-2">
@@ -2606,6 +2642,13 @@ console.log("Razorpay Loaded:", window.Razorpay);
     value={establishmentYear}
     onChange={(e) => setEstablishmentYear(e.target.value)}
     className="bg-black border border-zinc-700 rounded-2xl px-6 py-5"
+  />
+
+  <textarea
+    placeholder="Academy Description"
+    value={academyDescription}
+    onChange={(e) => setAcademyDescription(e.target.value)}
+    className="md:col-span-2 bg-black border border-zinc-700 rounded-2xl px-6 py-5 min-h-[160px]"
   />
 
   <input
@@ -3367,30 +3410,34 @@ console.log("Razorpay Loaded:", window.Razorpay);
             <option value="Other">Other</option>
           </select>
 
-          <select
-            value={student.sports}
-            onChange={(e) =>
-              handleStudentChange(index, "sports", e.target.value)
-            }
-            className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
-          >
-            <option value="">
-              {selectedSports.length
-                ? "Select Sport"
-                : "Select sports conducted first"}
-            </option>
-
-            {selectedSports.map((sport) => (
-
-              <option
-                key={sport}
-                value={sport}
-              >
-                {sport}
-              </option>
-
-            ))}
-          </select>
+          <div className="md:col-span-2 bg-black border border-zinc-700 rounded-2xl p-5">
+            <p className="font-bold">
+              Sports Learned
+            </p>
+            <div className="mt-4 grid sm:grid-cols-2 gap-3">
+              {selectedSports.length ? (
+                selectedSports.map((sport) => (
+                  <label
+                    key={sport}
+                    className="flex items-center gap-3"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={getStudentSports(student).includes(sport)}
+                      onChange={(e) =>
+                        toggleStudentSport(index, sport, e.target.checked)
+                      }
+                    />
+                    <span>{sport}</span>
+                  </label>
+                ))
+              ) : (
+                <p className="text-zinc-400 text-sm">
+                  Select sports conducted first.
+                </p>
+              )}
+            </div>
+          </div>
 
           <textarea
             placeholder={"Achievements\nExample:\n1. State Champion 2026\n2. District Gold Medal\n- National camp selected"}
@@ -3893,6 +3940,15 @@ console.log("Razorpay Loaded:", window.Razorpay);
                   )
                 }
                 className="w-full bg-black border border-zinc-700 rounded-2xl px-6 py-5"
+              />
+
+              <textarea
+                placeholder="Academy Description"
+                value={academyDescription}
+                onChange={(e) =>
+                  setAcademyDescription(e.target.value)
+                }
+                className="w-full bg-black border border-zinc-700 rounded-2xl px-6 py-5 min-h-32"
               />
 
               <input

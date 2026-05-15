@@ -74,7 +74,7 @@ const getDefaultStudent = () => ({
   name: "",
   age: "",
   sex: "",
-  sports: "",
+  sports: [],
   school: "",
   achievement: "",
   photoUrl: "",
@@ -512,6 +512,7 @@ export default function DashboardPage() {
       state: academy.state || "",
       district: academy.district || "",
       city: academy.city || "",
+      academyDescription: academy.academyDescription || "",
       contactNumber: academy.contactNumber || "",
       officialEmail: academy.officialEmail || academy.email || "",
       sportsConducted: Array.isArray(academy.sportsConducted)
@@ -550,6 +551,7 @@ export default function DashboardPage() {
       state: editAcademyForm.state,
       district: editAcademyForm.district,
       city: editAcademyForm.city,
+      academyDescription: editAcademyForm.academyDescription,
       contactNumber: editAcademyForm.contactNumber,
       officialEmail: editAcademyForm.officialEmail,
       sportsConducted: editSports,
@@ -584,6 +586,28 @@ export default function DashboardPage() {
       [field]: value,
     };
     setStudents(updated);
+  };
+
+  const getStudentSports = (student: any) =>
+    Array.isArray(student.sports)
+      ? student.sports
+      : student.sports
+      ? [student.sports]
+      : [];
+
+  const toggleStudentSport = (
+    index: number,
+    sport: string,
+    checked: boolean
+  ) => {
+    const currentSports = getStudentSports(students[index]);
+    updateStudent(
+      index,
+      "sports",
+      checked
+        ? Array.from(new Set([...currentSports, sport]))
+        : currentSports.filter((item: string) => item !== sport)
+    );
   };
 
   const createAdminAcademy = async () => {
@@ -1166,6 +1190,17 @@ export default function DashboardPage() {
                       placeholder="Sports Conducted, comma separated"
                       className="md:col-span-2 bg-black border border-zinc-700 rounded-2xl px-5 py-4"
                     />
+                    <textarea
+                      value={editAcademyForm.academyDescription || ""}
+                      onChange={(e) =>
+                        setEditAcademyForm({
+                          ...editAcademyForm,
+                          academyDescription: e.target.value,
+                        })
+                      }
+                      placeholder="Academy Description"
+                      className="md:col-span-2 bg-black border border-zinc-700 rounded-2xl px-5 py-4 min-h-36"
+                    />
                     <button
                       type="button"
                       onClick={saveEditAcademy}
@@ -1727,26 +1762,40 @@ export default function DashboardPage() {
                             <option>Other</option>
                           </select>
                         </div>
-                        <select
-                          value={student.sports}
-                          onChange={(e) =>
-                            updateStudent(
-                              index,
-                              "sports",
-                              e.target.value
-                            )
-                          }
-                          className="bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4"
-                        >
-                          <option value="">
-                            Sports Conducted Same as Academy
-                          </option>
-                          {sportsConducted.map((sport) => (
-                            <option key={sport} value={sport}>
-                              {sport}
-                            </option>
-                          ))}
-                        </select>
+                        <div className="bg-zinc-950 border border-zinc-700 rounded-2xl p-5">
+                          <p className="font-bold">
+                            Sports Learned
+                          </p>
+                          <div className="mt-4 grid sm:grid-cols-2 gap-3">
+                            {sportsConducted.length ? (
+                              sportsConducted.map((sport) => (
+                                <label
+                                  key={sport}
+                                  className="flex items-center gap-3"
+                                >
+                                  <input
+                                    type="checkbox"
+                                    checked={getStudentSports(student).includes(
+                                      sport
+                                    )}
+                                    onChange={(e) =>
+                                      toggleStudentSport(
+                                        index,
+                                        sport,
+                                        e.target.checked
+                                      )
+                                    }
+                                  />
+                                  <span>{sport}</span>
+                                </label>
+                              ))
+                            ) : (
+                              <p className="text-zinc-400 text-sm">
+                                Select academy sports first.
+                              </p>
+                            )}
+                          </div>
+                        </div>
                         <input
                           value={student.school}
                           onChange={(e) =>
@@ -1768,7 +1817,7 @@ export default function DashboardPage() {
                               e.target.value
                             )
                           }
-                          placeholder="Achievements"
+                          placeholder={"Achievements\n1. State Champion\n2. Gold Medalist 2023"}
                           className="bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4 min-h-28"
                         />
                         <div>
