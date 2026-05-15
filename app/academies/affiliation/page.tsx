@@ -1828,9 +1828,13 @@ const handleDownloadIdCard = async (
   if (photoUrl) {
     try {
       const photo = await loadCanvasImage(photoUrl);
+      const photoSize = p(780);
+      const photoX = (canvas.width - photoSize) / 2;
+      const photoY = p(380);
+
       context.save();
-      drawRoundedRectClip(context, p(230), p(335), p(780), p(750), p(46));
-      drawCoverImage(context, photo, p(230), p(335), p(780), p(750));
+      drawRoundedRectClip(context, photoX, photoY, photoSize, photoSize, p(42));
+      drawCoverImage(context, photo, photoX, photoY, photoSize, photoSize);
       context.restore();
     } catch (error) {
       console.warn("ID photo skipped", error);
@@ -1844,18 +1848,18 @@ const handleDownloadIdCard = async (
     context,
     memberName.toUpperCase(),
     canvas.width / 2,
-    p(1212),
+    p(1255),
     p(980),
-    p(56)
+    p(50)
   );
-  drawCenteredText(context, memberRole, canvas.width / 2, p(1280), p(900), p(34), "#ffffff", "500");
+  drawCenteredText(context, memberRole, canvas.width / 2, p(1316), p(900), p(31), "#ffffff", "500");
   drawCenteredText(
     context,
     (userData?.academyName || academyName || "Academy").toUpperCase(),
     canvas.width / 2,
-    p(1340),
+    p(1370),
     p(930),
-    p(36),
+    p(32),
     "#ffffff",
     "500"
   );
@@ -1863,9 +1867,9 @@ const handleDownloadIdCard = async (
     context,
     (userData?.state || stateName || "India").toUpperCase(),
     canvas.width / 2,
-    p(1395),
+    p(1420),
     p(900),
-    p(32),
+    p(29),
     "#ffffff",
     "500"
   );
@@ -1873,9 +1877,9 @@ const handleDownloadIdCard = async (
     context,
     `ID Number : ${memberId}`,
     canvas.width / 2,
-    p(1460),
+    p(1480),
     p(1060),
-    p(34),
+    p(30),
     "#ffffff",
     "500"
   );
@@ -1883,9 +1887,9 @@ const handleDownloadIdCard = async (
     context,
     `Blood Group : ${member.bloodGroup || "Not added"}`,
     canvas.width / 2,
-    p(1514),
+    p(1534),
     p(900),
-    p(26),
+    p(25),
     "#ffffff",
     "500"
   );
@@ -1893,9 +1897,9 @@ const handleDownloadIdCard = async (
     context,
     `Valid From ${formatCertificateDate(userData?.affiliationStartDate)} To ${formatCertificateDate(userData?.affiliationEndDate)}`,
     canvas.width / 2,
-    p(1568),
+    p(1588),
     p(1050),
-    p(28),
+    p(25),
     "#ffffff",
     "500"
   );
@@ -1911,15 +1915,41 @@ const handleDownloadIdCard = async (
   });
   const qrImage = await loadCanvasImage(qrDataUrl);
   context.fillStyle = "#ffffff";
-  context.fillRect(p(480), p(1610), p(280), p(280));
-  context.drawImage(qrImage, p(480), p(1610), p(280), p(280));
+  context.fillRect(p(480), p(1642), p(280), p(280));
+  context.drawImage(qrImage, p(480), p(1642), p(280), p(280));
   drawCenteredText(
     context,
     "Scan this to check authenticity",
     canvas.width / 2,
-    p(1960),
+    p(1996),
     p(900),
     p(28),
+    "#ffffff",
+    "500"
+  );
+  context.strokeStyle = "rgba(255,255,255,0.42)";
+  context.lineWidth = p(1.5);
+  context.beginPath();
+  context.moveTo(p(360), p(2045));
+  context.lineTo(p(880), p(2045));
+  context.stroke();
+  drawCenteredText(
+    context,
+    "AUTHORIZED FEDERATION ID",
+    canvas.width / 2,
+    p(2095),
+    p(900),
+    p(24),
+    "#ff6b00",
+    "800"
+  );
+  drawCenteredText(
+    context,
+    "Verify online at kheloyouth.com",
+    canvas.width / 2,
+    p(2140),
+    p(900),
+    p(22),
     "#ffffff",
     "500"
   );
