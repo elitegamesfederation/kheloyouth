@@ -69,6 +69,7 @@ const getDefaultOwner = () => ({
   role: "Owner",
   sex: "",
   bloodGroup: "",
+  sports: [],
   mobile: "",
   email: "",
   designation: "",
@@ -499,6 +500,20 @@ export default function DashboardPage() {
     setSportsConducted(
       sportsConducted.filter((item) => item !== sport)
     );
+    setOwners(
+      owners.map((owner) => {
+        const ownerSports = getOwnerSports(owner);
+
+        return ownerSports.includes(sport)
+          ? {
+              ...owner,
+              sports: ownerSports.filter(
+                (ownerSport: string) => ownerSport !== sport
+              ),
+            }
+          : owner;
+      })
+    );
     setStudents(
       students.map((student) =>
         getStudentSports(student).includes(sport)
@@ -582,6 +597,31 @@ export default function DashboardPage() {
       : student.sports
       ? [student.sports]
       : [];
+
+  const getEditOwnerSports = (owner: any) =>
+    Array.isArray(owner.sports)
+      ? owner.sports
+      : owner.sports
+      ? [owner.sports]
+      : [];
+
+  const toggleEditOwnerSport = (
+    index: number,
+    sport: string,
+    checked: boolean
+  ) => {
+    const currentSports = getEditOwnerSports(
+      editAcademyForm.owners?.[index] || {}
+    );
+
+    updateEditOwner(
+      index,
+      "sports",
+      checked
+        ? Array.from(new Set([...currentSports, sport]))
+        : currentSports.filter((item: string) => item !== sport)
+    );
+  };
 
   const toggleEditStudentSport = (
     index: number,
@@ -771,6 +811,7 @@ export default function DashboardPage() {
         owner.role &&
         owner.sex &&
         owner.bloodGroup &&
+        getEditOwnerSports(owner).length &&
         owner.designation &&
         String(owner.mobile || "").length === 10 &&
         owner.photoUrl
@@ -873,7 +914,7 @@ export default function DashboardPage() {
   const updateOwner = (
     index: number,
     field: string,
-    value: string
+    value: any
   ) => {
     const updated = [...owners];
     updated[index] = {
@@ -902,6 +943,29 @@ export default function DashboardPage() {
       : student.sports
       ? [student.sports]
       : [];
+
+  const getOwnerSports = (owner: any) =>
+    Array.isArray(owner.sports)
+      ? owner.sports
+      : owner.sports
+      ? [owner.sports]
+      : [];
+
+  const toggleOwnerSport = (
+    index: number,
+    sport: string,
+    checked: boolean
+  ) => {
+    const currentSports = getOwnerSports(owners[index] || {});
+
+    updateOwner(
+      index,
+      "sports",
+      checked
+        ? Array.from(new Set([...currentSports, sport]))
+        : currentSports.filter((item: string) => item !== sport)
+    );
+  };
 
 const toggleStudentSport = (
     index: number,
@@ -938,6 +1002,7 @@ const toggleStudentSport = (
         owner.role &&
         owner.sex &&
         owner.bloodGroup &&
+        getOwnerSports(owner).length &&
         owner.designation &&
         String(owner.mobile || "").length === 10 &&
         owner.photoUrl
@@ -1508,7 +1573,33 @@ const toggleStudentSport = (
                       </select>
                       <div className="mt-4 flex flex-wrap gap-3">
                         {(editAcademyForm.sportsConducted || []).map((sport: string) => (
-                          <button type="button" key={sport} onClick={() => updateEditAcademy("sportsConducted", (editAcademyForm.sportsConducted || []).filter((item: string) => item !== sport))} className="bg-orange-500/10 border border-orange-500/40 text-orange-500 rounded-full px-4 py-2 font-bold">{sport} x</button>
+                          <button
+                            type="button"
+                            key={sport}
+                            onClick={() =>
+                              setEditAcademyForm((current: any) => ({
+                                ...current,
+                                sportsConducted: (current.sportsConducted || []).filter(
+                                  (item: string) => item !== sport
+                                ),
+                                owners: (current.owners || []).map((owner: any) => ({
+                                  ...owner,
+                                  sports: getEditOwnerSports(owner).filter(
+                                    (ownerSport: string) => ownerSport !== sport
+                                  ),
+                                })),
+                                students: (current.students || []).map((student: any) => ({
+                                  ...student,
+                                  sports: getEditStudentSports(student).filter(
+                                    (studentSport: string) => studentSport !== sport
+                                  ),
+                                })),
+                              }))
+                            }
+                            className="bg-orange-500/10 border border-orange-500/40 text-orange-500 rounded-full px-4 py-2 font-bold"
+                          >
+                            {sport} x
+                          </button>
                         ))}
                       </div>
                     </div>
@@ -1550,6 +1641,27 @@ const toggleStudentSport = (
                                 <select value={owner.sex || ""} onChange={(e) => updateEditOwner(index, "sex", e.target.value)} className="bg-black border border-zinc-700 rounded-2xl px-4 py-3"><option value="">Sex</option><option>Male</option><option>Female</option><option>Other</option></select>
                                 <select value={owner.bloodGroup || ""} onChange={(e) => updateEditOwner(index, "bloodGroup", e.target.value)} className="bg-black border border-zinc-700 rounded-2xl px-4 py-3"><option value="">Blood Group</option>{bloodGroupOptions.map((group) => <option key={group}>{group}</option>)}</select>
                                 <input value={owner.designation || ""} onChange={(e) => updateEditOwner(index, "designation", e.target.value)} placeholder="Designation" className="bg-black border border-zinc-700 rounded-2xl px-4 py-3" />
+                              </div>
+                              <div className="bg-black border border-zinc-700 rounded-2xl p-4">
+                                <p className="font-bold">Sports Coached / Managed</p>
+                                <div className="mt-3 grid sm:grid-cols-2 gap-2">
+                                  {(editAcademyForm.sportsConducted || []).length ? (
+                                    (editAcademyForm.sportsConducted || []).map((sport: string) => (
+                                      <label key={sport} className="flex items-center gap-2">
+                                        <input
+                                          type="checkbox"
+                                          checked={getEditOwnerSports(owner).includes(sport)}
+                                          onChange={(e) => toggleEditOwnerSport(index, sport, e.target.checked)}
+                                        />
+                                        {sport}
+                                      </label>
+                                    ))
+                                  ) : (
+                                    <p className="text-zinc-400 text-sm">
+                                      Select academy sports first.
+                                    </p>
+                                  )}
+                                </div>
                               </div>
                               <input type="tel" maxLength={10} value={owner.mobile || ""} onChange={(e) => updateEditOwner(index, "mobile", e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="Mobile Number" className="bg-black border border-zinc-700 rounded-2xl px-4 py-3" />
                               <input value={owner.email || ""} onChange={(e) => updateEditOwner(index, "email", e.target.value)} placeholder="Email (optional for coach)" className="bg-black border border-zinc-700 rounded-2xl px-4 py-3" />
@@ -2179,6 +2291,29 @@ const toggleStudentSport = (
                           placeholder="Designation"
                           className="bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4"
                         />
+                        <div className="bg-zinc-950 border border-zinc-700 rounded-2xl p-4">
+                          <p className="font-bold">Sports Coached / Managed</p>
+                          <div className="mt-3 grid sm:grid-cols-2 gap-2">
+                            {sportsConducted.length ? (
+                              sportsConducted.map((sport) => (
+                                <label key={sport} className="flex items-center gap-2">
+                                  <input
+                                    type="checkbox"
+                                    checked={getOwnerSports(owner).includes(sport)}
+                                    onChange={(e) =>
+                                      toggleOwnerSport(index, sport, e.target.checked)
+                                    }
+                                  />
+                                  {sport}
+                                </label>
+                              ))
+                            ) : (
+                              <p className="text-zinc-400 text-sm">
+                                Select academy sports first.
+                              </p>
+                            )}
+                          </div>
+                        </div>
                         <input
                           type="tel"
                           maxLength={10}

@@ -32,6 +32,13 @@ const getStudentSports = (student: any) =>
     ? [student.sports]
     : [];
 
+const getOwnerSports = (owner: any) =>
+  Array.isArray(owner?.sports)
+    ? owner.sports
+    : owner?.sports
+    ? [owner.sports]
+    : [];
+
 const getAchievementLines = (achievement: string) =>
   String(achievement || "")
     .split(/\n+/)
@@ -264,7 +271,9 @@ export default function PublicAcademyPage() {
                             Blood Group: {owner.bloodGroup || "Not added"}
                           </p>
                           <p className="mt-2 text-zinc-400">
-                            ID: {owner.memberId || "Not generated"}
+                            Sports:{" "}
+                            {getOwnerSports(owner).join(", ") ||
+                              "Sports not added"}
                           </p>
                         </div>
                       </div>

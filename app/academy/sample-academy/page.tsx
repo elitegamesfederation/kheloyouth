@@ -30,6 +30,8 @@ const sampleStudents = [
 ];
 
 export default function SampleAcademyPage() {
+  const sampleCoachSports = "Athletics, Taekwondo";
+
   return (
     <main className="min-h-screen bg-black text-white">
       <Navbar />
@@ -119,7 +121,9 @@ export default function SampleAcademyPage() {
                     Coach and Owner
                   </p>
                   <p className="mt-2 text-zinc-400">Blood Group: A+</p>
-                  <p className="mt-2 text-zinc-400">ID: EGF-DL-OC-SAMPLE01</p>
+                  <p className="mt-2 text-zinc-400">
+                    Sports: {sampleCoachSports}
+                  </p>
                 </div>
               </div>
             </section>

@@ -123,6 +123,7 @@ const [owners, setOwners] = useState([
     role: "Owner",
     sex: "",
     bloodGroup: "",
+    sports: [],
     designation: "",
     mobile: "",
     email: "",
@@ -402,10 +403,11 @@ setOwners(
   data.owners || [
     {
       fullName: "",
-      role: "Owner",
-      sex: "",
-      bloodGroup: "",
-      designation: "",
+    role: "Owner",
+    sex: "",
+    bloodGroup: "",
+    sports: [],
+    designation: "",
       mobile: "",
       email: "",
       memberId: "",
@@ -537,6 +539,13 @@ const getStudentSports = (student: any) =>
     ? student.sports
     : student.sports
     ? [student.sports]
+    : [];
+
+const getOwnerSports = (owner: any) =>
+  Array.isArray(owner.sports)
+    ? owner.sports
+    : owner.sports
+    ? [owner.sports]
     : [];
 
 const getAchievementLines = (achievement: string) =>
@@ -740,6 +749,7 @@ const validateAcademyProfile = () => {
       owner.role &&
       owner.sex &&
       owner.bloodGroup &&
+      getOwnerSports(owner).length &&
       owner.designation &&
       String(owner.mobile || "").length === 10 &&
       (owner.photoPreview || owner.photoUrl)
@@ -1278,6 +1288,7 @@ setOwners(
       role: "Owner",
       sex: "",
       bloodGroup: "",
+      sports: [],
       designation: "",
       mobile: "",
       email: "",
@@ -1363,6 +1374,7 @@ const addOwner = () => {
       role: "Owner",
       sex: "",
       bloodGroup: "",
+      sports: [],
       designation: "",
       mobile: "",
       email: "",
@@ -1466,6 +1478,43 @@ const toggleStudentSport = (
     checked
       ? Array.from(new Set([...currentSports, sport]))
       : currentSports.filter((item: string) => item !== sport)
+  );
+};
+
+const toggleOwnerSport = (
+  index: number,
+  sport: string,
+  checked: boolean
+) => {
+  const currentSports = getOwnerSports(owners[index]);
+  handleOwnerChange(
+    index,
+    "sports",
+    checked
+      ? Array.from(new Set([...currentSports, sport]))
+      : currentSports.filter((item: string) => item !== sport)
+  );
+};
+
+const removeSelectedSport = (sport: string) => {
+  setSportsConducted(
+    selectedSports.filter((selectedSport: string) => selectedSport !== sport)
+  );
+  setOwners(
+    owners.map((owner: any) => ({
+      ...owner,
+      sports: getOwnerSports(owner).filter(
+        (ownerSport: string) => ownerSport !== sport
+      ),
+    }))
+  );
+  setStudents(
+    students.map((student: any) => ({
+      ...student,
+      sports: getStudentSports(student).filter(
+        (studentSport: string) => studentSport !== sport
+      ),
+    }))
   );
 };
 
@@ -2822,7 +2871,9 @@ console.log("Razorpay Loaded:", window.Razorpay);
                                 Blood Group: {owner.bloodGroup || "Not added"}
                               </p>
                               <p className="mt-2 text-zinc-400">
-                                ID: {getMemberId(owner.memberId || "", "OC", index)}
+                                Sports:{" "}
+                                {getOwnerSports(owner).join(", ") ||
+                                  "Sports not added"}
                               </p>
                               <p className="mt-2 text-zinc-400">
                                 {owner.designation || "Designation not added"}
@@ -3449,11 +3500,7 @@ console.log("Razorpay Loaded:", window.Razorpay);
 
                 } else {
 
-                  setSportsConducted(
-                    selectedSports.filter(
-                      (s: string) => s !== sport
-                    )
-                  );
+                  removeSelectedSport(sport);
                 }
               }}
             />
@@ -3681,6 +3728,42 @@ console.log("Razorpay Loaded:", window.Razorpay);
                     }
                     className="w-full bg-black border border-zinc-700 rounded-2xl px-5 py-4"
                   />
+
+                </td>
+
+              </tr>
+
+              <tr className="border-b border-white/10">
+
+                <td className="py-5 pr-5 font-semibold">
+                  Sports
+                </td>
+
+                <td className="py-5">
+
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    {selectedSports.length ? (
+                      selectedSports.map((sport) => (
+                        <label
+                          key={sport}
+                          className="flex items-center gap-3 bg-black border border-zinc-700 rounded-2xl px-4 py-3"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={getOwnerSports(owner).includes(sport)}
+                            onChange={(e) =>
+                              toggleOwnerSport(index, sport, e.target.checked)
+                            }
+                          />
+                          <span>{sport}</span>
+                        </label>
+                      ))
+                    ) : (
+                      <p className="text-zinc-400">
+                        Select academy sports first.
+                      </p>
+                    )}
+                  </div>
 
                 </td>
 
