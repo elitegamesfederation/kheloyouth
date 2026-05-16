@@ -344,9 +344,6 @@ export default function PublicAcademyPage() {
                           <p className="mt-2 text-zinc-400">
                             ID: {owner.memberId || "Not generated"}
                           </p>
-                          <p className="mt-2 text-zinc-400">
-                            {owner.mobile || "Mobile not added"} | {owner.email || "Email not added"}
-                          </p>
                         </div>
                       </div>
                     ))

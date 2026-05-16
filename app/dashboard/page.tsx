@@ -73,6 +73,7 @@ const getDefaultOwner = () => ({
   email: "",
   designation: "",
   memberId: "",
+  photoUrl: "",
 });
 
 const getDefaultStudent = () => ({
@@ -205,6 +206,7 @@ export default function DashboardPage() {
   const [facebookLink, setFacebookLink] = useState("");
   const [hasOtherBranch, setHasOtherBranch] = useState("");
   const [googleLocation, setGoogleLocation] = useState("");
+  const [whereDidYouHear, setWhereDidYouHear] = useState("");
   const [mediaCoverageProofName, setMediaCoverageProofName] =
     useState("");
   const [declarationAccepted, setDeclarationAccepted] =
@@ -225,14 +227,28 @@ export default function DashboardPage() {
   const [editAcademyId, setEditAcademyId] = useState("");
   const [editAcademyForm, setEditAcademyForm] = useState<any>({
     academyName: "",
+    academyDescription: "",
+    establishmentYear: "",
     state: "",
     district: "",
     city: "",
+    fullAddress: "",
+    pincode: "",
     contactNumber: "",
     officialEmail: "",
-    sportsConducted: "",
+    websiteLink: "",
+    instagramLink: "",
+    facebookLink: "",
+    hasOtherBranch: "",
+    googleLocation: "",
+    mediaCoverageProofName: "",
+    whereDidYouHear: "",
+    academyLogoUrl: "",
+    sportsConducted: [],
     academyImageUrls: [],
     featuredAcademyImageUrl: "",
+    owners: [],
+    students: [],
   });
   const [owners, setOwners] = useState<any[]>([getDefaultOwner()]);
   const [students, setStudents] = useState<any[]>([getDefaultStudent()]);
@@ -506,6 +522,136 @@ export default function DashboardPage() {
     updateStudent(index, "photoUrl", await readFileAsDataUrl(file));
   };
 
+  const handleAdminOwnerPhotoUpload = async (
+    index: number,
+    file?: File
+  ) => {
+    if (!file) return;
+
+    updateOwner(index, "photoUrl", await readFileAsDataUrl(file));
+  };
+
+  const updateEditAcademy = (field: string, value: any) => {
+    setEditAcademyForm((current: any) => ({
+      ...current,
+      [field]: value,
+    }));
+  };
+
+  const updateEditOwner = (
+    index: number,
+    field: string,
+    value: any
+  ) => {
+    setEditAcademyForm((current: any) => {
+      const updatedOwners = [...(current.owners || [])];
+      updatedOwners[index] = {
+        ...updatedOwners[index],
+        [field]: value,
+      };
+
+      return {
+        ...current,
+        owners: updatedOwners,
+      };
+    });
+  };
+
+  const updateEditStudent = (
+    index: number,
+    field: string,
+    value: any
+  ) => {
+    setEditAcademyForm((current: any) => {
+      const updatedStudents = [...(current.students || [])];
+      updatedStudents[index] = {
+        ...updatedStudents[index],
+        [field]: value,
+      };
+
+      return {
+        ...current,
+        students: updatedStudents,
+      };
+    });
+  };
+
+  const getEditStudentSports = (student: any) =>
+    Array.isArray(student.sports)
+      ? student.sports
+      : student.sports
+      ? [student.sports]
+      : [];
+
+  const toggleEditStudentSport = (
+    index: number,
+    sport: string,
+    checked: boolean
+  ) => {
+    const currentSports = getEditStudentSports(
+      editAcademyForm.students?.[index] || {}
+    );
+
+    updateEditStudent(
+      index,
+      "sports",
+      checked
+        ? Array.from(new Set([...currentSports, sport]))
+        : currentSports.filter((item: string) => item !== sport)
+    );
+  };
+
+  const handleEditLogoUpload = async (file?: File) => {
+    if (!file) return;
+
+    updateEditAcademy("academyLogoUrl", await readFileAsDataUrl(file));
+  };
+
+  const handleEditPhotosUpload = async (files: FileList | null) => {
+    const selectedFiles = Array.from(files || []);
+
+    if (!selectedFiles.length) return;
+
+    const currentImages = Array.isArray(editAcademyForm.academyImageUrls)
+      ? editAcademyForm.academyImageUrls
+      : [];
+
+    if (currentImages.length + selectedFiles.length > 5) {
+      alert("Maximum 5 academy photos allowed.");
+      return;
+    }
+
+    const urls = await Promise.all(
+      selectedFiles.map((file) => readFileAsDataUrl(file))
+    );
+
+    const nextImages = [...currentImages, ...urls];
+    setEditAcademyForm((current: any) => ({
+      ...current,
+      academyImageUrls: nextImages,
+      featuredAcademyImageUrl:
+        current.featuredAcademyImageUrl || nextImages[0] || "",
+    }));
+  };
+
+  const handleEditOwnerPhotoUpload = async (
+    index: number,
+    file?: File
+  ) => {
+    if (!file) return;
+
+    updateEditOwner(index, "photoUrl", await readFileAsDataUrl(file));
+  };
+
+  const handleEditStudentPhotoUpload = async (
+    index: number,
+    file?: File
+  ) => {
+    if (!file) return;
+
+    updateEditStudent(index, "photoUrl", await readFileAsDataUrl(file));
+  };
+
   const handleAddMasterSport = async () => {
     const cleanSport = newMasterSport.trim();
 
@@ -561,12 +707,23 @@ export default function DashboardPage() {
 
     setEditAcademyForm({
       academyName: academy.academyName || "",
+      academyDescription: academy.academyDescription || "",
+      establishmentYear: academy.establishmentYear || "",
       state: academy.state || "",
       district: academy.district || "",
       city: academy.city || "",
-      academyDescription: academy.academyDescription || "",
+      fullAddress: academy.fullAddress || "",
+      pincode: academy.pincode || "",
       contactNumber: academy.contactNumber || "",
       officialEmail: academy.officialEmail || academy.email || "",
+      websiteLink: academy.websiteLink || "",
+      instagramLink: academy.instagramLink || "",
+      facebookLink: academy.facebookLink || "",
+      hasOtherBranch: academy.hasOtherBranch || "",
+      googleLocation: academy.googleLocation || "",
+      mediaCoverageProofName: academy.mediaCoverageProofName || "",
+      whereDidYouHear: academy.whereDidYouHear || "",
+      academyLogoUrl: academy.academyLogoUrl || "",
       academyImageUrls: Array.isArray(academy.academyImageUrls)
         ? academy.academyImageUrls
         : [],
@@ -576,8 +733,14 @@ export default function DashboardPage() {
           ? academy.academyImageUrls[0]
           : ""),
       sportsConducted: Array.isArray(academy.sportsConducted)
-        ? academy.sportsConducted.join(", ")
-        : "",
+        ? academy.sportsConducted
+        : [],
+      owners: Array.isArray(academy.owners) && academy.owners.length
+        ? academy.owners
+        : [getDefaultOwner()],
+      students: Array.isArray(academy.students) && academy.students.length
+        ? academy.students
+        : [getDefaultStudent()],
     });
   };
 
@@ -587,20 +750,62 @@ export default function DashboardPage() {
       return;
     }
 
-    const editSports = String(editAcademyForm.sportsConducted || "")
-      .split(",")
-      .map((sport) => sport.trim())
-      .filter(Boolean);
+    const editSports = Array.isArray(editAcademyForm.sportsConducted)
+      ? editAcademyForm.sportsConducted
+      : String(editAcademyForm.sportsConducted || "")
+          .split(",")
+          .map((sport) => sport.trim())
+          .filter(Boolean);
+    const editOwners = Array.isArray(editAcademyForm.owners)
+      ? editAcademyForm.owners
+      : [];
+    const editStudents = Array.isArray(editAcademyForm.students)
+      ? editAcademyForm.students
+      : [];
+    const editImages = Array.isArray(editAcademyForm.academyImageUrls)
+      ? editAcademyForm.academyImageUrls
+      : [];
+    const hasCompleteOwner = editOwners.some(
+      (owner: any) =>
+        owner.fullName &&
+        owner.role &&
+        owner.sex &&
+        owner.bloodGroup &&
+        owner.designation &&
+        String(owner.mobile || "").length === 10 &&
+        owner.photoUrl
+    );
+    const hasCompleteStudent = editStudents.some(
+      (student: any) =>
+        student.name &&
+        student.age &&
+        student.sex &&
+        student.bloodGroup &&
+        student.school &&
+        getEditStudentSports(student).length &&
+        student.photoUrl
+    );
 
     if (
       !editAcademyForm.academyName ||
+      !editAcademyForm.academyDescription ||
+      !editAcademyForm.establishmentYear ||
       !editAcademyForm.state ||
       !editAcademyForm.district ||
+      String(editAcademyForm.pincode || "").length !== 6 ||
       editAcademyForm.contactNumber.length !== 10 ||
-      !editSports.length
+      !editAcademyForm.officialEmail ||
+      !editAcademyForm.fullAddress ||
+      !editAcademyForm.city ||
+      !editAcademyForm.whereDidYouHear ||
+      !editAcademyForm.academyLogoUrl ||
+      editImages.length < 3 ||
+      !editSports.length ||
+      !hasCompleteOwner ||
+      !hasCompleteStudent
     ) {
       alert(
-        "Please fill compulsory fields: academy name, state, district, 10-digit contact, and sports conducted."
+        "Please fill all compulsory fields before saving: academy profile, logo, minimum 3 photos, sports, one complete owner/coach, and one complete student."
       );
       return;
     }
@@ -611,11 +816,27 @@ export default function DashboardPage() {
       state: editAcademyForm.state,
       district: editAcademyForm.district,
       city: editAcademyForm.city,
+      fullAddress: editAcademyForm.fullAddress,
+      pincode: editAcademyForm.pincode,
+      establishmentYear: editAcademyForm.establishmentYear,
       academyDescription: editAcademyForm.academyDescription,
       contactNumber: editAcademyForm.contactNumber,
       officialEmail: editAcademyForm.officialEmail,
+      websiteLink: editAcademyForm.websiteLink || "",
+      instagramLink: editAcademyForm.instagramLink || "",
+      facebookLink: editAcademyForm.facebookLink || "",
+      hasOtherBranch: editAcademyForm.hasOtherBranch || "",
+      googleLocation: editAcademyForm.googleLocation || "",
+      mediaCoverageProofName: editAcademyForm.mediaCoverageProofName || "",
+      whereDidYouHear: editAcademyForm.whereDidYouHear,
+      academyLogoUrl: editAcademyForm.academyLogoUrl,
+      academyImageUrls: editImages,
       sportsConducted: editSports,
       featuredAcademyImageUrl: editAcademyForm.featuredAcademyImageUrl || "",
+      owners: editOwners,
+      students: editStudents,
+      studentsCount: editStudents.length,
+      paidStudentsCount: editStudents.length,
       updatedAt: new Date(),
     });
 
@@ -638,6 +859,15 @@ export default function DashboardPage() {
 
     await loadAcademies();
     alert("Academy deleted.");
+  };
+
+  const deleteContactMessage = async (messageId: string) => {
+    const confirmed = window.confirm("Delete this message after reading?");
+
+    if (!confirmed) return;
+
+    await deleteDoc(doc(db, "contactMessages", messageId));
+    await loadContactMessages();
   };
 
   const updateOwner = (
@@ -702,24 +932,48 @@ const toggleStudentSport = (
   };
 
   const createAdminAcademy = async () => {
+    const hasCompleteOwner = owners.some(
+      (owner) =>
+        owner.fullName &&
+        owner.role &&
+        owner.sex &&
+        owner.bloodGroup &&
+        owner.designation &&
+        String(owner.mobile || "").length === 10 &&
+        owner.photoUrl
+    );
+    const hasCompleteStudent = students.some(
+      (student) =>
+        student.name &&
+        student.age &&
+        student.sex &&
+        student.bloodGroup &&
+        student.school &&
+        getStudentSports(student).length &&
+        student.photoUrl
+    );
+
     if (
       !academyName ||
+      !academyDescription ||
+      !establishmentYear ||
       !stateName ||
       !district ||
       pincode.length !== 6 ||
       contactNumber.length !== 10 ||
+      !officialEmail ||
+      !fullAddress ||
+      !city ||
+      !whereDidYouHear ||
+      !academyLogoUrl ||
+      academyImageUrls.length < 3 ||
       !sportsConducted.length ||
-      !owners.some((owner) => owner.fullName) ||
-      !students.some((student) => student.name)
+      !hasCompleteOwner ||
+      !hasCompleteStudent
     ) {
       alert(
-        "Please fill compulsory fields: academy name, state, district, 6-digit pincode, 10-digit contact, sports conducted, at least one owner/coach, and at least one student."
+        "Please fill all compulsory fields before saving: academy profile, logo, minimum 3 photos, sports, one complete owner/coach, and one complete student."
       );
-      return;
-    }
-
-    if (!officialEmail) {
-      alert("Official email is required for academy login.");
       return;
     }
 
@@ -786,6 +1040,7 @@ const toggleStudentSport = (
         facebookLink,
         hasOtherBranch,
         googleLocation,
+        whereDidYouHear,
         mediaCoverageProofName,
         declarationAccepted,
         academyLogoUrl,
@@ -844,6 +1099,7 @@ const toggleStudentSport = (
       setFacebookLink("");
       setHasOtherBranch("");
       setGoogleLocation("");
+      setWhereDidYouHear("");
       setMediaCoverageProofName("");
       setDeclarationAccepted(false);
       setAcademyLogoUrl("");
@@ -1212,159 +1468,123 @@ const toggleStudentSport = (
 
                 {editAcademyId && (
                   <div className="mt-6 grid md:grid-cols-2 gap-5">
-                    <input
-                      value={editAcademyForm.academyName || ""}
-                      onChange={(e) =>
-                        setEditAcademyForm({
-                          ...editAcademyForm,
-                          academyName: e.target.value,
-                        })
-                      }
-                      placeholder="Academy Name"
-                      className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
-                    />
-                    <select
-                      value={editAcademyForm.state || ""}
-                      onChange={(e) =>
-                        setEditAcademyForm({
-                          ...editAcademyForm,
-                          state: e.target.value,
-                          district: "",
-                        })
-                      }
-                      className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
-                    >
+                    <input value={editAcademyForm.academyName || ""} onChange={(e) => updateEditAcademy("academyName", e.target.value)} placeholder="Academy Name" className="bg-black border border-zinc-700 rounded-2xl px-5 py-4" />
+                    <input value={editAcademyForm.establishmentYear || ""} onChange={(e) => updateEditAcademy("establishmentYear", e.target.value)} placeholder="Year Of Establishment" className="bg-black border border-zinc-700 rounded-2xl px-5 py-4" />
+                    <textarea value={editAcademyForm.academyDescription || ""} onChange={(e) => updateEditAcademy("academyDescription", e.target.value)} placeholder="Academy Description" className="md:col-span-2 bg-black border border-zinc-700 rounded-2xl px-5 py-4 min-h-32" />
+                    <input value={editAcademyForm.fullAddress || ""} onChange={(e) => updateEditAcademy("fullAddress", e.target.value)} placeholder="Full Address" className="bg-black border border-zinc-700 rounded-2xl px-5 py-4" />
+                    <input value={editAcademyForm.city || ""} onChange={(e) => updateEditAcademy("city", e.target.value)} placeholder="City" className="bg-black border border-zinc-700 rounded-2xl px-5 py-4" />
+                    <select value={editAcademyForm.state || ""} onChange={(e) => setEditAcademyForm({ ...editAcademyForm, state: e.target.value, district: "" })} className="bg-black border border-zinc-700 rounded-2xl px-5 py-4">
                       <option value="">Select State</option>
-                      {indiaStates.map((state) => (
-                        <option key={state} value={state}>
-                          {state}
-                        </option>
-                      ))}
+                      {indiaStates.map((state) => <option key={state} value={state}>{state}</option>)}
                     </select>
-                    <select
-                      value={editAcademyForm.district || ""}
-                      onChange={(e) =>
-                        setEditAcademyForm({
-                          ...editAcademyForm,
-                          district: e.target.value,
-                        })
-                      }
-                      className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
-                    >
+                    <select value={editAcademyForm.district || ""} onChange={(e) => updateEditAcademy("district", e.target.value)} className="bg-black border border-zinc-700 rounded-2xl px-5 py-4">
                       <option value="">Select District</option>
-                      {editDistrictOptions.map((districtOption) => (
-                        <option
-                          key={districtOption}
-                          value={districtOption}
-                        >
-                          {districtOption}
-                        </option>
-                      ))}
+                      {editDistrictOptions.map((districtOption) => <option key={districtOption} value={districtOption}>{districtOption}</option>)}
                     </select>
-                    <input
-                      value={editAcademyForm.city || ""}
-                      onChange={(e) =>
-                        setEditAcademyForm({
-                          ...editAcademyForm,
-                          city: e.target.value,
-                        })
-                      }
-                      placeholder="City"
-                      className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
-                    />
-                    <input
-                      value={editAcademyForm.contactNumber || ""}
-                      onChange={(e) =>
-                        setEditAcademyForm({
-                          ...editAcademyForm,
-                          contactNumber: e.target.value
-                            .replace(/\D/g, "")
-                            .slice(0, 10),
-                        })
-                      }
-                      placeholder="Contact Number"
-                      className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
-                    />
-                    <input
-                      value={editAcademyForm.officialEmail || ""}
-                      onChange={(e) =>
-                        setEditAcademyForm({
-                          ...editAcademyForm,
-                          officialEmail: e.target.value,
-                        })
-                      }
-                      placeholder="Official Email"
-                      className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
-                    />
-                    <input
-                      value={editAcademyForm.sportsConducted || ""}
-                      onChange={(e) =>
-                        setEditAcademyForm({
-                          ...editAcademyForm,
-                          sportsConducted: e.target.value,
-                        })
-                      }
-                      placeholder="Sports Conducted, comma separated"
-                      className="md:col-span-2 bg-black border border-zinc-700 rounded-2xl px-5 py-4"
-                    />
-                    <textarea
-                      value={editAcademyForm.academyDescription || ""}
-                      onChange={(e) =>
-                        setEditAcademyForm({
-                          ...editAcademyForm,
-                          academyDescription: e.target.value,
-                        })
-                      }
-                      placeholder="Academy Description"
-                      className="md:col-span-2 bg-black border border-zinc-700 rounded-2xl px-5 py-4 min-h-36"
-                    />
-                    {Array.isArray(editAcademyForm.academyImageUrls) &&
-                      editAcademyForm.academyImageUrls.length > 0 && (
-                        <div className="md:col-span-2 bg-black border border-zinc-700 rounded-2xl p-5">
-                          <h3 className="text-xl font-black">
-                            Highlight / Banner Photo
-                          </h3>
-                          <p className="mt-1 text-zinc-400 text-sm">
-                            Select the academy photo used as the main banner.
-                          </p>
-                          <div className="mt-5 grid grid-cols-2 md:grid-cols-4 gap-4">
-                            {editAcademyForm.academyImageUrls.map(
-                              (imageUrl: string, index: number) => (
-                                <label
-                                  key={`${imageUrl}-${index}`}
-                                  className={`block rounded-2xl border p-2 cursor-pointer ${
-                                    editAcademyForm.featuredAcademyImageUrl ===
-                                    imageUrl
-                                      ? "border-orange-500 bg-orange-500/10"
-                                      : "border-zinc-700 bg-zinc-950"
-                                  }`}
-                                >
-                                  <input
-                                    type="radio"
-                                    name="editFeaturedAcademyImage"
-                                    checked={
-                                      editAcademyForm.featuredAcademyImageUrl ===
-                                      imageUrl
-                                    }
-                                    onChange={() =>
-                                      setEditAcademyForm({
-                                        ...editAcademyForm,
-                                        featuredAcademyImageUrl: imageUrl,
-                                      })
-                                    }
-                                    className="mb-2"
-                                  />
-                                  <img
-                                    src={imageUrl}
-                                    alt={`Banner option ${index + 1}`}
-                                    className="w-full aspect-video object-cover rounded-xl"
-                                  />
-                                </label>
-                              )
-                            )}
-                          </div>
+                    <input value={editAcademyForm.pincode || ""} maxLength={6} onChange={(e) => updateEditAcademy("pincode", e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="Pincode" className="bg-black border border-zinc-700 rounded-2xl px-5 py-4" />
+                    <input type="tel" maxLength={10} value={editAcademyForm.contactNumber || ""} onChange={(e) => updateEditAcademy("contactNumber", e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="Contact Number" className="bg-black border border-zinc-700 rounded-2xl px-5 py-4" />
+                    <input value={editAcademyForm.officialEmail || ""} onChange={(e) => updateEditAcademy("officialEmail", e.target.value)} placeholder="Official Email" className="bg-black border border-zinc-700 rounded-2xl px-5 py-4" />
+                    <input value={editAcademyForm.whereDidYouHear || ""} onChange={(e) => updateEditAcademy("whereDidYouHear", e.target.value)} placeholder="Where did they come to know about us?" className="bg-black border border-zinc-700 rounded-2xl px-5 py-4" />
+                    <input value={editAcademyForm.websiteLink || ""} onChange={(e) => updateEditAcademy("websiteLink", e.target.value)} placeholder="Website Link (optional)" className="bg-black border border-zinc-700 rounded-2xl px-5 py-4" />
+                    <input value={editAcademyForm.instagramLink || ""} onChange={(e) => updateEditAcademy("instagramLink", e.target.value)} placeholder="Instagram Link (optional)" className="bg-black border border-zinc-700 rounded-2xl px-5 py-4" />
+                    <input value={editAcademyForm.facebookLink || ""} onChange={(e) => updateEditAcademy("facebookLink", e.target.value)} placeholder="Facebook Link (optional)" className="bg-black border border-zinc-700 rounded-2xl px-5 py-4" />
+                    <select value={editAcademyForm.hasOtherBranch || ""} onChange={(e) => updateEditAcademy("hasOtherBranch", e.target.value)} className="bg-black border border-zinc-700 rounded-2xl px-5 py-4">
+                      <option value="">Any Other Branch?</option>
+                      <option>Yes</option>
+                      <option>No</option>
+                    </select>
+                    <input value={editAcademyForm.googleLocation || ""} onChange={(e) => updateEditAcademy("googleLocation", e.target.value)} placeholder="Google Location (optional)" className="bg-black border border-zinc-700 rounded-2xl px-5 py-4" />
+                    <input value={editAcademyForm.mediaCoverageProofName || ""} onChange={(e) => updateEditAcademy("mediaCoverageProofName", e.target.value)} placeholder="Press / Media Coverage Proof (optional)" className="bg-black border border-zinc-700 rounded-2xl px-5 py-4" />
+
+                    <div className="md:col-span-2 bg-black border border-zinc-700 rounded-2xl p-5">
+                      <h3 className="text-xl font-black">Sports Conducted</h3>
+                      <select value="" onChange={(e) => {
+                        const sport = e.target.value;
+                        if (!sport) return;
+                        updateEditAcademy("sportsConducted", Array.from(new Set([...(editAcademyForm.sportsConducted || []), sport])));
+                      }} className="mt-4 w-full bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4">
+                        <option value="">Add sport</option>
+                        {masterSports.filter((sport) => !(editAcademyForm.sportsConducted || []).includes(sport)).map((sport) => <option key={sport} value={sport}>{sport}</option>)}
+                      </select>
+                      <div className="mt-4 flex flex-wrap gap-3">
+                        {(editAcademyForm.sportsConducted || []).map((sport: string) => (
+                          <button type="button" key={sport} onClick={() => updateEditAcademy("sportsConducted", (editAcademyForm.sportsConducted || []).filter((item: string) => item !== sport))} className="bg-orange-500/10 border border-orange-500/40 text-orange-500 rounded-full px-4 py-2 font-bold">{sport} x</button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="md:col-span-2 grid lg:grid-cols-2 gap-5">
+                      <div className="bg-black border border-zinc-700 rounded-2xl p-5">
+                        <h3 className="text-xl font-black">Academy Logo</h3>
+                        <label className="mt-4 inline-flex bg-orange-500 text-black rounded-2xl px-5 py-3 font-bold cursor-pointer">Upload / Change Logo<input type="file" accept="image/*" onChange={(e) => handleEditLogoUpload(e.target.files?.[0])} className="hidden" /></label>
+                        {editAcademyForm.academyLogoUrl && <div className="mt-4 flex items-center gap-4"><img src={editAcademyForm.academyLogoUrl} alt="Academy logo" className="w-28 h-28 object-cover rounded-2xl border border-white/10" /><button type="button" onClick={() => updateEditAcademy("academyLogoUrl", "")} className="bg-red-500 px-4 py-2 rounded-xl font-bold">Delete</button></div>}
+                      </div>
+
+                      <div className="bg-black border border-zinc-700 rounded-2xl p-5">
+                        <h3 className="text-xl font-black">Academy Photos</h3>
+                        <label className="mt-4 inline-flex bg-white text-black rounded-2xl px-5 py-3 font-bold cursor-pointer">Upload Photos<input type="file" accept="image/*" multiple onChange={(e) => handleEditPhotosUpload(e.target.files)} className="hidden" /></label>
+                        <div className="mt-5 grid grid-cols-2 gap-4">
+                          {(editAcademyForm.academyImageUrls || []).map((imageUrl: string, index: number) => (
+                            <div key={`${imageUrl}-${index}`} className="relative rounded-2xl border border-zinc-700 p-2">
+                              <img src={imageUrl} alt={`Academy photo ${index + 1}`} className="w-full h-32 object-cover rounded-xl" />
+                              <label className="mt-2 flex items-center gap-2 text-xs"><input type="radio" name="editFeaturedAcademyImage" checked={editAcademyForm.featuredAcademyImageUrl === imageUrl || (!editAcademyForm.featuredAcademyImageUrl && index === 0)} onChange={() => updateEditAcademy("featuredAcademyImageUrl", imageUrl)} /> Banner</label>
+                              <button type="button" onClick={() => {
+                                const nextImages = (editAcademyForm.academyImageUrls || []).filter((_image: string, imageIndex: number) => imageIndex !== index);
+                                setEditAcademyForm({ ...editAcademyForm, academyImageUrls: nextImages, featuredAcademyImageUrl: editAcademyForm.featuredAcademyImageUrl === imageUrl ? nextImages[0] || "" : editAcademyForm.featuredAcademyImageUrl });
+                              }} className="absolute top-3 right-3 bg-red-500 w-7 h-7 rounded-full font-bold">x</button>
+                            </div>
+                          ))}
                         </div>
-                      )}
+                      </div>
+                    </div>
+
+                    <div className="md:col-span-2 grid lg:grid-cols-2 gap-5">
+                      <div className="bg-black border border-zinc-700 rounded-2xl p-5">
+                        <div className="flex items-center justify-between"><h3 className="text-xl font-black">Owners / Coaches</h3><button type="button" onClick={() => updateEditAcademy("owners", [...(editAcademyForm.owners || []), getDefaultOwner()])} className="bg-orange-500 text-black px-4 py-2 rounded-xl font-bold">+ Add</button></div>
+                        <div className="mt-5 space-y-5">
+                          {(editAcademyForm.owners || []).map((owner: any, index: number) => (
+                            <div key={index} className="bg-zinc-950 border border-zinc-700 rounded-2xl p-4 grid gap-3">
+                              <input value={owner.fullName || ""} onChange={(e) => updateEditOwner(index, "fullName", e.target.value)} placeholder="Full Name" className="bg-black border border-zinc-700 rounded-2xl px-4 py-3" />
+                              <div className="grid md:grid-cols-2 gap-3">
+                                <select value={owner.role || ""} onChange={(e) => updateEditOwner(index, "role", e.target.value)} className="bg-black border border-zinc-700 rounded-2xl px-4 py-3"><option>Owner</option><option>Coach</option><option>Coach and Owner</option></select>
+                                <select value={owner.sex || ""} onChange={(e) => updateEditOwner(index, "sex", e.target.value)} className="bg-black border border-zinc-700 rounded-2xl px-4 py-3"><option value="">Sex</option><option>Male</option><option>Female</option><option>Other</option></select>
+                                <select value={owner.bloodGroup || ""} onChange={(e) => updateEditOwner(index, "bloodGroup", e.target.value)} className="bg-black border border-zinc-700 rounded-2xl px-4 py-3"><option value="">Blood Group</option>{bloodGroupOptions.map((group) => <option key={group}>{group}</option>)}</select>
+                                <input value={owner.designation || ""} onChange={(e) => updateEditOwner(index, "designation", e.target.value)} placeholder="Designation" className="bg-black border border-zinc-700 rounded-2xl px-4 py-3" />
+                              </div>
+                              <input type="tel" maxLength={10} value={owner.mobile || ""} onChange={(e) => updateEditOwner(index, "mobile", e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="Mobile Number" className="bg-black border border-zinc-700 rounded-2xl px-4 py-3" />
+                              <input value={owner.email || ""} onChange={(e) => updateEditOwner(index, "email", e.target.value)} placeholder="Email (optional for coach)" className="bg-black border border-zinc-700 rounded-2xl px-4 py-3" />
+                              <label className="w-fit bg-white text-black rounded-xl px-4 py-2 font-bold cursor-pointer">Upload / Change Photo<input type="file" accept="image/*" onChange={(e) => handleEditOwnerPhotoUpload(index, e.target.files?.[0])} className="hidden" /></label>
+                              {owner.photoUrl && <img src={owner.photoUrl} alt={owner.fullName || "Owner"} className="w-24 h-24 object-cover rounded-xl" />}
+                              {(editAcademyForm.owners || []).length > 1 && <button type="button" onClick={() => updateEditAcademy("owners", (editAcademyForm.owners || []).filter((_owner: any, ownerIndex: number) => ownerIndex !== index))} className="w-fit text-red-400 font-bold">Remove</button>}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="bg-black border border-zinc-700 rounded-2xl p-5">
+                        <div className="flex items-center justify-between"><h3 className="text-xl font-black">Students</h3><button type="button" onClick={() => updateEditAcademy("students", [...(editAcademyForm.students || []), getDefaultStudent()])} className="bg-orange-500 text-black px-4 py-2 rounded-xl font-bold">+ Add Student</button></div>
+                        <div className="mt-5 space-y-5">
+                          {(editAcademyForm.students || []).map((student: any, index: number) => (
+                            <div key={index} className="bg-zinc-950 border border-zinc-700 rounded-2xl p-4 grid gap-3">
+                              <input value={student.name || ""} onChange={(e) => updateEditStudent(index, "name", e.target.value)} placeholder="Student Name" className="bg-black border border-zinc-700 rounded-2xl px-4 py-3" />
+                              <div className="grid md:grid-cols-2 gap-3">
+                                <input value={student.age || ""} onChange={(e) => updateEditStudent(index, "age", e.target.value)} placeholder="Age" className="bg-black border border-zinc-700 rounded-2xl px-4 py-3" />
+                                <select value={student.sex || ""} onChange={(e) => updateEditStudent(index, "sex", e.target.value)} className="bg-black border border-zinc-700 rounded-2xl px-4 py-3"><option value="">Sex</option><option>Male</option><option>Female</option><option>Other</option></select>
+                                <select value={student.bloodGroup || ""} onChange={(e) => updateEditStudent(index, "bloodGroup", e.target.value)} className="bg-black border border-zinc-700 rounded-2xl px-4 py-3"><option value="">Blood Group</option>{bloodGroupOptions.map((group) => <option key={group}>{group}</option>)}</select>
+                                <input value={student.school || ""} onChange={(e) => updateEditStudent(index, "school", e.target.value)} placeholder="School" className="bg-black border border-zinc-700 rounded-2xl px-4 py-3" />
+                              </div>
+                              <div className="bg-black border border-zinc-700 rounded-2xl p-4"><p className="font-bold">Sports Learned</p><div className="mt-3 grid sm:grid-cols-2 gap-2">{(editAcademyForm.sportsConducted || []).map((sport: string) => <label key={sport} className="flex items-center gap-2"><input type="checkbox" checked={getEditStudentSports(student).includes(sport)} onChange={(e) => toggleEditStudentSport(index, sport, e.target.checked)} />{sport}</label>)}</div></div>
+                              <textarea value={student.achievement || ""} onChange={(e) => updateEditStudent(index, "achievement", e.target.value)} placeholder={"Achievements (optional)\n1. State Champion\n2. Gold Medalist 2023"} className="bg-black border border-zinc-700 rounded-2xl px-4 py-3 min-h-28" />
+                              <button type="button" onClick={() => updateEditStudent(index, "achievement", `${student.achievement || ""}${student.achievement ? "\n" : ""}${String(student.achievement || "").split("\n").filter(Boolean).length + 1}. `)} className="w-fit bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2 font-bold">+ Add Achievement Line</button>
+                              <label className="w-fit bg-white text-black rounded-xl px-4 py-2 font-bold cursor-pointer">Upload / Change Photo<input type="file" accept="image/*" onChange={(e) => handleEditStudentPhotoUpload(index, e.target.files?.[0])} className="hidden" /></label>
+                              {student.photoUrl && <img src={student.photoUrl} alt={student.name || "Student"} className="w-24 h-24 object-cover rounded-xl" />}
+                              <div className="flex flex-wrap gap-3"><label className="flex items-center gap-2"><input type="checkbox" checked={student.isEliteAthlete || false} onChange={(e) => updateEditStudent(index, "isEliteAthlete", e.target.checked)} />Elite Athlete</label><label className="flex items-center gap-2"><input type="checkbox" checked={student.isParaAthlete || false} onChange={(e) => updateEditStudent(index, "isParaAthlete", e.target.checked)} />Para Athlete</label></div>
+                              {(editAcademyForm.students || []).length > 1 && <button type="button" onClick={() => updateEditAcademy("students", (editAcademyForm.students || []).filter((_student: any, studentIndex: number) => studentIndex !== index))} className="w-fit text-red-400 font-bold">Remove</button>}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
                     <button
                       type="button"
                       onClick={saveEditAcademy}
@@ -1414,6 +1634,9 @@ const toggleStudentSport = (
                             {[academy.state, academy.district]
                               .filter(Boolean)
                               .join(", ") || "Location not added"}
+                          </p>
+                          <p className="mt-2 text-zinc-400">
+                            Source: {academy.whereDidYouHear || "Not added"}
                           </p>
                           <p className="mt-2 text-zinc-300">
                             Owner: {owner?.fullName || "Not added"}
@@ -1494,6 +1717,13 @@ const toggleStudentSport = (
                         <p className="mt-3 text-zinc-400 whitespace-pre-line">
                           {message.message}
                         </p>
+                        <button
+                          type="button"
+                          onClick={() => deleteContactMessage(message.id)}
+                          className="mt-4 bg-red-500 text-white rounded-xl px-4 py-2 font-bold"
+                        >
+                          Delete Message
+                        </button>
                       </div>
                     ))
                   ) : (
@@ -1664,6 +1894,12 @@ const toggleStudentSport = (
                   value={googleLocation}
                   onChange={(e) => setGoogleLocation(e.target.value)}
                   placeholder="Google Location Of Academy"
+                  className="md:col-span-2 bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+                />
+                <input
+                  value={whereDidYouHear}
+                  onChange={(e) => setWhereDidYouHear(e.target.value)}
+                  placeholder="Where did you come to know about us?"
                   className="md:col-span-2 bg-black border border-zinc-700 rounded-2xl px-5 py-4"
                 />
                 <div className="md:col-span-2 bg-black border border-zinc-700 rounded-2xl p-5">
@@ -1971,6 +2207,41 @@ const toggleStudentSport = (
                           placeholder="Email"
                           className="bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4"
                         />
+                        <div>
+                          <label className="inline-flex bg-white text-black px-5 py-3 rounded-2xl font-bold cursor-pointer">
+                            Upload Owner / Coach Photo
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) =>
+                                handleAdminOwnerPhotoUpload(
+                                  index,
+                                  e.target.files?.[0]
+                                )
+                              }
+                              className="hidden"
+                            />
+                          </label>
+
+                          {owner.photoUrl && (
+                            <div className="mt-4 flex items-center gap-4">
+                              <img
+                                src={owner.photoUrl}
+                                alt={owner.fullName || "Owner"}
+                                className="w-28 h-28 object-cover rounded-2xl border border-white/10"
+                              />
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  updateOwner(index, "photoUrl", "")
+                                }
+                                className="bg-red-500 px-4 py-2 rounded-xl font-bold"
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -2114,6 +2385,25 @@ const toggleStudentSport = (
                           placeholder={"Achievements\n1. State Champion\n2. Gold Medalist 2023"}
                           className="bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4 min-h-28"
                         />
+                        <button
+                          type="button"
+                          onClick={() =>
+                            updateStudent(
+                              index,
+                              "achievement",
+                              `${student.achievement || ""}${
+                                student.achievement ? "\n" : ""
+                              }${
+                                String(student.achievement || "")
+                                  .split("\n")
+                                  .filter(Boolean).length + 1
+                              }. `
+                            )
+                          }
+                          className="w-fit bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2 font-bold"
+                        >
+                          + Add Achievement Line
+                        </button>
                         <div>
                           <label className="inline-flex bg-white text-black px-5 py-3 rounded-2xl font-bold cursor-pointer">
                             Upload Student Photo

@@ -103,6 +103,7 @@ const [adminSports, setAdminSports] = useState<string[]>([]);
 const [desiredSport, setDesiredSport] = useState("");
 const [hasOtherBranch, setHasOtherBranch] = useState("");
 const [googleLocation, setGoogleLocation] = useState("");
+const [whereDidYouHear, setWhereDidYouHear] = useState("");
 const [mediaCoverageProof, setMediaCoverageProof] = useState<any>(null);
 const [mediaCoverageProofName, setMediaCoverageProofName] = useState("");
 const [declarationAccepted, setDeclarationAccepted] = useState(false);
@@ -358,6 +359,10 @@ setDesiredSport(
 
 setGoogleLocation(
   data.googleLocation || ""
+);
+
+setWhereDidYouHear(
+  data.whereDidYouHear || ""
 );
 
 setMediaCoverageProofName(
@@ -710,6 +715,7 @@ const academyPayload = {
   sportsConducted: selectedSports,
   desiredSport,
   googleLocation,
+  whereDidYouHear,
   mediaCoverageProofName,
   declarationAccepted,
   owners: sanitizePeople(owners),
@@ -728,18 +734,47 @@ const academyPayload = {
   };
 
 const validateAcademyProfile = () => {
+  const hasCompleteOwner = owners.some(
+    (owner: any) =>
+      owner.fullName &&
+      owner.role &&
+      owner.sex &&
+      owner.bloodGroup &&
+      owner.designation &&
+      String(owner.mobile || "").length === 10 &&
+      (owner.photoPreview || owner.photoUrl)
+  );
+  const hasCompleteStudent = students.some(
+    (student: any) =>
+      student.name &&
+      student.age &&
+      student.school &&
+      student.sex &&
+      student.bloodGroup &&
+      getStudentSports(student).length &&
+      (student.photoPreview || student.photoUrl)
+  );
+
   if (
     !academyName ||
+    !academyDescription ||
+    !establishmentYear ||
     !stateName ||
     !district ||
     pincode.length !== 6 ||
     contactNumber.length !== 10 ||
+    !officialEmail ||
+    !fullAddress ||
+    !city ||
+    !whereDidYouHear ||
+    !logoPreview ||
+    academyImages.length < 3 ||
     !selectedSports.length ||
-    !owners.some((owner) => owner.fullName) ||
-    !students.some((student) => student.name)
+    !hasCompleteOwner ||
+    !hasCompleteStudent
   ) {
     alert(
-      "Please fill compulsory fields: academy name, state, district, 6-digit pincode, 10-digit contact, sports conducted, at least one owner/coach, and at least one student."
+      "Please fill all compulsory fields before saving: academy profile, logo, minimum 3 photos, sports, one complete owner/coach, and one complete student."
     );
     return false;
   }
@@ -1071,6 +1106,7 @@ facebookLink: "",
 sportsConducted: [],
 desiredSport: "",
 googleLocation: "",
+whereDidYouHear: "",
 mediaCoverageProofName: "",
 declarationAccepted: false,
 owners,
@@ -1211,6 +1247,10 @@ setDesiredSport(
 
 setGoogleLocation(
   data.googleLocation || ""
+);
+
+setWhereDidYouHear(
+  data.whereDidYouHear || ""
 );
 
 setMediaCoverageProofName(
@@ -3184,6 +3224,14 @@ console.log("Razorpay Loaded:", window.Razorpay);
     className="md:col-span-2 bg-black border border-zinc-700 rounded-2xl px-6 py-5"
   />
 
+  <input
+    type="text"
+    placeholder="Where did you come to know about us?"
+    value={whereDidYouHear}
+    onChange={(e) => setWhereDidYouHear(e.target.value)}
+    className="md:col-span-2 bg-black border border-zinc-700 rounded-2xl px-6 py-5"
+  />
+
   <div className="mt-10">
   <h2 className="text-4xl font-black">
     Academy Logo
@@ -3943,6 +3991,26 @@ console.log("Razorpay Loaded:", window.Razorpay);
             }
             className="md:col-span-2 bg-black border border-zinc-700 rounded-2xl px-5 py-4 min-h-36"
           />
+
+          <button
+            type="button"
+            onClick={() =>
+              handleStudentChange(
+                index,
+                "achievement",
+                `${student.achievement || ""}${
+                  student.achievement ? "\n" : ""
+                }${
+                  String(student.achievement || "")
+                    .split("\n")
+                    .filter(Boolean).length + 1
+                }. `
+              )
+            }
+            className="w-fit bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3 font-bold"
+          >
+            + Add Achievement Line
+          </button>
 
         </div>
 
