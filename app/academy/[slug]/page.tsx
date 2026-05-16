@@ -105,6 +105,10 @@ export default function PublicAcademyPage() {
   const location = [academy?.city, academy?.district, academy?.state]
     .filter(Boolean)
     .join(", ");
+  const profileDescription =
+    academy?.academyDescription ||
+    "Officially affiliated with Elite Games Federation inside India's growing grassroots sports network.";
+  const featuredStudents = eliteStudents.length ? eliteStudents : liveStudents;
 
   return (
     <main className="min-h-screen bg-black text-white">
@@ -123,198 +127,115 @@ export default function PublicAcademyPage() {
         )}
 
         {academy && (
-          <>
-            <section className="relative overflow-hidden rounded-[35px] border border-white/10 bg-zinc-950">
-              <div
-                className="absolute inset-0 bg-cover bg-center opacity-40"
-                style={{ backgroundImage: `url(${coverImage})` }}
+          <div className="bg-zinc-900 border border-orange-500/40 rounded-[35px] overflow-hidden">
+            <div className="relative min-h-[480px] p-8 md:p-14 flex items-end">
+              <img
+                src={coverImage}
+                alt={`${academy.academyName} banner`}
+                className="absolute inset-0 w-full h-full object-cover opacity-45"
               />
-              <div className="absolute inset-0 bg-gradient-to-r from-black via-black/85 to-black/35" />
-              <div className="relative min-h-[470px] p-7 md:p-12 flex flex-col justify-end">
-                <div className="flex flex-col lg:flex-row lg:items-end gap-8">
-                  <div className="w-36 h-36 md:w-44 md:h-44 rounded-3xl border border-white/10 bg-black/80 p-4 flex items-center justify-center">
-                    {logoImage ? (
-                      <img
-                        src={logoImage}
-                        alt={academy.academyName}
-                        className="w-full h-full object-contain"
-                      />
-                    ) : (
-                      <span className="text-6xl font-black text-orange-500">
-                        {(academy.academyName || "A").charAt(0)}
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/20" />
+              <div className="relative z-10 flex flex-col md:flex-row md:items-end gap-8">
+                {logoImage ? (
+                  <img
+                    src={logoImage}
+                    alt={`${academy.academyName} logo`}
+                    className="w-36 h-36 rounded-3xl object-contain bg-black border border-white/10 p-4"
+                  />
+                ) : (
+                  <div className="w-36 h-36 rounded-3xl bg-black border border-white/10 flex items-center justify-center text-6xl font-black text-orange-500">
+                    {(academy.academyName || "A").charAt(0)}
+                  </div>
+                )}
+
+                <div>
+                  <p className="text-orange-500 uppercase tracking-[0.35em] font-semibold">
+                    Affiliated Academy
+                  </p>
+                  <h1 className="mt-4 text-5xl md:text-7xl font-black">
+                    {academy.academyName}
+                  </h1>
+                  <p className="mt-4 max-w-3xl text-zinc-200 text-lg whitespace-pre-line">
+                    {profileDescription}
+                  </p>
+                  <div className="mt-6 flex flex-wrap gap-3">
+                    <span className="bg-green-500 text-black px-4 py-2 rounded-full font-black">
+                      Affiliation Active
+                    </span>
+                    {academy.affiliationNumber && (
+                      <span className="bg-white/10 border border-white/20 px-4 py-2 rounded-full font-bold">
+                        {academy.affiliationNumber}
+                      </span>
+                    )}
+                    <span className="bg-white/10 border border-white/20 px-4 py-2 rounded-full font-bold">
+                      {liveStudents.length} Students
+                    </span>
+                    <span className="bg-white/10 border border-white/20 px-4 py-2 rounded-full font-bold">
+                      {owners.length} Owners / Coaches
+                    </span>
+                    {eliteStudents.length > 0 && (
+                      <span className="bg-orange-500 text-black px-4 py-2 rounded-full font-black">
+                        {eliteStudents.length} Elite Athlete
+                        {eliteStudents.length > 1 ? "s" : ""}
                       </span>
                     )}
                   </div>
-
-                  <div className="max-w-4xl">
-                    <p className="text-orange-500 uppercase tracking-[0.4em]">
-                      Affiliated Academy
-                    </p>
-                    <h1 className="mt-4 text-5xl md:text-7xl font-black leading-none">
-                      {academy.academyName}
-                    </h1>
-                    <p className="mt-4 text-xl text-zinc-300">
-                      {location || "Location not available"}
-                    </p>
-                    <div className="mt-6 flex flex-wrap gap-3">
-                      <span className="bg-green-500 text-black px-4 py-2 rounded-full font-black">
-                        Affiliation Active
-                      </span>
-                      {academy.affiliationNumber && (
-                        <span className="bg-white/10 border border-white/10 px-4 py-2 rounded-full font-bold">
-                          {academy.affiliationNumber}
-                        </span>
-                      )}
-                      <span className="bg-white/10 border border-white/10 px-4 py-2 rounded-full font-bold">
-                        {liveStudents.length} Students
-                      </span>
-                      <span className="bg-white/10 border border-white/10 px-4 py-2 rounded-full font-bold">
-                        {owners.length} Owners / Coaches
-                      </span>
-                      {eliteStudents.length > 0 && (
-                        <span className="bg-orange-500 text-black px-4 py-2 rounded-full font-black">
-                          {eliteStudents.length} Elite Athlete{eliteStudents.length > 1 ? "s" : ""}
-                        </span>
-                      )}
-                    </div>
-                  </div>
                 </div>
               </div>
-            </section>
+            </div>
 
-            <section className="mt-10 grid lg:grid-cols-[1.25fr_0.75fr] gap-8">
-              <div className="bg-zinc-900 border border-white/10 rounded-[35px] p-8">
+            <div className="p-8 md:p-12 grid lg:grid-cols-3 gap-8">
+              <section className="lg:col-span-2 bg-black border border-white/10 rounded-3xl p-8">
                 <h2 className="text-4xl font-black">Academy Description</h2>
-                <p className="mt-5 text-lg text-zinc-300 leading-relaxed whitespace-pre-line">
-                  {academy.academyDescription ||
-                    "Academy description not added yet."}
+                <p className="mt-4 text-zinc-300 leading-relaxed whitespace-pre-line">
+                  {profileDescription}
                 </p>
-              </div>
+              </section>
 
-              <div className="bg-zinc-900 border border-white/10 rounded-[35px] p-8">
+              <section className="bg-black border border-white/10 rounded-3xl p-8">
+                <h2 className="text-4xl font-black">Contact</h2>
+                <div className="mt-5 space-y-3 text-zinc-300 break-words">
+                  <p>{location || "Location not available"}</p>
+                  {academy.officialEmail ? (
+                    <a
+                      href={`mailto:${academy.officialEmail}`}
+                      className="block hover:text-orange-500 transition"
+                    >
+                      {academy.officialEmail}
+                    </a>
+                  ) : (
+                    <p>Email not available</p>
+                  )}
+                  <p>{academy.contactNumber || "Contact not available"}</p>
+                </div>
+              </section>
+
+              <section className="lg:col-span-3 bg-black border border-white/10 rounded-3xl p-8">
                 <h2 className="text-4xl font-black">Sports Conducted</h2>
                 <div className="mt-5 flex flex-wrap gap-3">
                   {academySports.length ? (
                     academySports.map((sport: string) => (
                       <span
                         key={sport}
-                        className="bg-orange-500/10 border border-orange-500/40 text-orange-400 rounded-full px-4 py-2 font-bold"
+                        className="bg-orange-500/10 text-orange-500 border border-orange-500/20 px-4 py-2 rounded-full font-bold"
                       >
                         {sport}
                       </span>
                     ))
                   ) : (
-                    <p className="text-zinc-400">No sports added.</p>
+                    <p className="text-zinc-400">Sports are being updated.</p>
                   )}
                 </div>
-              </div>
-            </section>
-
-            {eliteStudents.length > 0 && (
-              <section className="mt-10 bg-orange-500 text-black rounded-[35px] p-8">
-                <p className="uppercase tracking-[0.3em] text-sm font-black">
-                  Elite Athlete Spotlight
-                </p>
-                <h2 className="mt-3 text-4xl font-black">
-                  Featured Elite Athletes
-                </h2>
-                <div className="mt-6 grid md:grid-cols-2 gap-5">
-                  {eliteStudents.map((student: any, index: number) => (
-                    <div
-                      key={index}
-                      className="bg-black text-white rounded-3xl p-5 flex flex-col sm:flex-row gap-5"
-                    >
-                      {student.photoUrl ? (
-                        <img
-                          src={student.photoUrl}
-                          alt={student.name || "Elite Athlete"}
-                          className="w-28 h-32 rounded-2xl object-cover"
-                        />
-                      ) : (
-                        <div className="w-28 h-32 rounded-2xl bg-zinc-900 flex items-center justify-center text-4xl font-black text-orange-500">
-                          {(student.name || "E").charAt(0)}
-                        </div>
-                      )}
-                      <div>
-                        <h3 className="text-2xl font-black">
-                          {student.name || `Elite Athlete ${index + 1}`}
-                        </h3>
-                        <p className="mt-2 text-zinc-300">
-                          {[
-                            getStudentSports(student).join(", "),
-                            student.school,
-                            student.age && `${student.age} yrs`,
-                          ]
-                            .filter(Boolean)
-                            .join(" | ")}
-                        </p>
-                        {getAchievementLines(student.achievement).length > 0 && (
-                          <ol className="mt-3 list-decimal list-inside text-zinc-200 space-y-1">
-                            {getAchievementLines(student.achievement).map(
-                              (achievement, achievementIndex) => (
-                                <li key={achievementIndex}>{achievement}</li>
-                              )
-                            )}
-                          </ol>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
               </section>
-            )}
 
-            <section className="mt-10 grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[
-                ["Location", location],
-                ["Full Address", academy.fullAddress],
-                ["Established", academy.establishmentYear],
-                ["Contact", academy.contactNumber],
-                ["Email", academy.officialEmail],
-                ["Website", academy.websiteLink],
-                ["Google Location", academy.googleLocation],
-                ["Instagram", academy.instagramLink],
-                ["Facebook", academy.facebookLink],
-              ].map(([label, value]) => (
-                <div
-                  key={label}
-                  className="bg-zinc-900 border border-white/10 rounded-3xl p-6"
-                >
-                  <p className="text-orange-500 uppercase tracking-[0.2em] text-xs">
-                    {label}
-                  </p>
-                  <p className="mt-3 text-lg font-bold break-words">
-                    {value || "Not available"}
-                  </p>
-                </div>
-              ))}
-            </section>
-
-            {academyGallery.length > 0 && (
-              <section className="mt-10 bg-zinc-900 border border-white/10 rounded-[35px] p-8">
-                <h2 className="text-4xl font-black">Academy Photos</h2>
-                <div className="mt-6 grid md:grid-cols-3 gap-5">
-                  {academyGallery.map((imageUrl: string, index: number) => (
-                    <img
-                      key={`${imageUrl}-${index}`}
-                      src={imageUrl}
-                      alt={`${academy.academyName} photo ${index + 1}`}
-                      className="w-full h-60 object-cover rounded-3xl border border-white/10"
-                    />
-                  ))}
-                </div>
-              </section>
-            )}
-
-            <section className="mt-10 grid lg:grid-cols-2 gap-8">
-              <div className="bg-zinc-900 border border-white/10 rounded-[35px] p-8">
-                <h2 className="text-4xl font-black">Owner / Coach Details</h2>
+              <section className="bg-black border border-white/10 rounded-3xl p-8">
+                <h2 className="text-4xl font-black">Owner / Coach</h2>
                 <div className="mt-6 space-y-4">
                   {owners.length ? (
                     owners.map((owner: any, index: number) => (
                       <div
                         key={index}
-                        className="bg-black border border-zinc-700 rounded-2xl p-5 flex gap-5"
+                        className="flex gap-5 bg-zinc-950 border border-white/10 rounded-2xl p-5"
                       >
                         {owner.photoUrl ? (
                           <img
@@ -323,21 +244,22 @@ export default function PublicAcademyPage() {
                             className="w-20 h-24 rounded-xl object-cover"
                           />
                         ) : (
-                          <div className="w-20 h-24 rounded-xl bg-zinc-900 flex items-center justify-center text-2xl font-black text-orange-500">
+                          <div className="w-20 h-24 rounded-xl bg-black border border-white/10 flex items-center justify-center text-2xl font-black text-orange-500">
                             {(owner.fullName || "O").charAt(0)}
                           </div>
                         )}
                         <div>
-                          <p className="text-xl font-bold">
+                          <p className="text-xl font-black">
                             {owner.fullName || `Owner ${index + 1}`}
                           </p>
-                          <p className="mt-2 text-orange-500 font-bold">
+                          <p className="mt-1 text-orange-500 font-bold">
                             {owner.role || "Owner"}
                           </p>
-                          <p className="mt-2 text-zinc-400">
-                            {[owner.sex, owner.designation].filter(Boolean).join(" | ") ||
-                              "Designation not added"}
-                          </p>
+                          {owner.designation && (
+                            <p className="mt-2 text-zinc-400">
+                              {owner.designation}
+                            </p>
+                          )}
                           <p className="mt-2 text-zinc-400">
                             Blood Group: {owner.bloodGroup || "Not added"}
                           </p>
@@ -348,43 +270,42 @@ export default function PublicAcademyPage() {
                       </div>
                     ))
                   ) : (
-                    <p className="text-zinc-400">No owner details added yet.</p>
+                    <p className="text-zinc-400">
+                      Owner and coach details are being updated.
+                    </p>
                   )}
                 </div>
-              </div>
+              </section>
 
-              <div className="bg-zinc-900 border border-white/10 rounded-[35px] p-8">
-                <h2 className="text-4xl font-black">Student Details</h2>
-                <div className="mt-6 space-y-4">
-                  {liveStudents.length ? (
-                    liveStudents.map((student: any, index: number) => (
+              <section className="lg:col-span-2 bg-black border border-white/10 rounded-3xl p-8">
+                <h2 className="text-4xl font-black">
+                  {eliteStudents.length
+                    ? "Elite Athlete Features"
+                    : "Student Details"}
+                </h2>
+                <div className="mt-6 grid md:grid-cols-2 gap-5">
+                  {featuredStudents.length ? (
+                    featuredStudents.map((student: any, index: number) => (
                       <div
                         key={index}
-                        className="bg-black border border-zinc-700 rounded-2xl p-5 flex gap-5"
+                        className="bg-zinc-950 border border-white/10 rounded-2xl p-5 flex gap-5"
                       >
                         {student.photoUrl ? (
                           <img
                             src={student.photoUrl}
                             alt={student.name || `Student ${index + 1}`}
-                            className="w-20 h-24 object-cover rounded-xl border border-white/10"
+                            className="w-20 h-24 rounded-xl object-cover"
                           />
                         ) : (
-                          <div className="w-20 h-24 rounded-xl bg-zinc-900 flex items-center justify-center text-2xl font-black text-orange-500">
+                          <div className="w-20 h-24 rounded-xl bg-black border border-white/10 flex items-center justify-center text-2xl font-black text-orange-500">
                             {(student.name || "S").charAt(0)}
                           </div>
                         )}
                         <div>
-                          <div className="flex flex-wrap items-center gap-3">
-                            <p className="text-xl font-bold">
-                              {student.name || `Student ${index + 1}`}
-                            </p>
-                            {student.isEliteAthlete && (
-                              <span className="bg-orange-500 text-black px-3 py-1 rounded-full text-xs font-black">
-                                Elite Athlete
-                              </span>
-                            )}
-                          </div>
-                          <p className="mt-2 text-zinc-400">
+                          <p className="text-xl font-black">
+                            {student.name || `Student ${index + 1}`}
+                          </p>
+                          <p className="mt-1 text-zinc-400">
                             {[
                               getStudentSports(student).join(", "),
                               student.sex,
@@ -393,34 +314,85 @@ export default function PublicAcademyPage() {
                               .filter(Boolean)
                               .join(" | ") || "Sport not added"}
                           </p>
-                          <p className="mt-2 text-zinc-400">
-                            {student.school || "School not added"}
-                          </p>
+                          {student.school && (
+                            <p className="mt-2 text-zinc-400">
+                              {student.school}
+                            </p>
+                          )}
                           <p className="mt-2 text-zinc-400">
                             Blood Group: {student.bloodGroup || "Not added"}
                           </p>
-                          <p className="mt-2 text-zinc-400">
-                            ID: {student.memberId || "Not generated"}
-                          </p>
-                          {getAchievementLines(student.achievement).length > 0 && (
+                          {getAchievementLines(student.achievement).length >
+                            0 && (
                             <ol className="mt-3 list-decimal list-inside text-zinc-300 space-y-1">
                               {getAchievementLines(student.achievement).map(
-                                (achievement, achievementIndex) => (
-                                  <li key={achievementIndex}>{achievement}</li>
+                                (item, achievementIndex) => (
+                                  <li key={achievementIndex}>{item}</li>
                                 )
                               )}
                             </ol>
+                          )}
+                          {student.isEliteAthlete && (
+                            <span className="mt-3 inline-block bg-orange-500 text-black px-3 py-1 rounded-full text-sm font-bold">
+                              Elite Athlete
+                            </span>
                           )}
                         </div>
                       </div>
                     ))
                   ) : (
-                    <p className="text-zinc-400">No student details added yet.</p>
+                    <p className="text-zinc-400">
+                      Student details are being updated.
+                    </p>
                   )}
                 </div>
-              </div>
-            </section>
-          </>
+              </section>
+
+              <section className="lg:col-span-3 bg-black border border-white/10 rounded-3xl p-8">
+                <h2 className="text-4xl font-black">Academy Details</h2>
+                <div className="mt-6 grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {[
+                    ["Established", academy.establishmentYear],
+                    ["Full Address", academy.fullAddress],
+                    ["Google Location", academy.googleLocation],
+                    ["Website", academy.websiteLink],
+                    ["Instagram", academy.instagramLink],
+                    ["Facebook", academy.facebookLink],
+                    ["Public URL", `kheloyouth.com/academy/${slug}`],
+                    ["Affiliation No.", academy.affiliationNumber],
+                  ].map(([label, value]) => (
+                    <div
+                      key={label}
+                      className="bg-zinc-950 border border-white/10 rounded-2xl p-5"
+                    >
+                      <p className="text-orange-500 uppercase tracking-[0.2em] text-xs">
+                        {label}
+                      </p>
+                      <p className="mt-3 font-bold break-words">
+                        {value || "Not available"}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              {academyGallery.length > 0 && (
+                <section className="lg:col-span-3 bg-black border border-white/10 rounded-3xl p-8">
+                  <h2 className="text-4xl font-black">Academy Photos</h2>
+                  <div className="mt-6 grid md:grid-cols-3 gap-5">
+                    {academyGallery.map((imageUrl: string, index: number) => (
+                      <img
+                        key={`${imageUrl}-${index}`}
+                        src={imageUrl}
+                        alt={`${academy.academyName} photo ${index + 1}`}
+                        className="w-full h-60 object-cover rounded-2xl border border-white/10"
+                      />
+                    ))}
+                  </div>
+                </section>
+              )}
+            </div>
+          </div>
         )}
       </section>
 
