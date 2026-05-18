@@ -1867,25 +1867,44 @@ const getCanvasSafeImageSource = async (src: string) => {
   return blobToDataUrl(await response.blob());
 };
 
-const loadCanvasImage = async (src: string) => {
-  const canvasSafeSrc = await getCanvasSafeImageSource(src);
-
-  return new Promise<HTMLImageElement>((resolve, reject) => {
+const loadImageElement = (src: string, useCors: boolean) =>
+  new Promise<HTMLImageElement>((resolve, reject) => {
     const image = new Image();
 
-    if (
-      canvasSafeSrc &&
-      !canvasSafeSrc.startsWith("blob:") &&
-      !canvasSafeSrc.startsWith("data:") &&
-      !canvasSafeSrc.startsWith("/")
-    ) {
+    if (useCors) {
       image.crossOrigin = "anonymous";
     }
 
     image.onload = () => resolve(image);
     image.onerror = reject;
-    image.src = canvasSafeSrc;
+    image.src = src;
   });
+
+const loadCanvasImage = async (src: string) => {
+  try {
+    const canvasSafeSrc = await getCanvasSafeImageSource(src);
+
+    return await loadImageElement(
+      canvasSafeSrc,
+      Boolean(
+        canvasSafeSrc &&
+          !canvasSafeSrc.startsWith("blob:") &&
+          !canvasSafeSrc.startsWith("data:") &&
+          !canvasSafeSrc.startsWith("/")
+      )
+    );
+  } catch (error) {
+    console.warn("Image fetch conversion failed, trying direct image load", src, error);
+    return loadImageElement(
+      src,
+      Boolean(
+        src &&
+          !src.startsWith("blob:") &&
+          !src.startsWith("data:") &&
+          !src.startsWith("/")
+      )
+    );
+  }
 };
 
 const drawCoverImage = (
