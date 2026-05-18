@@ -1174,6 +1174,28 @@ export default function DashboardPage() {
     setStudents(updated);
   };
 
+  const clearOwnerPhoto = (index: number) => {
+    const updated = [...owners];
+    updated[index] = {
+      ...updated[index],
+      photoFile: undefined,
+      photoPreview: "",
+      photoUrl: "",
+    };
+    setOwners(updated);
+  };
+
+  const clearStudentPhoto = (index: number) => {
+    const updated = [...students];
+    updated[index] = {
+      ...updated[index],
+      photoFile: undefined,
+      photoPreview: "",
+      photoUrl: "",
+    };
+    setStudents(updated);
+  };
+
   const getStudentSports = (student: any) =>
     Array.isArray(student.sports)
       ? student.sports
@@ -2644,9 +2666,7 @@ const toggleStudentSport = (
                               />
                               <button
                                 type="button"
-                                onClick={() =>
-                                  updateOwner(index, "photoUrl", "")
-                                }
+                                onClick={() => clearOwnerPhoto(index)}
                                 className="bg-red-500 px-4 py-2 rounded-xl font-bold"
                               >
                                 Delete
@@ -2837,13 +2857,11 @@ const toggleStudentSport = (
                               <img
                                 src={student.photoUrl}
                                 alt={`${student.name || "Student"} photo`}
-                                className="w-28 h-32 object-cover rounded-2xl border border-white/10"
+                                className="w-28 h-28 object-cover rounded-2xl border border-white/10"
                               />
                               <button
                                 type="button"
-                                onClick={() =>
-                                  updateStudent(index, "photoUrl", "")
-                                }
+                                onClick={() => clearStudentPhoto(index)}
                                 className="bg-red-500 px-4 py-2 rounded-xl font-bold"
                               >
                                 Delete

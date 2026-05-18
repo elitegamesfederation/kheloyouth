@@ -130,6 +130,7 @@ const [owners, setOwners] = useState([
     memberId: "",
     photo: null,
     photoPreview: "",
+    photoUrl: "",
     idProof: null,
     idProofPreview: "",
   },
@@ -147,6 +148,7 @@ const [students, setStudents] = useState<any[]>([
     memberId: "",
     photo: null,
     photoPreview: "",
+    photoUrl: "",
     isEliteAthlete: false,
     isParaAthlete: false,
   },
@@ -413,6 +415,7 @@ setOwners(
       memberId: "",
       photo: null,
       photoPreview: "",
+      photoUrl: "",
       idProof: null,
       idProofPreview: "",
     },
@@ -432,6 +435,7 @@ setStudents(
       memberId: "",
       photo: null,
       photoPreview: "",
+      photoUrl: "",
       isEliteAthlete: false,
       isParaAthlete: false,
     },
@@ -652,15 +656,19 @@ const getSavedPhotoPreview = async (item: any) => {
   }
 
   if (
+    typeof item.photoUrl === "string" &&
+    item.photoUrl &&
+    !item.photoUrl.startsWith("blob:")
+  ) {
+    return item.photoUrl;
+  }
+
+  if (
     typeof item.photoPreview === "string" &&
     item.photoPreview &&
     !item.photoPreview.startsWith("blob:")
   ) {
     return item.photoPreview;
-  }
-
-  if (typeof item.photoUrl === "string" && item.photoUrl) {
-    return item.photoUrl;
   }
 
   return "";
@@ -771,7 +779,7 @@ const validateAcademyProfile = () => {
       getOwnerSports(owner).length &&
       owner.designation &&
       String(owner.mobile || "").length === 10 &&
-      (owner.photoPreview || owner.photoUrl)
+      (owner.photoUrl || owner.photoPreview)
   );
   const hasCompleteStudent = students.some(
     (student: any) =>
@@ -781,7 +789,7 @@ const validateAcademyProfile = () => {
       student.sex &&
       student.bloodGroup &&
       getStudentSports(student).length &&
-      (student.photoPreview || student.photoUrl)
+      (student.photoUrl || student.photoPreview)
   );
 
   if (
@@ -1313,6 +1321,7 @@ setOwners(
       memberId: "",
       photo: null,
       photoPreview: "",
+      photoUrl: "",
       idProof: null,
       idProofPreview: "",
     },
@@ -1336,6 +1345,7 @@ setStudents(
       memberId: "",
       photo: null,
       photoPreview: "",
+      photoUrl: "",
       isEliteAthlete: false,
       isParaAthlete: false,
     },
@@ -1399,6 +1409,7 @@ const addOwner = () => {
       memberId: "",
       photo: null,
       photoPreview: "",
+      photoUrl: "",
       idProof: null,
       idProofPreview: "",
     },
@@ -1828,16 +1839,54 @@ const getPublicOrigin = () =>
     ? window.location.origin
     : "https://kheloyouth.com";
 
-const loadCanvasImage = (src: string) =>
-  new Promise<HTMLImageElement>((resolve, reject) => {
+const blobToDataUrl = (blob: Blob) =>
+  new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+
+const getCanvasSafeImageSource = async (src: string) => {
+  if (
+    !src ||
+    src.startsWith("data:") ||
+    src.startsWith("blob:") ||
+    src.startsWith("/")
+  ) {
+    return src;
+  }
+
+  const response = await fetch(src, { mode: "cors" });
+
+  if (!response.ok) {
+    throw new Error(`Could not load image: ${response.status}`);
+  }
+
+  return blobToDataUrl(await response.blob());
+};
+
+const loadCanvasImage = async (src: string) => {
+  const canvasSafeSrc = await getCanvasSafeImageSource(src);
+
+  return new Promise<HTMLImageElement>((resolve, reject) => {
     const image = new Image();
-    if (!src.startsWith("blob:") && !src.startsWith("data:")) {
+
+    if (
+      canvasSafeSrc &&
+      !canvasSafeSrc.startsWith("blob:") &&
+      !canvasSafeSrc.startsWith("data:") &&
+      !canvasSafeSrc.startsWith("/")
+    ) {
       image.crossOrigin = "anonymous";
     }
+
     image.onload = () => resolve(image);
     image.onerror = reject;
-    image.src = src;
+    image.src = canvasSafeSrc;
   });
+};
 
 const drawCoverImage = (
   context: CanvasRenderingContext2D,
@@ -1939,9 +1988,17 @@ const handleDownloadIdCard = async (
   )}`;
   const photoCandidates = Array.from(
     new Set(
-      [member.photoUrl, member.photoPreview, member.photo]
+      [
+        member.photoUrl,
+        member.photoURL,
+        member.passportPhotoUrl,
+        member.passportPhoto,
+        member.photoPreview,
+        member.photo,
+      ]
         .filter(Boolean)
         .map((value) => String(value))
+        .filter((value) => value && value !== "[object Object]")
     )
   );
   let photoDrawn = false;
@@ -2890,14 +2947,14 @@ console.log("Razorpay Loaded:", window.Razorpay);
                             key={index}
                             className="flex gap-5 bg-zinc-950 border border-white/10 rounded-2xl p-5"
                           >
-                            {owner.photoPreview ? (
+                            {(owner.photoUrl || owner.photoPreview) ? (
                               <img
-                                src={owner.photoPreview}
+                                src={owner.photoUrl || owner.photoPreview}
                                 alt={owner.fullName || "Owner"}
-                                className="w-20 h-24 rounded-xl object-cover"
+                                className="w-24 h-24 rounded-xl object-cover"
                               />
                             ) : (
-                              <div className="w-20 h-24 rounded-xl bg-zinc-900 flex items-center justify-center text-2xl font-black text-orange-500">
+                              <div className="w-24 h-24 rounded-xl bg-zinc-900 flex items-center justify-center text-2xl font-black text-orange-500">
                                 {(owner.fullName || "O").charAt(0)}
                               </div>
                             )}
@@ -2956,14 +3013,14 @@ console.log("Razorpay Loaded:", window.Razorpay);
                             key={index}
                             className="flex gap-5 bg-zinc-950 border border-white/10 rounded-2xl p-5"
                           >
-                            {student.photoPreview ? (
+                            {(student.photoUrl || student.photoPreview) ? (
                               <img
-                                src={student.photoPreview}
+                                src={student.photoUrl || student.photoPreview}
                                 alt={student.name || "Student"}
-                                className="w-20 h-24 rounded-xl object-cover"
+                                className="w-24 h-24 rounded-xl object-cover"
                               />
                             ) : (
-                              <div className="w-20 h-24 rounded-xl bg-zinc-900 flex items-center justify-center text-2xl font-black text-orange-500">
+                              <div className="w-24 h-24 rounded-xl bg-zinc-900 flex items-center justify-center text-2xl font-black text-orange-500">
                                 {(student.name || "S").charAt(0)}
                               </div>
                             )}
@@ -3895,12 +3952,12 @@ console.log("Razorpay Loaded:", window.Razorpay);
                     Maximum Size: 2MB
                   </p>
 
-                  {owner.photoPreview && (
+                  {(owner.photoUrl || owner.photoPreview) && (
 
                     <img
-                      src={owner.photoPreview}
+                      src={owner.photoUrl || owner.photoPreview}
                       alt="Owner"
-                      className="mt-5 w-36 h-44 object-cover rounded-2xl border border-white/10"
+                      className="mt-5 w-36 h-36 object-cover rounded-2xl border border-white/10"
                     />
 
                   )}
@@ -4190,12 +4247,12 @@ console.log("Razorpay Loaded:", window.Razorpay);
 
         </div>
 
-        {student.photoPreview && (
+        {(student.photoUrl || student.photoPreview) && (
 
           <img
-            src={student.photoPreview}
+            src={student.photoUrl || student.photoPreview}
             alt="Student"
-            className="mt-5 w-36 h-44 object-cover rounded-2xl border border-white/10"
+            className="mt-5 w-36 h-36 object-cover rounded-2xl border border-white/10"
           />
 
         )}
