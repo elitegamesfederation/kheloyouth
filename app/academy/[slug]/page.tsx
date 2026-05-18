@@ -101,9 +101,18 @@ export default function PublicAcademyPage() {
     ? academy.sportsConducted
     : [];
   const owners = Array.isArray(academy?.owners) ? academy.owners : [];
-  const eliteStudents = liveStudents.filter(
-    (student: any) => student.isEliteAthlete
-  );
+  const eliteStudentIndexes = new Set<number>();
+  const eliteStudents = liveStudents.filter((student: any, index: number) => {
+    if (student.isEliteAthlete && eliteStudentIndexes.size < 2) {
+      eliteStudentIndexes.add(index);
+      return true;
+    }
+
+    return false;
+  });
+  const regularStudents = eliteStudents.length
+    ? liveStudents.filter((_: any, index: number) => !eliteStudentIndexes.has(index))
+    : liveStudents;
   const coverImage =
     academy?.featuredAcademyImageUrl ||
     academyGallery[0] ||
@@ -115,7 +124,62 @@ export default function PublicAcademyPage() {
   const profileDescription =
     academy?.academyDescription ||
     "Officially affiliated with Elite Games Federation inside India's growing grassroots sports network.";
-  const featuredStudents = eliteStudents.length ? eliteStudents : liveStudents;
+  const renderStudentCard = (
+    student: any,
+    index: number,
+    showEliteBadge: boolean
+  ) => (
+    <div
+      key={`${student.memberId || student.name || "student"}-${index}`}
+      className="bg-zinc-950 border border-white/10 rounded-2xl p-5 flex gap-5"
+    >
+      {student.photoUrl ? (
+        <img
+          src={student.photoUrl}
+          alt={student.name || `Student ${index + 1}`}
+          className="w-20 h-24 rounded-xl object-cover"
+        />
+      ) : (
+        <div className="w-20 h-24 rounded-xl bg-black border border-white/10 flex items-center justify-center text-2xl font-black text-orange-500">
+          {(student.name || "S").charAt(0)}
+        </div>
+      )}
+      <div>
+        <p className="text-xl font-black">
+          {student.name || `Student ${index + 1}`}
+        </p>
+        <p className="mt-1 text-zinc-400">
+          {[
+            getStudentSports(student).join(", "),
+            student.sex,
+            student.age && `${student.age} yrs`,
+          ]
+            .filter(Boolean)
+            .join(" | ") || "Sport not added"}
+        </p>
+        {student.school && (
+          <p className="mt-2 text-zinc-400">{student.school}</p>
+        )}
+        <p className="mt-2 text-zinc-400">
+          Blood Group: {student.bloodGroup || "Not added"}
+        </p>
+        {getAchievementLines(student.achievement).length > 0 && (
+          <ol className="mt-3 list-decimal list-inside text-zinc-300 space-y-1">
+            {getAchievementLines(student.achievement).map(
+              (item, achievementIndex) => (
+                <li key={achievementIndex}>{item}</li>
+              )
+            )}
+          </ol>
+        )}
+        {showEliteBadge && (
+          <span className="mt-3 inline-block bg-orange-500 text-black px-3 py-1 rounded-full text-sm font-bold">
+            Elite Athlete
+          </span>
+        )}
+      </div>
+    </div>
+  );
 
   return (
     <main className="min-h-screen bg-black text-white">
@@ -286,69 +350,26 @@ export default function PublicAcademyPage() {
                 </div>
               </section>
 
+              {eliteStudents.length > 0 && (
+                <section className="lg:col-span-2 bg-black border border-white/10 rounded-3xl p-8">
+                  <h2 className="text-4xl font-black">
+                    Elite Athlete Features
+                  </h2>
+                  <div className="mt-6 grid md:grid-cols-2 gap-5">
+                    {eliteStudents.map((student: any, index: number) =>
+                      renderStudentCard(student, index, true)
+                    )}
+                  </div>
+                </section>
+              )}
+
               <section className="lg:col-span-2 bg-black border border-white/10 rounded-3xl p-8">
-                <h2 className="text-4xl font-black">
-                  {eliteStudents.length
-                    ? "Elite Athlete Features"
-                    : "Student Details"}
-                </h2>
+                <h2 className="text-4xl font-black">Student Details</h2>
                 <div className="mt-6 grid md:grid-cols-2 gap-5">
-                  {featuredStudents.length ? (
-                    featuredStudents.map((student: any, index: number) => (
-                      <div
-                        key={index}
-                        className="bg-zinc-950 border border-white/10 rounded-2xl p-5 flex gap-5"
-                      >
-                        {student.photoUrl ? (
-                          <img
-                            src={student.photoUrl}
-                            alt={student.name || `Student ${index + 1}`}
-                            className="w-20 h-24 rounded-xl object-cover"
-                          />
-                        ) : (
-                          <div className="w-20 h-24 rounded-xl bg-black border border-white/10 flex items-center justify-center text-2xl font-black text-orange-500">
-                            {(student.name || "S").charAt(0)}
-                          </div>
-                        )}
-                        <div>
-                          <p className="text-xl font-black">
-                            {student.name || `Student ${index + 1}`}
-                          </p>
-                          <p className="mt-1 text-zinc-400">
-                            {[
-                              getStudentSports(student).join(", "),
-                              student.sex,
-                              student.age && `${student.age} yrs`,
-                            ]
-                              .filter(Boolean)
-                              .join(" | ") || "Sport not added"}
-                          </p>
-                          {student.school && (
-                            <p className="mt-2 text-zinc-400">
-                              {student.school}
-                            </p>
-                          )}
-                          <p className="mt-2 text-zinc-400">
-                            Blood Group: {student.bloodGroup || "Not added"}
-                          </p>
-                          {getAchievementLines(student.achievement).length >
-                            0 && (
-                            <ol className="mt-3 list-decimal list-inside text-zinc-300 space-y-1">
-                              {getAchievementLines(student.achievement).map(
-                                (item, achievementIndex) => (
-                                  <li key={achievementIndex}>{item}</li>
-                                )
-                              )}
-                            </ol>
-                          )}
-                          {student.isEliteAthlete && (
-                            <span className="mt-3 inline-block bg-orange-500 text-black px-3 py-1 rounded-full text-sm font-bold">
-                              Elite Athlete
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    ))
+                  {regularStudents.length ? (
+                    regularStudents.map((student: any, index: number) =>
+                      renderStudentCard(student, index, false)
+                    )
                   ) : (
                     <p className="text-zinc-400">
                       Student details are being updated.

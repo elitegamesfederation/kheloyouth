@@ -1848,17 +1848,40 @@ const blobToDataUrl = (blob: Blob) =>
     reader.readAsDataURL(blob);
   });
 
-const getCanvasSafeImageSource = async (src: string) => {
-  if (
-    !src ||
-    src.startsWith("data:") ||
-    src.startsWith("blob:") ||
-    src.startsWith("/")
-  ) {
+const getProxiedCanvasImageSource = (src: string) => {
+  if (!src || !/^https?:\/\//i.test(src)) {
     return src;
   }
 
-  const response = await fetch(src, { mode: "cors" });
+  try {
+    const url = new URL(src);
+
+    if (
+      url.hostname === "firebasestorage.googleapis.com" ||
+      url.hostname === "storage.googleapis.com"
+    ) {
+      return `/api/image-proxy?url=${encodeURIComponent(src)}`;
+    }
+  } catch {
+    return src;
+  }
+
+  return src;
+};
+
+const getCanvasSafeImageSource = async (src: string) => {
+  const imageSource = getProxiedCanvasImageSource(src);
+
+  if (
+    !imageSource ||
+    imageSource.startsWith("data:") ||
+    imageSource.startsWith("blob:") ||
+    imageSource.startsWith("/")
+  ) {
+    return imageSource;
+  }
+
+  const response = await fetch(imageSource, { mode: "cors" });
 
   if (!response.ok) {
     throw new Error(`Could not load image: ${response.status}`);
@@ -1881,8 +1904,10 @@ const loadImageElement = (src: string, useCors: boolean) =>
   });
 
 const loadCanvasImage = async (src: string) => {
+  const imageSource = getProxiedCanvasImageSource(src);
+
   try {
-    const canvasSafeSrc = await getCanvasSafeImageSource(src);
+    const canvasSafeSrc = await getCanvasSafeImageSource(imageSource);
 
     return await loadImageElement(
       canvasSafeSrc,
@@ -1896,12 +1921,12 @@ const loadCanvasImage = async (src: string) => {
   } catch (error) {
     console.warn("Image fetch conversion failed, trying direct image load", src, error);
     return loadImageElement(
-      src,
+      imageSource,
       Boolean(
-        src &&
-          !src.startsWith("blob:") &&
-          !src.startsWith("data:") &&
-          !src.startsWith("/")
+        imageSource &&
+          !imageSource.startsWith("blob:") &&
+          !imageSource.startsWith("data:") &&
+          !imageSource.startsWith("/")
       )
     );
   }

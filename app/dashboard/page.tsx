@@ -743,6 +743,23 @@ export default function DashboardPage() {
     });
   };
 
+  const toggleEditEliteAthlete = (index: number, checked: boolean) => {
+    const students = Array.isArray(editAcademyForm.students)
+      ? editAcademyForm.students
+      : [];
+    const currentEliteCount = students.filter(
+      (student: any, studentIndex: number) =>
+        student.isEliteAthlete && studentIndex !== index
+    ).length;
+
+    if (checked && currentEliteCount >= 2) {
+      alert("Only two students can be marked as Elite Athlete.");
+      return;
+    }
+
+    updateEditStudent(index, "isEliteAthlete", checked);
+  };
+
   const getEditStudentSports = (student: any) =>
     Array.isArray(student.sports)
       ? student.sports
@@ -990,6 +1007,9 @@ export default function DashboardPage() {
     const editStudents = Array.isArray(editAcademyForm.students)
       ? editAcademyForm.students
       : [];
+    const editEliteCount = editStudents.filter(
+      (student: any) => student.isEliteAthlete
+    ).length;
     const editImages = Array.isArray(editAcademyForm.academyImageUrls)
       ? editAcademyForm.academyImageUrls
       : [];
@@ -1036,6 +1056,11 @@ export default function DashboardPage() {
       alert(
         "Please fill all compulsory fields before saving: academy profile, logo, minimum 3 photos, sports, one complete owner/coach, and one complete student."
       );
+      return;
+    }
+
+    if (editEliteCount > 2) {
+      alert("Only two students can be marked as Elite Athlete.");
       return;
     }
 
@@ -1981,7 +2006,7 @@ const toggleStudentSport = (
                               <button type="button" onClick={() => updateEditStudent(index, "achievement", `${student.achievement || ""}${student.achievement ? "\n" : ""}${String(student.achievement || "").split("\n").filter(Boolean).length + 1}. `)} className="w-fit bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2 font-bold">+ Add Achievement Line</button>
                               <label className="w-fit bg-white text-black rounded-xl px-4 py-2 font-bold cursor-pointer">Upload / Change Photo<input type="file" accept="image/*" onChange={(e) => handleEditStudentPhotoUpload(index, e.target.files?.[0])} className="hidden" /></label>
                               {student.photoUrl && <img src={student.photoUrl} alt={student.name || "Student"} className="w-24 h-24 object-cover rounded-xl" />}
-                              <div className="flex flex-wrap gap-3"><label className="flex items-center gap-2"><input type="checkbox" checked={student.isEliteAthlete || false} onChange={(e) => updateEditStudent(index, "isEliteAthlete", e.target.checked)} />Elite Athlete</label><label className="flex items-center gap-2"><input type="checkbox" checked={student.isParaAthlete || false} onChange={(e) => updateEditStudent(index, "isParaAthlete", e.target.checked)} />Para Athlete</label></div>
+                              <div className="flex flex-wrap gap-3"><label className="flex items-center gap-2"><input type="checkbox" checked={student.isEliteAthlete || false} onChange={(e) => toggleEditEliteAthlete(index, e.target.checked)} />Elite Athlete</label><label className="flex items-center gap-2"><input type="checkbox" checked={student.isParaAthlete || false} onChange={(e) => updateEditStudent(index, "isParaAthlete", e.target.checked)} />Para Athlete</label></div>
                               {(editAcademyForm.students || []).length > 1 && <button type="button" onClick={() => updateEditAcademy("students", (editAcademyForm.students || []).filter((_student: any, studentIndex: number) => studentIndex !== index))} className="w-fit text-red-400 font-bold">Remove</button>}
                             </div>
                           ))}
