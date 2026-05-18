@@ -4731,8 +4731,8 @@ console.log("Razorpay Loaded:", window.Razorpay);
                 Certificate Preview
               </p>
               <img
-                src="/certificate-affiliation-template.png"
-                alt="Sample affiliation certificate"
+                src="/unique-badminton-academy-affiliation-certificate.png"
+                alt="Unique Badminton Academy sample affiliation certificate"
                 className="mt-5 w-full max-h-[360px] object-contain rounded-2xl bg-white"
               />
             </div>
@@ -4742,8 +4742,8 @@ console.log("Razorpay Loaded:", window.Razorpay);
                 Federation ID Preview
               </p>
               <img
-                src="/elite-id-card-template.png"
-                alt="Sample federation ID card"
+                src="/sai-teja-varma-elite-id-card.png"
+                alt="Unique Badminton Academy sample federation ID card"
                 className="mt-5 w-full max-h-[360px] object-contain rounded-2xl bg-white"
               />
             </div>
