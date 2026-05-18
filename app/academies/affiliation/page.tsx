@@ -666,12 +666,23 @@ const getSavedPhotoPreview = async (item: any) => {
   return "";
 };
 
-const preparePeopleForSave = async (items: any[]) => {
+const preparePeopleForSave = async (
+  items: any[],
+  folder = "people"
+) => {
   const sanitizedItems = sanitizePeople(items);
 
   return Promise.all(
     sanitizedItems.map(async (item, index) => {
-      const photoPreview = await getSavedPhotoPreview(items[index]);
+      const sourceItem = items[index];
+      const uploadedPhotoUrl = isBrowserFile(sourceItem.photo)
+        ? await uploadAcademyFile(
+            sourceItem.photo,
+            `${folder}/${index + 1}`
+          )
+        : "";
+      const photoPreview =
+        uploadedPhotoUrl || (await getSavedPhotoPreview(sourceItem));
 
       return {
         ...item,
@@ -688,7 +699,15 @@ const prepareStudentsForSave = async (items: any[]) => {
 
   return Promise.all(
     sanitizedItems.map(async (item, index) => {
-      const photoPreview = await getSavedPhotoPreview(items[index]);
+      const sourceItem = items[index];
+      const uploadedPhotoUrl = isBrowserFile(sourceItem.photo)
+        ? await uploadAcademyFile(
+            sourceItem.photo,
+            `students/${index + 1}`
+          )
+        : "";
+      const photoPreview =
+        uploadedPhotoUrl || (await getSavedPhotoPreview(sourceItem));
 
       return {
         ...item,
@@ -981,7 +1000,9 @@ const uploadAcademyFile = async (
   const storageFolder =
     folder === "logo"
       ? "academy-logos"
-      : "academy-banners";
+      : folder === "photos"
+      ? "academy-photos"
+      : `academy-${folder}`;
 
   const storageRef = ref(
     storage,
@@ -1001,12 +1022,9 @@ const buildAcademyPayload = async () => {
     try {
       return await uploadAcademyFile(file, folder);
     } catch (error) {
-      console.warn("Academy file upload skipped; saving compressed fallback", error);
-
-      return fileToResizedDataUrl(
-        file,
-        folder === "logo" ? 720 : 1280,
-        folder === "logo" ? 720 : 900
+      console.warn("Academy file upload failed", error);
+      throw new Error(
+        "Photo upload failed because Firebase Storage did not allow the upload. Please fix Storage permissions and try again."
       );
     }
   };
@@ -1028,8 +1046,8 @@ const buildAcademyPayload = async () => {
   const existingImageUrls = academyImages.filter(
     (image) => typeof image === "string"
   );
-  const savedOwners = await preparePeopleForSave(owners);
-  const savedCoaches = await preparePeopleForSave(coaches);
+  const savedOwners = await preparePeopleForSave(owners, "owners");
+  const savedCoaches = await preparePeopleForSave(coaches, "coaches");
   const savedStudents = await prepareStudentsForSave(students);
 
   const savedAcademyImageUrls = [

@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
-import { auth, db } from "@/app/lib/firebase";
+import { auth, db, storage } from "@/app/lib/firebase";
 import {
   getDistrictsForState,
   states as indiaStates,
@@ -24,6 +24,12 @@ import {
 } from "firebase/firestore";
 
 import { createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  getDownloadURL,
+  ref,
+  uploadBytes,
+  uploadString,
+} from "firebase/storage";
 
 const yearlyStudentFee = 99;
 
@@ -213,9 +219,14 @@ export default function DashboardPage() {
   const [declarationAccepted, setDeclarationAccepted] =
     useState(false);
   const [academyLogoUrl, setAcademyLogoUrl] = useState("");
+  const [academyLogoFile, setAcademyLogoFile] =
+    useState<File | null>(null);
   const [academyImageUrls, setAcademyImageUrls] = useState<
     string[]
   >([]);
+  const [academyImageFiles, setAcademyImageFiles] = useState<
+    Record<string, File>
+  >({});
   const [featuredAcademyImageUrl, setFeaturedAcademyImageUrl] =
     useState("");
   const [selectedYears, setSelectedYears] = useState(1);
@@ -446,18 +457,143 @@ export default function DashboardPage() {
     alert("Admin password updated for this browser.");
   };
 
-  const readFileAsDataUrl = (file: File) =>
-    new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(String(reader.result || ""));
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
+  const getFilePreviewUrl = (file: File) => URL.createObjectURL(file);
+
+  const sanitizeFileName = (fileName: string) =>
+    fileName.replace(/[^a-z0-9._-]+/gi, "-").toLowerCase();
+
+  const uploadAdminFile = async (
+    academyId: string,
+    file: File,
+    folder: string
+  ) => {
+    const storageRef = ref(
+      storage,
+      `academies/${academyId}/${folder}/${Date.now()}-${sanitizeFileName(
+        file.name
+      )}`
+    );
+
+    await uploadBytes(storageRef, file);
+
+    return getDownloadURL(storageRef);
+  };
+
+  const uploadAdminDataUrl = async (
+    academyId: string,
+    dataUrl: string,
+    folder: string
+  ) => {
+    const storageRef = ref(
+      storage,
+      `academies/${academyId}/${folder}/${Date.now()}-image.jpg`
+    );
+
+    await uploadString(storageRef, dataUrl, "data_url");
+
+    return getDownloadURL(storageRef);
+  };
+
+  const stripUploadFields = (item: any) => {
+    const {
+      photoFile,
+      idProof,
+      idProofFile,
+      academyLogoFile,
+      academyImageFiles,
+      ...safeItem
+    } = item || {};
+
+    return safeItem;
+  };
+
+  const preparePeopleForFirestore = async (
+    items: any[],
+    academyId: string,
+    folder: string
+  ) =>
+    Promise.all(
+      items.map(async (item, index) => {
+        const uploadedPhotoUrl =
+          item.photoFile instanceof File
+            ? await uploadAdminFile(
+                academyId,
+                item.photoFile,
+                `${folder}/${index + 1}`
+              )
+            : "";
+        const existingPhotoUrl =
+          typeof item.photoUrl === "string" ? item.photoUrl : "";
+        const uploadedExistingPhotoUrl =
+          !uploadedPhotoUrl && existingPhotoUrl.startsWith("data:image/")
+            ? await uploadAdminDataUrl(
+                academyId,
+                existingPhotoUrl,
+                `${folder}/${index + 1}`
+              )
+            : "";
+        const photoUrl =
+          uploadedPhotoUrl || uploadedExistingPhotoUrl || existingPhotoUrl;
+
+        return {
+          ...stripUploadFields(item),
+          photoUrl,
+          photoPreview: photoUrl,
+        };
+      })
+    );
+
+  const prepareAcademyPhotosForFirestore = async (
+    imageUrls: string[],
+    imageFiles: Record<string, File>,
+    academyId: string
+  ) => {
+    const uploadedByPreview: Record<string, string> = {};
+
+    const savedUrls = await Promise.all(
+      imageUrls.map(async (imageUrl, index) => {
+        const file = imageFiles[imageUrl];
+
+        if (!file) {
+          if (imageUrl.startsWith("data:image/")) {
+            const uploadedUrl = await uploadAdminDataUrl(
+              academyId,
+              imageUrl,
+              `academy-photos/${index + 1}`
+            );
+            uploadedByPreview[imageUrl] = uploadedUrl;
+
+            return uploadedUrl;
+          }
+
+          if (imageUrl.startsWith("blob:")) {
+            throw new Error(
+              "One selected academy photo could not be uploaded. Please remove it and upload it again."
+            );
+          }
+
+          return imageUrl;
+        }
+
+        const uploadedUrl = await uploadAdminFile(
+          academyId,
+          file,
+          `academy-photos/${index + 1}`
+        );
+        uploadedByPreview[imageUrl] = uploadedUrl;
+
+        return uploadedUrl;
+      })
+    );
+
+    return { savedUrls, uploadedByPreview };
+  };
 
   const handleAdminLogoUpload = async (file?: File) => {
     if (!file) return;
 
-    setAcademyLogoUrl(await readFileAsDataUrl(file));
+    setAcademyLogoFile(file);
+    setAcademyLogoUrl(getFilePreviewUrl(file));
   };
 
   const handleAdminPhotosUpload = async (files: FileList | null) => {
@@ -470,11 +606,15 @@ export default function DashboardPage() {
       return;
     }
 
-    const urls = await Promise.all(
-      selectedFiles.map((file) => readFileAsDataUrl(file))
-    );
+    const urls = selectedFiles.map((file) => getFilePreviewUrl(file));
+    const nextFiles = { ...academyImageFiles };
+
+    selectedFiles.forEach((file, index) => {
+      nextFiles[urls[index]] = file;
+    });
 
     setAcademyImageUrls([...academyImageUrls, ...urls]);
+    setAcademyImageFiles(nextFiles);
   };
 
   const addSportToAcademy = (sport: string) => {
@@ -534,7 +674,13 @@ export default function DashboardPage() {
   ) => {
     if (!file) return;
 
-    updateStudent(index, "photoUrl", await readFileAsDataUrl(file));
+    const updated = [...students];
+    updated[index] = {
+      ...updated[index],
+      photoFile: file,
+      photoUrl: getFilePreviewUrl(file),
+    };
+    setStudents(updated);
   };
 
   const handleAdminOwnerPhotoUpload = async (
@@ -543,7 +689,13 @@ export default function DashboardPage() {
   ) => {
     if (!file) return;
 
-    updateOwner(index, "photoUrl", await readFileAsDataUrl(file));
+    const updated = [...owners];
+    updated[index] = {
+      ...updated[index],
+      photoFile: file,
+      photoUrl: getFilePreviewUrl(file),
+    };
+    setOwners(updated);
   };
 
   const updateEditAcademy = (field: string, value: any) => {
@@ -644,7 +796,11 @@ export default function DashboardPage() {
   const handleEditLogoUpload = async (file?: File) => {
     if (!file) return;
 
-    updateEditAcademy("academyLogoUrl", await readFileAsDataUrl(file));
+    setEditAcademyForm((current: any) => ({
+      ...current,
+      academyLogoFile: file,
+      academyLogoUrl: getFilePreviewUrl(file),
+    }));
   };
 
   const handleEditPhotosUpload = async (files: FileList | null) => {
@@ -661,14 +817,22 @@ export default function DashboardPage() {
       return;
     }
 
-    const urls = await Promise.all(
-      selectedFiles.map((file) => readFileAsDataUrl(file))
-    );
+    const urls = selectedFiles.map((file) => getFilePreviewUrl(file));
 
     const nextImages = [...currentImages, ...urls];
     setEditAcademyForm((current: any) => ({
       ...current,
       academyImageUrls: nextImages,
+      academyImageFiles: {
+        ...(current.academyImageFiles || {}),
+        ...selectedFiles.reduce(
+          (filesByPreview: Record<string, File>, file, index) => ({
+            ...filesByPreview,
+            [urls[index]]: file,
+          }),
+          {}
+        ),
+      },
       featuredAcademyImageUrl:
         current.featuredAcademyImageUrl || nextImages[0] || "",
     }));
@@ -680,7 +844,19 @@ export default function DashboardPage() {
   ) => {
     if (!file) return;
 
-    updateEditOwner(index, "photoUrl", await readFileAsDataUrl(file));
+    setEditAcademyForm((current: any) => {
+      const updatedOwners = [...(current.owners || [])];
+      updatedOwners[index] = {
+        ...updatedOwners[index],
+        photoFile: file,
+        photoUrl: getFilePreviewUrl(file),
+      };
+
+      return {
+        ...current,
+        owners: updatedOwners,
+      };
+    });
   };
 
   const handleEditStudentPhotoUpload = async (
@@ -689,7 +865,19 @@ export default function DashboardPage() {
   ) => {
     if (!file) return;
 
-    updateEditStudent(index, "photoUrl", await readFileAsDataUrl(file));
+    setEditAcademyForm((current: any) => {
+      const updatedStudents = [...(current.students || [])];
+      updatedStudents[index] = {
+        ...updatedStudents[index],
+        photoFile: file,
+        photoUrl: getFilePreviewUrl(file),
+      };
+
+      return {
+        ...current,
+        students: updatedStudents,
+      };
+    });
   };
 
   const handleAddMasterSport = async () => {
@@ -851,6 +1039,49 @@ export default function DashboardPage() {
       return;
     }
 
+    try {
+      setSaving(true);
+
+      const uploadedEditLogoUrl =
+        editAcademyForm.academyLogoFile instanceof File
+          ? await uploadAdminFile(
+              editAcademyId,
+              editAcademyForm.academyLogoFile,
+              "logo"
+            )
+          : String(editAcademyForm.academyLogoUrl || "").startsWith(
+              "data:image/"
+            )
+          ? await uploadAdminDataUrl(
+              editAcademyId,
+              editAcademyForm.academyLogoUrl,
+              "logo"
+            )
+          : editAcademyForm.academyLogoUrl;
+      const {
+        savedUrls: savedEditImageUrls,
+        uploadedByPreview: editUploadedByPreview,
+      } = await prepareAcademyPhotosForFirestore(
+        editImages,
+        editAcademyForm.academyImageFiles || {},
+        editAcademyId
+      );
+      const savedEditFeaturedAcademyImageUrl =
+        editUploadedByPreview[editAcademyForm.featuredAcademyImageUrl] ||
+        editAcademyForm.featuredAcademyImageUrl ||
+        savedEditImageUrls[0] ||
+        "";
+      const savedEditOwners = await preparePeopleForFirestore(
+        editOwners,
+        editAcademyId,
+        "owners"
+      );
+      const savedEditStudents = await preparePeopleForFirestore(
+        editStudents,
+        editAcademyId,
+        "students"
+      );
+
     await updateDoc(doc(db, "academies", editAcademyId), {
       academyName: editAcademyForm.academyName,
       academySlug: slugify(editAcademyForm.academyName),
@@ -870,19 +1101,25 @@ export default function DashboardPage() {
       googleLocation: editAcademyForm.googleLocation || "",
       mediaCoverageProofName: editAcademyForm.mediaCoverageProofName || "",
       whereDidYouHear: editAcademyForm.whereDidYouHear,
-      academyLogoUrl: editAcademyForm.academyLogoUrl,
-      academyImageUrls: editImages,
+      academyLogoUrl: uploadedEditLogoUrl,
+      logoURL: uploadedEditLogoUrl,
+      academyImageUrls: savedEditImageUrls,
       sportsConducted: editSports,
-      featuredAcademyImageUrl: editAcademyForm.featuredAcademyImageUrl || "",
-      owners: editOwners,
-      students: editStudents,
-      studentsCount: editStudents.length,
-      paidStudentsCount: editStudents.length,
+      featuredAcademyImageUrl: savedEditFeaturedAcademyImageUrl,
+      owners: savedEditOwners,
+      students: savedEditStudents,
+      studentsCount: savedEditStudents.length,
+      paidStudentsCount: savedEditStudents.length,
       updatedAt: new Date(),
     });
 
     alert("Live academy updated.");
     await loadAcademies();
+    } catch (error: any) {
+      alert(error.message);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const deleteAcademy = async (academyId: string, academyName = "") => {
@@ -1087,8 +1324,37 @@ const toggleStudentSport = (
         officialEmail,
         academyDefaultPassword
       );
+      const academyId = userCredential.user.uid;
+      const uploadedLogoUrl = academyLogoFile
+        ? await uploadAdminFile(academyId, academyLogoFile, "logo")
+        : academyLogoUrl.startsWith("data:image/")
+        ? await uploadAdminDataUrl(academyId, academyLogoUrl, "logo")
+        : academyLogoUrl;
+      const {
+        savedUrls: savedAcademyImageUrls,
+        uploadedByPreview,
+      } = await prepareAcademyPhotosForFirestore(
+        academyImageUrls,
+        academyImageFiles,
+        academyId
+      );
+      const savedFeaturedAcademyImageUrl =
+        uploadedByPreview[featuredAcademyImageUrl] ||
+        featuredAcademyImageUrl ||
+        savedAcademyImageUrls[0] ||
+        "";
+      const savedOwners = await preparePeopleForFirestore(
+        ownersWithIds,
+        academyId,
+        "owners"
+      );
+      const savedStudents = await preparePeopleForFirestore(
+        studentsWithIds,
+        academyId,
+        "students"
+      );
 
-      await setDoc(doc(db, "academies", userCredential.user.uid), {
+      await setDoc(doc(db, "academies", academyId), {
         academyName,
         academySlug: slug,
         academyDescription,
@@ -1108,14 +1374,13 @@ const toggleStudentSport = (
         whereDidYouHear,
         mediaCoverageProofName,
         declarationAccepted,
-        academyLogoUrl,
-        logoURL: academyLogoUrl,
-        academyImageUrls,
-        featuredAcademyImageUrl:
-          featuredAcademyImageUrl || academyImageUrls[0] || "",
+        academyLogoUrl: uploadedLogoUrl,
+        logoURL: uploadedLogoUrl,
+        academyImageUrls: savedAcademyImageUrls,
+        featuredAcademyImageUrl: savedFeaturedAcademyImageUrl,
         sportsConducted,
-        owners: ownersWithIds,
-        students: studentsWithIds,
+        owners: savedOwners,
+        students: savedStudents,
         studentsCount: students.length,
         paidStudentsCount: students.length,
         selectedYears: Number(selectedYears),
@@ -1168,7 +1433,9 @@ const toggleStudentSport = (
       setMediaCoverageProofName("");
       setDeclarationAccepted(false);
       setAcademyLogoUrl("");
+      setAcademyLogoFile(null);
       setAcademyImageUrls([]);
+      setAcademyImageFiles({});
       setFeaturedAcademyImageUrl("");
       setSelectedYears(1);
       setSportsConducted([]);
@@ -1608,7 +1875,7 @@ const toggleStudentSport = (
                       <div className="bg-black border border-zinc-700 rounded-2xl p-5">
                         <h3 className="text-xl font-black">Academy Logo</h3>
                         <label className="mt-4 inline-flex bg-orange-500 text-black rounded-2xl px-5 py-3 font-bold cursor-pointer">Upload / Change Logo<input type="file" accept="image/*" onChange={(e) => handleEditLogoUpload(e.target.files?.[0])} className="hidden" /></label>
-                        {editAcademyForm.academyLogoUrl && <div className="mt-4 flex items-center gap-4"><img src={editAcademyForm.academyLogoUrl} alt="Academy logo" className="w-28 h-28 object-cover rounded-2xl border border-white/10" /><button type="button" onClick={() => updateEditAcademy("academyLogoUrl", "")} className="bg-red-500 px-4 py-2 rounded-xl font-bold">Delete</button></div>}
+                        {editAcademyForm.academyLogoUrl && <div className="mt-4 flex items-center gap-4"><img src={editAcademyForm.academyLogoUrl} alt="Academy logo" className="w-28 h-28 object-cover rounded-2xl border border-white/10" /><button type="button" onClick={() => setEditAcademyForm((current: any) => ({ ...current, academyLogoUrl: "", academyLogoFile: null }))} className="bg-red-500 px-4 py-2 rounded-xl font-bold">Delete</button></div>}
                       </div>
 
                       <div className="bg-black border border-zinc-700 rounded-2xl p-5">
@@ -1621,7 +1888,9 @@ const toggleStudentSport = (
                               <label className="mt-2 flex items-center gap-2 text-xs"><input type="radio" name="editFeaturedAcademyImage" checked={editAcademyForm.featuredAcademyImageUrl === imageUrl || (!editAcademyForm.featuredAcademyImageUrl && index === 0)} onChange={() => updateEditAcademy("featuredAcademyImageUrl", imageUrl)} /> Banner</label>
                               <button type="button" onClick={() => {
                                 const nextImages = (editAcademyForm.academyImageUrls || []).filter((_image: string, imageIndex: number) => imageIndex !== index);
-                                setEditAcademyForm({ ...editAcademyForm, academyImageUrls: nextImages, featuredAcademyImageUrl: editAcademyForm.featuredAcademyImageUrl === imageUrl ? nextImages[0] || "" : editAcademyForm.featuredAcademyImageUrl });
+                                const nextImageFiles = { ...(editAcademyForm.academyImageFiles || {}) };
+                                delete nextImageFiles[imageUrl];
+                                setEditAcademyForm({ ...editAcademyForm, academyImageUrls: nextImages, academyImageFiles: nextImageFiles, featuredAcademyImageUrl: editAcademyForm.featuredAcademyImageUrl === imageUrl ? nextImages[0] || "" : editAcademyForm.featuredAcademyImageUrl });
                               }} className="absolute top-3 right-3 bg-red-500 w-7 h-7 rounded-full font-bold">x</button>
                             </div>
                           ))}
@@ -2117,7 +2386,10 @@ const toggleStudentSport = (
                       />
                       <button
                         type="button"
-                        onClick={() => setAcademyLogoUrl("")}
+                        onClick={() => {
+                          setAcademyLogoUrl("");
+                          setAcademyLogoFile(null);
+                        }}
                         className="bg-red-500 px-4 py-2 rounded-xl font-bold"
                       >
                         Delete
@@ -2177,7 +2449,12 @@ const toggleStudentSport = (
                                   (_image, photoIndex) =>
                                     photoIndex !== index
                                 );
+                              const updatedImageFiles = {
+                                ...academyImageFiles,
+                              };
+                              delete updatedImageFiles[imageUrl];
                               setAcademyImageUrls(updatedImages);
+                              setAcademyImageFiles(updatedImageFiles);
                               if (featuredAcademyImageUrl === imageUrl) {
                                 setFeaturedAcademyImageUrl(
                                   updatedImages[0] || ""
