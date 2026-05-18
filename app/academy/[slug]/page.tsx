@@ -59,6 +59,14 @@ const getGoogleMapUrl = (value: string) => {
       )}`;
 };
 
+const getExternalUrl = (value: string) => {
+  const url = String(value || "").trim();
+
+  if (!url) return "";
+
+  return /^https?:\/\//i.test(url) ? url : `https://${url}`;
+};
+
 export default function PublicAcademyPage() {
   const params = useParams();
   const slug = String(params.slug || "");
@@ -137,6 +145,37 @@ export default function PublicAcademyPage() {
     academy?.academyDescription ||
     "Officially affiliated with Elite Games Federation inside India's growing grassroots sports network.";
   const googleMapUrl = getGoogleMapUrl(academy?.googleLocation || location);
+  const publicAcademyUrl = `https://www.kheloyouth.com/academy/${slug}`;
+  const academyDetails = [
+    { label: "Established", value: academy.establishmentYear },
+    { label: "Full Address", value: academy.fullAddress },
+    {
+      label: "Google Location",
+      value: googleMapUrl ? "Open Google Map" : "",
+      href: googleMapUrl,
+    },
+    {
+      label: "Website",
+      value: academy.websiteLink ? "Open Website" : "",
+      href: getExternalUrl(academy.websiteLink),
+    },
+    {
+      label: "Instagram",
+      value: academy.instagramLink ? "Open Instagram" : "",
+      href: getExternalUrl(academy.instagramLink),
+    },
+    {
+      label: "Facebook",
+      value: academy.facebookLink ? "Open Facebook" : "",
+      href: getExternalUrl(academy.facebookLink),
+    },
+    {
+      label: "Public URL",
+      value: `kheloyouth.com/academy/${slug}`,
+      href: publicAcademyUrl,
+    },
+    { label: "Affiliation No.", value: academy.affiliationNumber },
+  ];
   const renderStudentCard = (
     student: any,
     index: number,
@@ -405,16 +444,7 @@ export default function PublicAcademyPage() {
               <section className="lg:col-span-3 bg-black border border-white/10 rounded-3xl p-8">
                 <h2 className="text-4xl font-black">Academy Details</h2>
                 <div className="mt-6 grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {[
-                    ["Established", academy.establishmentYear],
-                    ["Full Address", academy.fullAddress],
-                    ["Google Location", academy.googleLocation],
-                    ["Website", academy.websiteLink],
-                    ["Instagram", academy.instagramLink],
-                    ["Facebook", academy.facebookLink],
-                    ["Public URL", `kheloyouth.com/academy/${slug}`],
-                    ["Affiliation No.", academy.affiliationNumber],
-                  ].map(([label, value]) => (
+                  {academyDetails.map(({ label, value, href }) => (
                     <div
                       key={label}
                       className="bg-zinc-950 border border-white/10 rounded-2xl p-5"
@@ -422,9 +452,20 @@ export default function PublicAcademyPage() {
                       <p className="text-orange-500 uppercase tracking-[0.2em] text-xs">
                         {label}
                       </p>
-                      <p className="mt-3 font-bold break-words">
-                        {value || "Not available"}
-                      </p>
+                      {href && value ? (
+                        <a
+                          href={href}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="mt-3 inline-flex font-bold break-all text-white hover:text-orange-500 transition"
+                        >
+                          {value}
+                        </a>
+                      ) : (
+                        <p className="mt-3 font-bold break-words">
+                          {value || "Not available"}
+                        </p>
+                      )}
                     </div>
                   ))}
                 </div>
