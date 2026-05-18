@@ -147,8 +147,8 @@ export default function PublicAcademyPage() {
   const googleMapUrl = getGoogleMapUrl(academy?.googleLocation || location);
   const publicAcademyUrl = `https://www.kheloyouth.com/academy/${slug}`;
   const academyDetails = [
-    { label: "Established", value: academy.establishmentYear },
-    { label: "Full Address", value: academy.fullAddress },
+    { label: "Established", value: academy?.establishmentYear },
+    { label: "Full Address", value: academy?.fullAddress },
     {
       label: "Google Location",
       value: googleMapUrl ? "Open Google Map" : "",
@@ -156,25 +156,25 @@ export default function PublicAcademyPage() {
     },
     {
       label: "Website",
-      value: academy.websiteLink ? "Open Website" : "",
-      href: getExternalUrl(academy.websiteLink),
+      value: academy?.websiteLink ? "Open Website" : "",
+      href: getExternalUrl(academy?.websiteLink),
     },
     {
       label: "Instagram",
-      value: academy.instagramLink ? "Open Instagram" : "",
-      href: getExternalUrl(academy.instagramLink),
+      value: academy?.instagramLink ? "Open Instagram" : "",
+      href: getExternalUrl(academy?.instagramLink),
     },
     {
       label: "Facebook",
-      value: academy.facebookLink ? "Open Facebook" : "",
-      href: getExternalUrl(academy.facebookLink),
+      value: academy?.facebookLink ? "Open Facebook" : "",
+      href: getExternalUrl(academy?.facebookLink),
     },
     {
       label: "Public URL",
       value: `kheloyouth.com/academy/${slug}`,
       href: publicAcademyUrl,
     },
-    { label: "Affiliation No.", value: academy.affiliationNumber },
+    { label: "Affiliation No.", value: academy?.affiliationNumber },
   ];
   const renderStudentCard = (
     student: any,

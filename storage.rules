@@ -2,14 +2,27 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-    match /{allPaths=**} {
-      allow read: if true;
-      allow write: if request.auth != null
-        && request.resource.size < 10 * 1024 * 1024
+    function isAllowedUpload() {
+      return request.resource.size < 10 * 1024 * 1024
         && (
           request.resource.contentType.matches('image/.*') ||
           request.resource.contentType == 'application/pdf'
         );
+    }
+
+    match /academies/{academyId}/{allAcademyFiles=**} {
+      allow read: if true;
+      allow write: if isAllowedUpload();
+    }
+
+    match /academy-banners/{allBannerFiles=**} {
+      allow read: if true;
+      allow write: if isAllowedUpload();
+    }
+
+    match /{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null && isAllowedUpload();
     }
   }
 }
