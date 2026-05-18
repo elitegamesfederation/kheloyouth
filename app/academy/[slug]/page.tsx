@@ -47,6 +47,18 @@ const getAchievementLines = (achievement: string) =>
     .map((line) => line.replace(/^[-*\d.)\s]+/, "").trim())
     .filter(Boolean);
 
+const getGoogleMapUrl = (value: string) => {
+  const location = String(value || "").trim();
+
+  if (!location) return "";
+
+  return /^https?:\/\//i.test(location)
+    ? location
+    : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+        location
+      )}`;
+};
+
 export default function PublicAcademyPage() {
   const params = useParams();
   const slug = String(params.slug || "");
@@ -124,6 +136,7 @@ export default function PublicAcademyPage() {
   const profileDescription =
     academy?.academyDescription ||
     "Officially affiliated with Elite Games Federation inside India's growing grassroots sports network.";
+  const googleMapUrl = getGoogleMapUrl(academy?.googleLocation || location);
   const renderStudentCard = (
     student: any,
     index: number,
@@ -226,9 +239,6 @@ export default function PublicAcademyPage() {
                   <h1 className="mt-4 text-5xl md:text-7xl font-black">
                     {academy.academyName}
                   </h1>
-                  <p className="mt-4 max-w-3xl text-zinc-200 text-lg whitespace-pre-line">
-                    {profileDescription}
-                  </p>
                   <div className="mt-6 flex flex-wrap gap-3">
                     <span className="bg-green-500 text-black px-4 py-2 rounded-full font-black">
                       Affiliation Active
@@ -278,6 +288,16 @@ export default function PublicAcademyPage() {
                     <p>Email not available</p>
                   )}
                   <p>{academy.contactNumber || "Contact not available"}</p>
+                  {googleMapUrl && (
+                    <a
+                      href={googleMapUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex mt-2 text-orange-500 font-bold hover:text-orange-400 transition"
+                    >
+                      Open Google Map
+                    </a>
+                  )}
                 </div>
               </section>
 
@@ -364,7 +384,11 @@ export default function PublicAcademyPage() {
               )}
 
               <section className="lg:col-span-2 bg-black border border-white/10 rounded-3xl p-8">
-                <h2 className="text-4xl font-black">Student Details</h2>
+                <h2 className="text-4xl font-black">
+                  {eliteStudents.length
+                    ? "Other Students Details"
+                    : "Student Details"}
+                </h2>
                 <div className="mt-6 grid md:grid-cols-2 gap-5">
                   {regularStudents.length ? (
                     regularStudents.map((student: any, index: number) =>

@@ -112,6 +112,7 @@ const [showSports, setShowSports] = useState(false);
 const [sportsSearch, setSportsSearch] = useState("");
 const [logoPreview, setLogoPreview] = useState("");
 const [academyImages, setAcademyImages] = useState<any[]>([]);
+const [missingFields, setMissingFields] = useState<string[]>([]);
 const [featuredAcademyImageUrl, setFeaturedAcademyImageUrl] =
   useState("");
 const [featuredAcademyImageIndex, setFeaturedAcademyImageIndex] =
@@ -184,6 +185,37 @@ const [students, setStudents] = useState<any[]>([
     "Athlete Features",
     "Collaboration Opportunities",
   ];
+
+  const missingFieldLabels: Record<string, string> = {
+    academyName: "Academy name",
+    academyDescription: "Academy description",
+    establishmentYear: "year of establishment",
+    fullAddress: "full address",
+    city: "city",
+    stateName: "state",
+    district: "district",
+    pincode: "6 digit pincode",
+    contactNumber: "10 digit contact number",
+    officialEmail: "official email",
+    whereDidYouHear: "where you came to know about us",
+    academyLogo: "academy logo",
+    academyImages: "minimum 3 academy photos",
+    sportsConducted: "sports conducted",
+    owners: "at least one complete owner / coach",
+    students: "at least one complete student",
+  };
+
+  const requiredLabel = (label: string) => `${label} *`;
+
+  const requiredInputClass = (field: string, className: string) =>
+    `${className} ${
+      missingFields.includes(field)
+        ? "border-red-500 ring-2 ring-red-500/40 bg-red-950/20"
+        : "border-zinc-700"
+    }`;
+
+  const missingMarker = (field: string) =>
+    missingFields.includes(field) ? { "data-missing-field": "true" } : {};
 
   const bloodGroupOptions = [
     "A+",
@@ -770,6 +802,7 @@ const academyPayload = {
   };
 
 const validateAcademyProfile = () => {
+  const missing: string[] = [];
   const hasCompleteOwner = owners.some(
     (owner: any) =>
       owner.fullName &&
@@ -792,30 +825,41 @@ const validateAcademyProfile = () => {
       (student.photoUrl || student.photoPreview)
   );
 
-  if (
-    !academyName ||
-    !academyDescription ||
-    !establishmentYear ||
-    !stateName ||
-    !district ||
-    pincode.length !== 6 ||
-    contactNumber.length !== 10 ||
-    !officialEmail ||
-    !fullAddress ||
-    !city ||
-    !whereDidYouHear ||
-    !logoPreview ||
-    academyImages.length < 3 ||
-    !selectedSports.length ||
-    !hasCompleteOwner ||
-    !hasCompleteStudent
-  ) {
+  if (!academyName) missing.push("academyName");
+  if (!academyDescription) missing.push("academyDescription");
+  if (!establishmentYear) missing.push("establishmentYear");
+  if (!fullAddress) missing.push("fullAddress");
+  if (!city) missing.push("city");
+  if (!stateName) missing.push("stateName");
+  if (!district) missing.push("district");
+  if (pincode.length !== 6) missing.push("pincode");
+  if (contactNumber.length !== 10) missing.push("contactNumber");
+  if (!officialEmail) missing.push("officialEmail");
+  if (!whereDidYouHear) missing.push("whereDidYouHear");
+  if (!logoPreview) missing.push("academyLogo");
+  if (academyImages.length < 3) missing.push("academyImages");
+  if (!selectedSports.length) missing.push("sportsConducted");
+  if (!hasCompleteOwner) missing.push("owners");
+  if (!hasCompleteStudent) missing.push("students");
+
+  setMissingFields(missing);
+
+  if (missing.length) {
+    setTimeout(() => {
+      document
+        .querySelector("[data-missing-field='true']")
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 50);
+
     alert(
-      "Please fill all compulsory fields before saving: academy profile, logo, minimum 3 photos, sports, one complete owner/coach, and one complete student."
+      `Please fill these compulsory fields: ${missing
+        .map((field) => missingFieldLabels[field] || field)
+        .join(", ")}.`
     );
     return false;
   }
 
+  setMissingFields([]);
   return true;
 };
 
@@ -3284,33 +3328,46 @@ console.log("Razorpay Loaded:", window.Razorpay);
 
   <input
     type="text"
-    placeholder="Academy Name"
+    placeholder={requiredLabel("Academy Name")}
     value={academyName}
     onChange={(e) => setAcademyName(e.target.value)}
-    className="bg-black border border-zinc-700 rounded-2xl px-6 py-5"
+    {...missingMarker("academyName")}
+    className={requiredInputClass("academyName", "bg-black border rounded-2xl px-6 py-5")}
   />
 
   <input
     type="text"
-    placeholder="Year Of Establishment"
+    placeholder={requiredLabel("Year Of Establishment")}
     value={establishmentYear}
     onChange={(e) => setEstablishmentYear(e.target.value)}
-    className="bg-black border border-zinc-700 rounded-2xl px-6 py-5"
+    {...missingMarker("establishmentYear")}
+    className={requiredInputClass("establishmentYear", "bg-black border rounded-2xl px-6 py-5")}
   />
 
   <textarea
-    placeholder="Academy Description"
+    placeholder={requiredLabel("Academy Description")}
     value={academyDescription}
     onChange={(e) => setAcademyDescription(e.target.value)}
-    className="md:col-span-2 bg-black border border-zinc-700 rounded-2xl px-6 py-5 min-h-[160px]"
+    {...missingMarker("academyDescription")}
+    className={requiredInputClass("academyDescription", "md:col-span-2 bg-black border rounded-2xl px-6 py-5 min-h-[160px]")}
   />
 
   <input
     type="text"
-    placeholder="Address"
+    placeholder={requiredLabel("Address")}
     value={fullAddress}
     onChange={(e) => setFullAddress(e.target.value)}
-    className="bg-black border border-zinc-700 rounded-2xl px-6 py-5"
+    {...missingMarker("fullAddress")}
+    className={requiredInputClass("fullAddress", "bg-black border rounded-2xl px-6 py-5")}
+  />
+
+  <input
+    type="text"
+    placeholder={requiredLabel("City")}
+    value={city}
+    onChange={(e) => setCity(e.target.value)}
+    {...missingMarker("city")}
+    className={requiredInputClass("city", "bg-black border rounded-2xl px-6 py-5")}
   />
 
   <select
@@ -3320,9 +3377,10 @@ console.log("Razorpay Loaded:", window.Razorpay);
       setDistrict("");
       setDistrictName("");
     }}
-    className="bg-black border border-zinc-700 rounded-2xl px-6 py-5"
+    {...missingMarker("stateName")}
+    className={requiredInputClass("stateName", "bg-black border rounded-2xl px-6 py-5")}
   >
-    <option value="">Select State</option>
+    <option value="">{requiredLabel("Select State")}</option>
     {indiaStates.map((state) => (
       <option key={state} value={state}>
         {state}
@@ -3336,9 +3394,10 @@ console.log("Razorpay Loaded:", window.Razorpay);
       setDistrict(e.target.value);
       setDistrictName(e.target.value);
     }}
-    className="bg-black border border-zinc-700 rounded-2xl px-6 py-5"
+    {...missingMarker("district")}
+    className={requiredInputClass("district", "bg-black border rounded-2xl px-6 py-5")}
   >
-    <option value="">Select District</option>
+    <option value="">{requiredLabel("Select District")}</option>
     {districtOptions.map((districtOption) => (
       <option key={districtOption} value={districtOption}>
         {districtOption}
@@ -3348,7 +3407,7 @@ console.log("Razorpay Loaded:", window.Razorpay);
 
   <input
     type="text"
-    placeholder="Pincode"
+    placeholder={requiredLabel("Pincode")}
     value={pincode}
     maxLength={6}
     onChange={(e) =>
@@ -3356,12 +3415,13 @@ console.log("Razorpay Loaded:", window.Razorpay);
         e.target.value.replace(/\D/g, "").slice(0, 6)
       )
     }
-    className="bg-black border border-zinc-700 rounded-2xl px-6 py-5"
+    {...missingMarker("pincode")}
+    className={requiredInputClass("pincode", "bg-black border rounded-2xl px-6 py-5")}
   />
 
   <input
     type="tel"
-    placeholder="Contact Number"
+    placeholder={requiredLabel("Contact Number")}
     value={contactNumber}
     maxLength={10}
     onChange={(e) =>
@@ -3369,15 +3429,17 @@ console.log("Razorpay Loaded:", window.Razorpay);
         e.target.value.replace(/\D/g, "").slice(0, 10)
       )
     }
-    className="bg-black border border-zinc-700 rounded-2xl px-6 py-5"
+    {...missingMarker("contactNumber")}
+    className={requiredInputClass("contactNumber", "bg-black border rounded-2xl px-6 py-5")}
   />
 
   <input
     type="email"
-    placeholder="Official Email"
+    placeholder={requiredLabel("Official Email")}
     value={officialEmail}
     onChange={(e) => setOfficialEmail(e.target.value)}
-    className="bg-black border border-zinc-700 rounded-2xl px-6 py-5"
+    {...missingMarker("officialEmail")}
+    className={requiredInputClass("officialEmail", "bg-black border rounded-2xl px-6 py-5")}
   />
 
   <input
@@ -3414,25 +3476,39 @@ console.log("Razorpay Loaded:", window.Razorpay);
     <option value="No">No</option>
   </select>
 
-  <input
-    type="text"
-    placeholder="Google Location Of Academy"
-    value={googleLocation}
-    onChange={(e) => setGoogleLocation(e.target.value)}
-    className="md:col-span-2 bg-black border border-zinc-700 rounded-2xl px-6 py-5"
-  />
+  <div className="md:col-span-2 grid md:grid-cols-[1fr_auto] gap-4">
+    <input
+      type="text"
+      placeholder="Google Maps location link (optional)"
+      value={googleLocation}
+      onChange={(e) => setGoogleLocation(e.target.value)}
+      className="bg-black border border-zinc-700 rounded-2xl px-6 py-5"
+    />
+    <a
+      href="https://www.google.com/maps"
+      target="_blank"
+      rel="noreferrer"
+      className="flex items-center justify-center bg-orange-500 text-black rounded-2xl px-6 py-5 font-bold"
+    >
+      Open Google Maps
+    </a>
+  </div>
 
   <input
     type="text"
-    placeholder="Where did you come to know about us?"
+    placeholder={requiredLabel("Where did you come to know about us?")}
     value={whereDidYouHear}
     onChange={(e) => setWhereDidYouHear(e.target.value)}
-    className="md:col-span-2 bg-black border border-zinc-700 rounded-2xl px-6 py-5"
+    {...missingMarker("whereDidYouHear")}
+    className={requiredInputClass("whereDidYouHear", "md:col-span-2 bg-black border rounded-2xl px-6 py-5")}
   />
 
-  <div className="mt-10">
+  <div
+    className={missingFields.includes("academyLogo") ? "mt-10 rounded-3xl ring-2 ring-red-500/40 p-3" : "mt-10"}
+    {...missingMarker("academyLogo")}
+  >
   <h2 className="text-4xl font-black">
-    Academy Logo
+    Academy Logo *
   </h2>
 
   <label
@@ -3472,10 +3548,13 @@ console.log("Razorpay Loaded:", window.Razorpay);
   )}
 </div>
 
-<div>
+<div
+  className={missingFields.includes("academyImages") ? "rounded-3xl ring-2 ring-red-500/40 p-3" : ""}
+  {...missingMarker("academyImages")}
+>
 
   <h2 className="text-5xl font-black mb-3">
-    Academy Photos
+    Academy Photos *
   </h2>
 
   <p className="text-zinc-400 mb-5">
@@ -3589,12 +3668,15 @@ console.log("Razorpay Loaded:", window.Razorpay);
 
   </div>
 
-<div className="md:col-span-2 mt-10">
+<div
+  className={missingFields.includes("sportsConducted") ? "md:col-span-2 mt-10 rounded-3xl ring-2 ring-red-500/40 p-3" : "md:col-span-2 mt-10"}
+  {...missingMarker("sportsConducted")}
+>
 
   <div className="flex items-center justify-between">
 
     <h3 className="text-2xl font-bold">
-      Sports Conducted
+      Sports Conducted *
     </h3>
 
     <button
@@ -3687,12 +3769,15 @@ console.log("Razorpay Loaded:", window.Razorpay);
   <div className="md:col-span-2 grid grid-cols-1 xl:grid-cols-2 gap-8 xl:gap-10 mt-16 items-start">
 
   {/* OWNER SECTION */}
-  <div>
+  <div
+    className={missingFields.includes("owners") ? "rounded-3xl ring-2 ring-red-500/40 p-3" : ""}
+    {...missingMarker("owners")}
+  >
 
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
 
       <h2 className="text-3xl xl:text-4xl leading-tight font-black">
-        Owner / Coach Details
+        Owner / Coach Details *
       </h2>
 
     <button
@@ -4078,12 +4163,15 @@ console.log("Razorpay Loaded:", window.Razorpay);
   </div>
 
   {/* STUDENT SECTION */}
-  <div>
+  <div
+    className={missingFields.includes("students") ? "rounded-3xl ring-2 ring-red-500/40 p-3" : ""}
+    {...missingMarker("students")}
+  >
 
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
 
       <h2 className="text-3xl xl:text-4xl leading-tight font-black">
-        Student Details
+        Student Details *
       </h2>
 
       <button
@@ -4635,6 +4723,42 @@ console.log("Razorpay Loaded:", window.Razorpay);
                 {benefit}
               </div>
             ))}
+          </div>
+
+          <div className="mt-10 grid lg:grid-cols-2 gap-6">
+            <div className="bg-black border border-zinc-700 rounded-3xl p-6">
+              <p className="text-orange-500 uppercase tracking-[0.25em] text-xs font-black">
+                Certificate Preview
+              </p>
+              <img
+                src="/certificate-affiliation-template.png"
+                alt="Sample affiliation certificate"
+                className="mt-5 w-full max-h-[360px] object-contain rounded-2xl bg-white"
+              />
+            </div>
+
+            <div className="bg-black border border-zinc-700 rounded-3xl p-6">
+              <p className="text-orange-500 uppercase tracking-[0.25em] text-xs font-black">
+                Federation ID Preview
+              </p>
+              <img
+                src="/elite-id-card-template.png"
+                alt="Sample federation ID card"
+                className="mt-5 w-full max-h-[360px] object-contain rounded-2xl bg-white"
+              />
+            </div>
+          </div>
+
+          <div className="mt-8 bg-orange-500 text-black rounded-3xl p-6">
+            <h3 className="text-2xl font-black">
+              QR Verified Authenticity
+            </h3>
+            <p className="mt-3 font-semibold leading-relaxed">
+              Every affiliation certificate and Federation ID carries a
+              unique QR code. Anyone can scan it to open the official
+              KheloYouth verification page, helping academies prove
+              authenticity and preventing fake IDs or certificates.
+            </p>
           </div>
         </div>
       </section>

@@ -1847,23 +1847,23 @@ const toggleStudentSport = (
 
                 {editAcademyId && (
                   <div className="mt-6 grid md:grid-cols-2 gap-5">
-                    <input value={editAcademyForm.academyName || ""} onChange={(e) => updateEditAcademy("academyName", e.target.value)} placeholder="Academy Name" className="bg-black border border-zinc-700 rounded-2xl px-5 py-4" />
-                    <input value={editAcademyForm.establishmentYear || ""} onChange={(e) => updateEditAcademy("establishmentYear", e.target.value)} placeholder="Year Of Establishment" className="bg-black border border-zinc-700 rounded-2xl px-5 py-4" />
-                    <textarea value={editAcademyForm.academyDescription || ""} onChange={(e) => updateEditAcademy("academyDescription", e.target.value)} placeholder="Academy Description" className="md:col-span-2 bg-black border border-zinc-700 rounded-2xl px-5 py-4 min-h-32" />
-                    <input value={editAcademyForm.fullAddress || ""} onChange={(e) => updateEditAcademy("fullAddress", e.target.value)} placeholder="Full Address" className="bg-black border border-zinc-700 rounded-2xl px-5 py-4" />
-                    <input value={editAcademyForm.city || ""} onChange={(e) => updateEditAcademy("city", e.target.value)} placeholder="City" className="bg-black border border-zinc-700 rounded-2xl px-5 py-4" />
+                    <input value={editAcademyForm.academyName || ""} onChange={(e) => updateEditAcademy("academyName", e.target.value)} placeholder="Academy Name *" className="bg-black border border-zinc-700 rounded-2xl px-5 py-4" />
+                    <input value={editAcademyForm.establishmentYear || ""} onChange={(e) => updateEditAcademy("establishmentYear", e.target.value)} placeholder="Year Of Establishment *" className="bg-black border border-zinc-700 rounded-2xl px-5 py-4" />
+                    <textarea value={editAcademyForm.academyDescription || ""} onChange={(e) => updateEditAcademy("academyDescription", e.target.value)} placeholder="Academy Description *" className="md:col-span-2 bg-black border border-zinc-700 rounded-2xl px-5 py-4 min-h-32" />
+                    <input value={editAcademyForm.fullAddress || ""} onChange={(e) => updateEditAcademy("fullAddress", e.target.value)} placeholder="Full Address *" className="bg-black border border-zinc-700 rounded-2xl px-5 py-4" />
+                    <input value={editAcademyForm.city || ""} onChange={(e) => updateEditAcademy("city", e.target.value)} placeholder="City *" className="bg-black border border-zinc-700 rounded-2xl px-5 py-4" />
                     <select value={editAcademyForm.state || ""} onChange={(e) => setEditAcademyForm({ ...editAcademyForm, state: e.target.value, district: "" })} className="bg-black border border-zinc-700 rounded-2xl px-5 py-4">
-                      <option value="">Select State</option>
+                      <option value="">Select State *</option>
                       {indiaStates.map((state) => <option key={state} value={state}>{state}</option>)}
                     </select>
                     <select value={editAcademyForm.district || ""} onChange={(e) => updateEditAcademy("district", e.target.value)} className="bg-black border border-zinc-700 rounded-2xl px-5 py-4">
-                      <option value="">Select District</option>
+                      <option value="">Select District *</option>
                       {editDistrictOptions.map((districtOption) => <option key={districtOption} value={districtOption}>{districtOption}</option>)}
                     </select>
-                    <input value={editAcademyForm.pincode || ""} maxLength={6} onChange={(e) => updateEditAcademy("pincode", e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="Pincode" className="bg-black border border-zinc-700 rounded-2xl px-5 py-4" />
-                    <input type="tel" maxLength={10} value={editAcademyForm.contactNumber || ""} onChange={(e) => updateEditAcademy("contactNumber", e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="Contact Number" className="bg-black border border-zinc-700 rounded-2xl px-5 py-4" />
-                    <input value={editAcademyForm.officialEmail || ""} onChange={(e) => updateEditAcademy("officialEmail", e.target.value)} placeholder="Official Email" className="bg-black border border-zinc-700 rounded-2xl px-5 py-4" />
-                    <input value={editAcademyForm.whereDidYouHear || ""} onChange={(e) => updateEditAcademy("whereDidYouHear", e.target.value)} placeholder="Where did they come to know about us?" className="bg-black border border-zinc-700 rounded-2xl px-5 py-4" />
+                    <input value={editAcademyForm.pincode || ""} maxLength={6} onChange={(e) => updateEditAcademy("pincode", e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="Pincode *" className="bg-black border border-zinc-700 rounded-2xl px-5 py-4" />
+                    <input type="tel" maxLength={10} value={editAcademyForm.contactNumber || ""} onChange={(e) => updateEditAcademy("contactNumber", e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="Contact Number *" className="bg-black border border-zinc-700 rounded-2xl px-5 py-4" />
+                    <input value={editAcademyForm.officialEmail || ""} onChange={(e) => updateEditAcademy("officialEmail", e.target.value)} placeholder="Official Email *" className="bg-black border border-zinc-700 rounded-2xl px-5 py-4" />
+                    <input value={editAcademyForm.whereDidYouHear || ""} onChange={(e) => updateEditAcademy("whereDidYouHear", e.target.value)} placeholder="Where did they come to know about us? *" className="bg-black border border-zinc-700 rounded-2xl px-5 py-4" />
                     <input value={editAcademyForm.websiteLink || ""} onChange={(e) => updateEditAcademy("websiteLink", e.target.value)} placeholder="Website Link (optional)" className="bg-black border border-zinc-700 rounded-2xl px-5 py-4" />
                     <input value={editAcademyForm.instagramLink || ""} onChange={(e) => updateEditAcademy("instagramLink", e.target.value)} placeholder="Instagram Link (optional)" className="bg-black border border-zinc-700 rounded-2xl px-5 py-4" />
                     <input value={editAcademyForm.facebookLink || ""} onChange={(e) => updateEditAcademy("facebookLink", e.target.value)} placeholder="Facebook Link (optional)" className="bg-black border border-zinc-700 rounded-2xl px-5 py-4" />
@@ -1872,7 +1872,10 @@ const toggleStudentSport = (
                       <option>Yes</option>
                       <option>No</option>
                     </select>
-                    <input value={editAcademyForm.googleLocation || ""} onChange={(e) => updateEditAcademy("googleLocation", e.target.value)} placeholder="Google Location (optional)" className="bg-black border border-zinc-700 rounded-2xl px-5 py-4" />
+                    <div className="grid sm:grid-cols-[1fr_auto] gap-3">
+                      <input value={editAcademyForm.googleLocation || ""} onChange={(e) => updateEditAcademy("googleLocation", e.target.value)} placeholder="Google Maps location link (optional)" className="bg-black border border-zinc-700 rounded-2xl px-5 py-4" />
+                      <a href="https://www.google.com/maps" target="_blank" rel="noreferrer" className="flex items-center justify-center bg-orange-500 text-black rounded-2xl px-5 py-4 font-bold">Map</a>
+                    </div>
                     <input value={editAcademyForm.mediaCoverageProofName || ""} onChange={(e) => updateEditAcademy("mediaCoverageProofName", e.target.value)} placeholder="Press / Media Coverage Proof (optional)" className="bg-black border border-zinc-700 rounded-2xl px-5 py-4" />
 
                     <div className="md:col-span-2 bg-black border border-zinc-700 rounded-2xl p-5">
@@ -2197,7 +2200,7 @@ const toggleStudentSport = (
                   onChange={(e) =>
                     setAcademyName(e.target.value)
                   }
-                  placeholder="Academy Name"
+                  placeholder="Academy Name *"
                   className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
                 />
                 <select
@@ -2216,13 +2219,13 @@ const toggleStudentSport = (
                   onChange={(e) =>
                     setEstablishmentYear(e.target.value)
                   }
-                  placeholder="Year Of Establishment"
+                  placeholder="Year Of Establishment *"
                   className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
                 />
                 <input
                   value={fullAddress}
                   onChange={(e) => setFullAddress(e.target.value)}
-                  placeholder="Full Address"
+                  placeholder="Full Address *"
                   className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
                 />
                 <select
@@ -2233,7 +2236,7 @@ const toggleStudentSport = (
                   }}
                   className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
                 >
-                  <option value="">Select State</option>
+                  <option value="">Select State *</option>
                   {indiaStates.map((state) => (
                     <option key={state} value={state}>
                       {state}
@@ -2245,7 +2248,7 @@ const toggleStudentSport = (
                   onChange={(e) => setDistrict(e.target.value)}
                   className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
                 >
-                  <option value="">Select District</option>
+                  <option value="">Select District *</option>
                   {adminDistrictOptions.map((districtOption) => (
                     <option key={districtOption} value={districtOption}>
                       {districtOption}
@@ -2255,7 +2258,7 @@ const toggleStudentSport = (
                 <input
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
-                  placeholder="City"
+                  placeholder="City *"
                   className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
                 />
                 <input
@@ -2266,7 +2269,7 @@ const toggleStudentSport = (
                       e.target.value.replace(/\D/g, "").slice(0, 6)
                     )
                   }
-                  placeholder="Pincode"
+                  placeholder="Pincode *"
                   className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
                 />
                 <input
@@ -2278,7 +2281,7 @@ const toggleStudentSport = (
                       e.target.value.replace(/\D/g, "").slice(0, 10)
                     )
                   }
-                  placeholder="Contact Number"
+                  placeholder="Contact Number *"
                   className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
                 />
                 <input
@@ -2286,7 +2289,7 @@ const toggleStudentSport = (
                   onChange={(e) =>
                     setOfficialEmail(e.target.value)
                   }
-                  placeholder="Official Email"
+                  placeholder="Official Email *"
                   className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
                 />
                 <input
@@ -2318,16 +2321,26 @@ const toggleStudentSport = (
                   <option>Yes</option>
                   <option>No</option>
                 </select>
-                <input
-                  value={googleLocation}
-                  onChange={(e) => setGoogleLocation(e.target.value)}
-                  placeholder="Google Location Of Academy"
-                  className="md:col-span-2 bg-black border border-zinc-700 rounded-2xl px-5 py-4"
-                />
+                <div className="md:col-span-2 grid md:grid-cols-[1fr_auto] gap-4">
+                  <input
+                    value={googleLocation}
+                    onChange={(e) => setGoogleLocation(e.target.value)}
+                    placeholder="Google Maps location link (optional)"
+                    className="bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+                  />
+                  <a
+                    href="https://www.google.com/maps"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center justify-center bg-orange-500 text-black rounded-2xl px-5 py-4 font-bold"
+                  >
+                    Open Google Maps
+                  </a>
+                </div>
                 <input
                   value={whereDidYouHear}
                   onChange={(e) => setWhereDidYouHear(e.target.value)}
-                  placeholder="Where did you come to know about us?"
+                  placeholder="Where did you come to know about us? *"
                   className="md:col-span-2 bg-black border border-zinc-700 rounded-2xl px-5 py-4"
                 />
                 <div className="md:col-span-2 bg-black border border-zinc-700 rounded-2xl p-5">
@@ -2394,7 +2407,7 @@ const toggleStudentSport = (
                   onChange={(e) =>
                     setAcademyDescription(e.target.value)
                   }
-                  placeholder="Academy Description"
+                  placeholder="Academy Description *"
                   className="md:col-span-2 bg-black border border-zinc-700 rounded-2xl px-5 py-4 min-h-32"
                 />
                 <input
