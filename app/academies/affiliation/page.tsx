@@ -126,6 +126,7 @@ const [owners, setOwners] = useState([
     bloodGroup: "",
     sports: [],
     designation: "",
+    qualification: "",
     mobile: "",
     email: "",
     memberId: "",
@@ -156,6 +157,19 @@ const [students, setStudents] = useState<any[]>([
 ]);
 const [newOwnerIndex, setNewOwnerIndex] = useState<number | null>(null);
 const [newStudentIndex, setNewStudentIndex] = useState<number | null>(null);
+
+const referralOptions = [
+  "Instagram",
+  "Facebook",
+  "Other Social Media",
+  "Media",
+  "Friends",
+  "Other Coaches",
+  "Google",
+  "Event",
+  "Elite Games Federation Team",
+  "Other",
+];
 
 const focusNewCard = (elementId: string, clearHighlight: () => void) => {
   window.setTimeout(() => {
@@ -454,7 +468,8 @@ setOwners(
     bloodGroup: "",
     sports: [],
     designation: "",
-      mobile: "",
+    qualification: "",
+    mobile: "",
       email: "",
       memberId: "",
       photo: null,
@@ -823,6 +838,7 @@ const validateAcademyProfile = () => {
       owner.bloodGroup &&
       getOwnerSports(owner).length &&
       owner.designation &&
+      owner.qualification &&
       String(owner.mobile || "").length === 10 &&
       (owner.photoUrl || owner.photoPreview)
   );
@@ -1372,6 +1388,7 @@ setOwners(
       bloodGroup: "",
       sports: [],
       designation: "",
+      qualification: "",
       mobile: "",
       email: "",
       memberId: "",
@@ -1461,6 +1478,7 @@ const addOwner = () => {
       bloodGroup: "",
       sports: [],
       designation: "",
+      qualification: "",
       mobile: "",
       email: "",
       memberId: "",
@@ -1492,6 +1510,7 @@ const addCoach = () => {
     {
       fullName: "",
       designation: "",
+      qualification: "",
       mobile: "",
       email: "",
       photo: null,
@@ -3090,6 +3109,9 @@ console.log("Razorpay Loaded:", window.Razorpay);
                                 {owner.designation || "Designation not added"}
                               </p>
                               <p className="mt-2 text-zinc-400">
+                                Qualification: {owner.qualification || "Not added"}
+                              </p>
+                              <p className="mt-2 text-zinc-400">
                                 {owner.mobile || "Mobile not added"} • {owner.email || "Email not added"}
                               </p>
                               {userData?.paymentDone && (
@@ -3514,14 +3536,19 @@ console.log("Razorpay Loaded:", window.Razorpay);
     </a>
   </div>
 
-  <input
-    type="text"
-    placeholder={requiredLabel("Where did you come to know about us?")}
+  <select
     value={whereDidYouHear}
     onChange={(e) => setWhereDidYouHear(e.target.value)}
     {...missingMarker("whereDidYouHear")}
     className={requiredInputClass("whereDidYouHear", "md:col-span-2 bg-black border rounded-2xl px-6 py-5")}
-  />
+  >
+    <option value="">{requiredLabel("Where did you come to know about us?")}</option>
+    {referralOptions.map((option) => (
+      <option key={option} value={option}>
+        {option}
+      </option>
+    ))}
+  </select>
 
   <div
     className={missingFields.includes("academyLogo") ? "mt-10 rounded-3xl ring-2 ring-red-500/40 p-3" : "mt-10"}
@@ -3988,6 +4015,31 @@ console.log("Razorpay Loaded:", window.Razorpay);
                       handleOwnerChange(
                         index,
                         "designation",
+                        e.target.value
+                      )
+                    }
+                    className="w-full bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+                  />
+
+                </td>
+
+              </tr>
+
+              <tr className="border-b border-white/10">
+
+                <td className="py-5 pr-5 font-semibold">
+                  Qualification
+                </td>
+
+                <td className="py-5">
+
+                  <input
+                    type="text"
+                    value={(owner as any).qualification || ""}
+                    onChange={(e) =>
+                      handleOwnerChange(
+                        index,
+                        "qualification",
                         e.target.value
                       )
                     }

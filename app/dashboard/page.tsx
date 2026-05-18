@@ -79,6 +79,7 @@ const getDefaultOwner = () => ({
   mobile: "",
   email: "",
   designation: "",
+  qualification: "",
   memberId: "",
   photoUrl: "",
 });
@@ -110,6 +111,19 @@ const bloodGroupOptions = [
   "AB-",
   "O+",
   "O-",
+];
+
+const referralOptions = [
+  "Instagram",
+  "Facebook",
+  "Other Social Media",
+  "Media",
+  "Friends",
+  "Other Coaches",
+  "Google",
+  "Event",
+  "Elite Games Federation Team",
+  "Other",
 ];
 
 const sportsList = [
@@ -1063,6 +1077,7 @@ export default function DashboardPage() {
         owner.bloodGroup &&
         getEditOwnerSports(owner).length &&
         owner.designation &&
+        owner.qualification &&
         String(owner.mobile || "").length === 10 &&
         owner.photoUrl
     );
@@ -1330,6 +1345,7 @@ const toggleStudentSport = (
         owner.bloodGroup &&
         getOwnerSports(owner).length &&
         owner.designation &&
+        owner.qualification &&
         String(owner.mobile || "").length === 10 &&
         owner.photoUrl
     );
@@ -1905,7 +1921,10 @@ const toggleStudentSport = (
                     <input value={editAcademyForm.pincode || ""} maxLength={6} onChange={(e) => updateEditAcademy("pincode", e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="Pincode *" className="bg-black border border-zinc-700 rounded-2xl px-5 py-4" />
                     <input type="tel" maxLength={10} value={editAcademyForm.contactNumber || ""} onChange={(e) => updateEditAcademy("contactNumber", e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="Contact Number *" className="bg-black border border-zinc-700 rounded-2xl px-5 py-4" />
                     <input value={editAcademyForm.officialEmail || ""} onChange={(e) => updateEditAcademy("officialEmail", e.target.value)} placeholder="Official Email *" className="bg-black border border-zinc-700 rounded-2xl px-5 py-4" />
-                    <input value={editAcademyForm.whereDidYouHear || ""} onChange={(e) => updateEditAcademy("whereDidYouHear", e.target.value)} placeholder="Where did they come to know about us? *" className="bg-black border border-zinc-700 rounded-2xl px-5 py-4" />
+                    <select value={editAcademyForm.whereDidYouHear || ""} onChange={(e) => updateEditAcademy("whereDidYouHear", e.target.value)} className="bg-black border border-zinc-700 rounded-2xl px-5 py-4">
+                      <option value="">Where did they come to know about us? *</option>
+                      {referralOptions.map((option) => <option key={option} value={option}>{option}</option>)}
+                    </select>
                     <input value={editAcademyForm.websiteLink || ""} onChange={(e) => updateEditAcademy("websiteLink", e.target.value)} placeholder="Website Link (optional)" className="bg-black border border-zinc-700 rounded-2xl px-5 py-4" />
                     <input value={editAcademyForm.instagramLink || ""} onChange={(e) => updateEditAcademy("instagramLink", e.target.value)} placeholder="Instagram Link (optional)" className="bg-black border border-zinc-700 rounded-2xl px-5 py-4" />
                     <input value={editAcademyForm.facebookLink || ""} onChange={(e) => updateEditAcademy("facebookLink", e.target.value)} placeholder="Facebook Link (optional)" className="bg-black border border-zinc-700 rounded-2xl px-5 py-4" />
@@ -2003,6 +2022,7 @@ const toggleStudentSport = (
                                 <select value={owner.sex || ""} onChange={(e) => updateEditOwner(index, "sex", e.target.value)} className="bg-black border border-zinc-700 rounded-2xl px-4 py-3"><option value="">Sex</option><option>Male</option><option>Female</option><option>Other</option></select>
                                 <select value={owner.bloodGroup || ""} onChange={(e) => updateEditOwner(index, "bloodGroup", e.target.value)} className="bg-black border border-zinc-700 rounded-2xl px-4 py-3"><option value="">Blood Group</option>{bloodGroupOptions.map((group) => <option key={group}>{group}</option>)}</select>
                                 <input value={owner.designation || ""} onChange={(e) => updateEditOwner(index, "designation", e.target.value)} placeholder="Designation" className="bg-black border border-zinc-700 rounded-2xl px-4 py-3" />
+                                <input value={owner.qualification || ""} onChange={(e) => updateEditOwner(index, "qualification", e.target.value)} placeholder="Qualification" className="bg-black border border-zinc-700 rounded-2xl px-4 py-3" />
                               </div>
                               <div className="bg-black border border-zinc-700 rounded-2xl p-4">
                                 <p className="font-bold">Sports Coached / Managed</p>
@@ -2381,12 +2401,18 @@ const toggleStudentSport = (
                     Open Google Maps
                   </a>
                 </div>
-                <input
+                <select
                   value={whereDidYouHear}
                   onChange={(e) => setWhereDidYouHear(e.target.value)}
-                  placeholder="Where did you come to know about us? *"
                   className="md:col-span-2 bg-black border border-zinc-700 rounded-2xl px-5 py-4"
-                />
+                >
+                  <option value="">Where did you come to know about us? *</option>
+                  {referralOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
                 <div className="md:col-span-2 bg-black border border-zinc-700 rounded-2xl p-5">
                   <h3 className="text-xl font-black">
                     Sports Conducted
@@ -2680,6 +2706,18 @@ const toggleStudentSport = (
                             )
                           }
                           placeholder="Designation"
+                          className="bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4"
+                        />
+                        <input
+                          value={owner.qualification || ""}
+                          onChange={(e) =>
+                            updateOwner(
+                              index,
+                              "qualification",
+                              e.target.value
+                            )
+                          }
+                          placeholder="Qualification"
                           className="bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4"
                         />
                         <div className="bg-zinc-950 border border-zinc-700 rounded-2xl p-4">
