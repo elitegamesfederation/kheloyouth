@@ -1831,7 +1831,9 @@ const getPublicOrigin = () =>
 const loadCanvasImage = (src: string) =>
   new Promise<HTMLImageElement>((resolve, reject) => {
     const image = new Image();
-    image.crossOrigin = "anonymous";
+    if (!src.startsWith("blob:") && !src.startsWith("data:")) {
+      image.crossOrigin = "anonymous";
+    }
     image.onload = () => resolve(image);
     image.onerror = reject;
     image.src = src;
@@ -1935,9 +1937,16 @@ const handleDownloadIdCard = async (
   const verificationUrl = `${getPublicOrigin()}/id-card/${encodeURIComponent(
     memberId
   )}`;
-  const photoUrl = member.photoPreview || member.photoUrl || "";
+  const photoCandidates = Array.from(
+    new Set(
+      [member.photoUrl, member.photoPreview, member.photo]
+        .filter(Boolean)
+        .map((value) => String(value))
+    )
+  );
+  let photoDrawn = false;
 
-  if (photoUrl) {
+  for (const photoUrl of photoCandidates) {
     try {
       const photo = await loadCanvasImage(photoUrl);
       const photoSize = p(740);
@@ -1948,9 +1957,28 @@ const handleDownloadIdCard = async (
       drawRoundedRectClip(context, photoX, photoY, photoSize, photoSize, p(42));
       drawCoverImage(context, photo, photoX, photoY, photoSize, photoSize);
       context.restore();
+      photoDrawn = true;
+      break;
     } catch (error) {
-      console.warn("ID photo skipped", error);
+      console.warn("ID photo candidate skipped", photoUrl, error);
     }
+  }
+
+  if (!photoDrawn) {
+    const photoSize = p(740);
+    const photoX = (canvas.width - photoSize) / 2;
+    const photoY = p(405);
+
+    context.save();
+    drawRoundedRectClip(context, photoX, photoY, photoSize, photoSize, p(42));
+    context.fillStyle = "#f3f4f6";
+    context.fillRect(photoX, photoY, photoSize, photoSize);
+    context.fillStyle = "#111827";
+    context.textAlign = "center";
+    context.font = `900 ${p(190)}px Arial, sans-serif`;
+    context.fillText(memberName.charAt(0).toUpperCase(), canvas.width / 2, photoY + p(445));
+    context.restore();
+    context.textAlign = "left";
   }
 
   context.fillStyle = "#000000";
