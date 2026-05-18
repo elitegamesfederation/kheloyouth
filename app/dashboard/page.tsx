@@ -264,6 +264,20 @@ export default function DashboardPage() {
   });
   const [owners, setOwners] = useState<any[]>([getDefaultOwner()]);
   const [students, setStudents] = useState<any[]>([getDefaultStudent()]);
+  const [newOwnerIndex, setNewOwnerIndex] = useState<number | null>(null);
+  const [newStudentIndex, setNewStudentIndex] = useState<number | null>(null);
+  const [newEditOwnerIndex, setNewEditOwnerIndex] = useState<number | null>(null);
+  const [newEditStudentIndex, setNewEditStudentIndex] = useState<number | null>(null);
+
+  const focusNewCard = (elementId: string, clearHighlight: () => void) => {
+    window.setTimeout(() => {
+      document
+        .getElementById(elementId)
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 50);
+
+    window.setTimeout(clearHighlight, 3500);
+  };
 
   const loadAcademies = async () => {
     setLoading(true);
@@ -413,11 +427,39 @@ export default function DashboardPage() {
           (row: any) => row.state === selectedState
         );
 
-  const addOwner = () =>
-    setOwners([...owners, getDefaultOwner()]);
+  const addOwner = () => {
+    const newIndex = owners.length;
 
-  const addStudent = () =>
+    setOwners([...owners, getDefaultOwner()]);
+    setNewOwnerIndex(newIndex);
+    focusNewCard(`admin-owner-${newIndex}`, () => setNewOwnerIndex(null));
+  };
+
+  const addStudent = () => {
+    const newIndex = students.length;
+
     setStudents([...students, getDefaultStudent()]);
+    setNewStudentIndex(newIndex);
+    focusNewCard(`admin-student-${newIndex}`, () => setNewStudentIndex(null));
+  };
+
+  const addEditOwner = () => {
+    const currentOwners = editAcademyForm.owners || [];
+    const newIndex = currentOwners.length;
+
+    updateEditAcademy("owners", [...currentOwners, getDefaultOwner()]);
+    setNewEditOwnerIndex(newIndex);
+    focusNewCard(`edit-owner-${newIndex}`, () => setNewEditOwnerIndex(null));
+  };
+
+  const addEditStudent = () => {
+    const currentStudents = editAcademyForm.students || [];
+    const newIndex = currentStudents.length;
+
+    updateEditAcademy("students", [...currentStudents, getDefaultStudent()]);
+    setNewEditStudentIndex(newIndex);
+    focusNewCard(`edit-student-${newIndex}`, () => setNewEditStudentIndex(null));
+  };
 
   const handleAdminLogin = () => {
     if (
@@ -1950,10 +1992,11 @@ const toggleStudentSport = (
 
                     <div className="md:col-span-2 grid lg:grid-cols-2 gap-5">
                       <div className="bg-black border border-zinc-700 rounded-2xl p-5">
-                        <div className="flex items-center justify-between"><h3 className="text-xl font-black">Owners / Coaches</h3><button type="button" onClick={() => updateEditAcademy("owners", [...(editAcademyForm.owners || []), getDefaultOwner()])} className="bg-orange-500 text-black px-4 py-2 rounded-xl font-bold">+ Add</button></div>
+                        <div className="flex items-center justify-between"><h3 className="text-xl font-black">Owners / Coaches</h3><button type="button" onClick={addEditOwner} className="bg-orange-500 text-black px-4 py-2 rounded-xl font-bold">+ Add</button></div>
                         <div className="mt-5 space-y-5">
                           {(editAcademyForm.owners || []).map((owner: any, index: number) => (
-                            <div key={index} className="bg-zinc-950 border border-zinc-700 rounded-2xl p-4 grid gap-3">
+                            <div key={index} id={`edit-owner-${index}`} className={`bg-zinc-950 border rounded-2xl p-4 grid gap-3 transition ${newEditOwnerIndex === index ? "border-orange-500 ring-2 ring-orange-500/40" : "border-zinc-700"}`}>
+                              {newEditOwnerIndex === index && <p className="text-orange-500 text-sm font-bold">New owner / coach added here</p>}
                               <input value={owner.fullName || ""} onChange={(e) => updateEditOwner(index, "fullName", e.target.value)} placeholder="Full Name" className="bg-black border border-zinc-700 rounded-2xl px-4 py-3" />
                               <div className="grid md:grid-cols-2 gap-3">
                                 <select value={owner.role || ""} onChange={(e) => updateEditOwner(index, "role", e.target.value)} className="bg-black border border-zinc-700 rounded-2xl px-4 py-3"><option>Owner</option><option>Coach</option><option>Coach and Owner</option></select>
@@ -1993,10 +2036,11 @@ const toggleStudentSport = (
                       </div>
 
                       <div className="bg-black border border-zinc-700 rounded-2xl p-5">
-                        <div className="flex items-center justify-between"><h3 className="text-xl font-black">Students</h3><button type="button" onClick={() => updateEditAcademy("students", [...(editAcademyForm.students || []), getDefaultStudent()])} className="bg-orange-500 text-black px-4 py-2 rounded-xl font-bold">+ Add Student</button></div>
+                        <div className="flex items-center justify-between"><h3 className="text-xl font-black">Students</h3><button type="button" onClick={addEditStudent} className="bg-orange-500 text-black px-4 py-2 rounded-xl font-bold">+ Add Student</button></div>
                         <div className="mt-5 space-y-5">
                           {(editAcademyForm.students || []).map((student: any, index: number) => (
-                            <div key={index} className="bg-zinc-950 border border-zinc-700 rounded-2xl p-4 grid gap-3">
+                            <div key={index} id={`edit-student-${index}`} className={`bg-zinc-950 border rounded-2xl p-4 grid gap-3 transition ${newEditStudentIndex === index ? "border-orange-500 ring-2 ring-orange-500/40" : "border-zinc-700"}`}>
+                              {newEditStudentIndex === index && <p className="text-orange-500 text-sm font-bold">New student added here</p>}
                               <input value={student.name || ""} onChange={(e) => updateEditStudent(index, "name", e.target.value)} placeholder="Student Name" className="bg-black border border-zinc-700 rounded-2xl px-4 py-3" />
                               <div className="grid md:grid-cols-2 gap-3">
                                 <input value={student.age || ""} onChange={(e) => updateEditStudent(index, "age", e.target.value)} placeholder="Age" className="bg-black border border-zinc-700 rounded-2xl px-4 py-3" />
@@ -2551,8 +2595,18 @@ const toggleStudentSport = (
                     {owners.map((owner, index) => (
                       <div
                         key={index}
-                        className="bg-black border border-zinc-700 rounded-2xl p-5 grid gap-4"
+                        id={`admin-owner-${index}`}
+                        className={`bg-black border rounded-2xl p-5 grid gap-4 transition ${
+                          newOwnerIndex === index
+                            ? "border-orange-500 ring-2 ring-orange-500/40"
+                            : "border-zinc-700"
+                        }`}
                       >
+                        {newOwnerIndex === index && (
+                          <p className="text-orange-500 text-sm font-bold">
+                            New owner / coach added here
+                          </p>
+                        )}
                         <input
                           value={owner.fullName}
                           onChange={(e) =>
@@ -2735,8 +2789,18 @@ const toggleStudentSport = (
                     {students.map((student, index) => (
                       <div
                         key={index}
-                        className="bg-black border border-zinc-700 rounded-2xl p-5 grid gap-4"
+                        id={`admin-student-${index}`}
+                        className={`bg-black border rounded-2xl p-5 grid gap-4 transition ${
+                          newStudentIndex === index
+                            ? "border-orange-500 ring-2 ring-orange-500/40"
+                            : "border-zinc-700"
+                        }`}
                       >
+                        {newStudentIndex === index && (
+                          <p className="text-orange-500 text-sm font-bold">
+                            New student added here
+                          </p>
+                        )}
                         <input
                           value={student.name}
                           onChange={(e) =>

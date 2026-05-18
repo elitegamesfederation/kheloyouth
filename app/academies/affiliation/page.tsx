@@ -154,6 +154,18 @@ const [students, setStudents] = useState<any[]>([
     isParaAthlete: false,
   },
 ]);
+const [newOwnerIndex, setNewOwnerIndex] = useState<number | null>(null);
+const [newStudentIndex, setNewStudentIndex] = useState<number | null>(null);
+
+const focusNewCard = (elementId: string, clearHighlight: () => void) => {
+  window.setTimeout(() => {
+    document
+      .getElementById(elementId)
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, 50);
+
+  window.setTimeout(clearHighlight, 3500);
+};
 
   // =========================
   // FEES
@@ -1438,6 +1450,7 @@ setStudents(
 
 
 const addOwner = () => {
+  const newIndex = owners.length;
 
   setOwners([
     ...owners,
@@ -1458,6 +1471,9 @@ const addOwner = () => {
       idProofPreview: "",
     },
   ]);
+
+  setNewOwnerIndex(newIndex);
+  focusNewCard(`affiliation-owner-${newIndex}`, () => setNewOwnerIndex(null));
 };
 
 
@@ -1499,6 +1515,7 @@ const removeCoach = (index: number) => {
 };
 
 const addStudent = () => {
+  const newIndex = students.length;
 
   setStudents([
     ...students,
@@ -1517,6 +1534,9 @@ const addStudent = () => {
       isParaAthlete: false,
     },
   ]);
+
+  setNewStudentIndex(newIndex);
+  focusNewCard(`affiliation-student-${newIndex}`, () => setNewStudentIndex(null));
 };
 
 const removeStudent = (index: number) => {
@@ -3796,8 +3816,21 @@ console.log("Razorpay Loaded:", window.Razorpay);
 
       <div
         key={index}
-        className="border border-white/10 rounded-3xl p-6 xl:p-8 bg-zinc-950 overflow-hidden"
+        id={`affiliation-owner-${index}`}
+        className={`border rounded-3xl p-6 xl:p-8 bg-zinc-950 overflow-hidden transition ${
+          newOwnerIndex === index
+            ? "border-orange-500 ring-2 ring-orange-500/40"
+            : "border-white/10"
+        }`}
       >
+
+        {newOwnerIndex === index && (
+
+          <p className="mb-4 text-orange-500 text-sm font-bold">
+            New owner / coach added here
+          </p>
+
+        )}
 
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 mb-10">
 
@@ -4190,8 +4223,21 @@ console.log("Razorpay Loaded:", window.Razorpay);
 
       <div
         key={index}
-        className="bg-zinc-950 border border-white/10 rounded-3xl p-6 xl:p-8 mb-8 overflow-hidden"
+        id={`affiliation-student-${index}`}
+        className={`bg-zinc-950 border rounded-3xl p-6 xl:p-8 mb-8 overflow-hidden transition ${
+          newStudentIndex === index
+            ? "border-orange-500 ring-2 ring-orange-500/40"
+            : "border-white/10"
+        }`}
       >
+
+        {newStudentIndex === index && (
+
+          <p className="mb-4 text-orange-500 text-sm font-bold">
+            New student added here
+          </p>
+
+        )}
 
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
 
