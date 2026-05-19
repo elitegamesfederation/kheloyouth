@@ -17,6 +17,7 @@ import {
   doc,
   getDoc,
   getDocs,
+  limit as firestoreLimit,
   orderBy,
   query,
   setDoc,
@@ -197,6 +198,7 @@ export default function DashboardPage() {
   const [saving, setSaving] = useState(false);
   const [academies, setAcademies] = useState<any[]>([]);
   const [contactMessages, setContactMessages] = useState<any[]>([]);
+  const [visitorEvents, setVisitorEvents] = useState<any[]>([]);
   const [selectedState, setSelectedState] = useState("All States");
   const [activeAdminTool, setActiveAdminTool] = useState("create");
   const [adminUnlocked, setAdminUnlocked] = useState(false);
@@ -342,6 +344,34 @@ export default function DashboardPage() {
     }
   };
 
+  const loadVisitorEvents = async () => {
+    try {
+      const visitorSnap = await getDocs(
+        query(
+          collection(db, "pageViews"),
+          orderBy("createdAt", "desc"),
+          firestoreLimit(1000)
+        )
+      );
+
+      setVisitorEvents(
+        visitorSnap.docs.map((visitorDoc) => ({
+          id: visitorDoc.id,
+          ...visitorDoc.data(),
+        }))
+      );
+    } catch {
+      const visitorSnap = await getDocs(collection(db, "pageViews"));
+
+      setVisitorEvents(
+        visitorSnap.docs.map((visitorDoc) => ({
+          id: visitorDoc.id,
+          ...visitorDoc.data(),
+        }))
+      );
+    }
+  };
+
   const getSavedAdminPassword = () =>
     window.localStorage.getItem("eliteAdminPassword") ||
     defaultAdminPassword;
@@ -360,6 +390,7 @@ export default function DashboardPage() {
       loadAcademies();
       loadAdminSports();
       loadContactMessages();
+      loadVisitorEvents();
     }
   }, [adminUnlocked]);
 
@@ -440,6 +471,42 @@ export default function DashboardPage() {
       : stateRows.filter(
           (row: any) => row.state === selectedState
         );
+
+  const visitorStats = useMemo(() => {
+    const todayKey = new Date().toISOString().slice(0, 10);
+    const uniqueVisitors = new Set(
+      visitorEvents
+        .map((event) => event.visitorId)
+        .filter(Boolean)
+    ).size;
+    const uniqueSessions = new Set(
+      visitorEvents
+        .map((event) => event.sessionId)
+        .filter(Boolean)
+    ).size;
+    const todayVisits = visitorEvents.filter(
+      (event) => event.day === todayKey
+    ).length;
+    const pageCounts = visitorEvents.reduce(
+      (counts: Record<string, number>, event) => {
+        const path = event.path || "Unknown page";
+        counts[path] = (counts[path] || 0) + 1;
+        return counts;
+      },
+      {}
+    );
+    const topPages = Object.entries(pageCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 6);
+
+    return {
+      todayVisits,
+      topPages,
+      totalPageViews: visitorEvents.length,
+      uniqueSessions,
+      uniqueVisitors,
+    };
+  }, [visitorEvents]);
 
   const addOwner = () => {
     const newIndex = owners.length;
@@ -1726,6 +1793,78 @@ const toggleStudentSport = (
                   </p>
                 </div>
               ))}
+            </div>
+
+            <div className="mt-10 bg-zinc-900 border border-white/10 rounded-3xl p-8">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5">
+                <div>
+                  <h2 className="text-3xl font-black">
+                    Website Visitors
+                  </h2>
+                  <p className="mt-2 text-zinc-400">
+                    Anonymous visitor count from the latest page views.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={loadVisitorEvents}
+                  className="bg-black border border-zinc-700 rounded-2xl px-5 py-3 font-bold"
+                >
+                  Refresh
+                </button>
+              </div>
+
+              <div className="mt-6 grid md:grid-cols-4 gap-5">
+                {[
+                  ["Page Views", visitorStats.totalPageViews],
+                  ["Unique Visitors", visitorStats.uniqueVisitors],
+                  ["Visit Sessions", visitorStats.uniqueSessions],
+                  ["Today", visitorStats.todayVisits],
+                ].map(([label, value]) => (
+                  <div
+                    key={label}
+                    className="bg-black border border-zinc-700 rounded-2xl p-5"
+                  >
+                    <p className="text-orange-500 uppercase tracking-[0.2em] text-xs">
+                      {label}
+                    </p>
+                    <p className="mt-3 text-4xl font-black">
+                      {value}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-6 bg-black border border-zinc-700 rounded-2xl p-5">
+                <h3 className="text-2xl font-black">Top Pages</h3>
+
+                {visitorStats.topPages.length ? (
+                  <div className="mt-4 space-y-3">
+                    {visitorStats.topPages.map(([path, count]) => (
+                      <div
+                        key={path}
+                        className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 border-b border-white/10 pb-3 last:border-b-0 last:pb-0"
+                      >
+                        <p className="font-bold break-all">{path}</p>
+                        <p className="text-orange-500 font-black">
+                          {count} views
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="mt-4 text-zinc-400">
+                    Visitor data will appear here after people browse the site.
+                  </p>
+                )}
+              </div>
+
+              <p className="mt-4 text-sm text-zinc-500">
+                This counts anonymous browser visits and does not store IP
+                addresses. Google Analytics or Search Console can still be
+                added later for deeper SEO reports.
+              </p>
             </div>
 
             <div className="mt-10 bg-zinc-900 border border-white/10 rounded-3xl p-8">

@@ -494,6 +494,31 @@ export default function PublicAcademyPage() {
             </div>
           </div>
         )}
+
+        {academy && (
+          <section className="mt-10 bg-orange-500 text-black rounded-[35px] p-8 md:p-12 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
+            <div>
+              <p className="uppercase tracking-[0.3em] text-sm font-black">
+                Do You Own An Academy?
+              </p>
+              <h2 className="mt-4 text-4xl md:text-5xl font-black">
+                Join India&apos;s growing grassroots sports network today.
+              </h2>
+              <p className="mt-4 max-w-3xl text-lg font-semibold">
+                Get your own academy webpage, federation ID, affiliation
+                certificate, athlete features, PAN India listing, and QR
+                verified authenticity.
+              </p>
+            </div>
+
+            <a
+              href="https://www.kheloyouth.com/academies/affiliation"
+              className="shrink-0 bg-black text-white hover:bg-zinc-900 transition px-8 py-5 rounded-2xl text-lg font-black text-center"
+            >
+              Get Affiliated
+            </a>
+          </section>
+        )}
       </section>
 
       <Footer />
