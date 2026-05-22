@@ -43,12 +43,24 @@ const findMember = (academy: any, memberId: string) => {
   return null;
 };
 
+const getAchievementLines = (achievement: string) =>
+  String(achievement || "")
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => line.replace(/^[-*\d.)\s]+/, "").trim())
+    .filter(Boolean);
+
 export default function IdCardVerificationPage() {
   const params = useParams<{ id: string }>();
   const [record, setRecord] = useState<any>(null);
   const [memberId, setMemberId] = useState("");
   const [qrCode, setQrCode] = useState("");
   const [loading, setLoading] = useState(true);
+  const achievementLines =
+    record?.type === "Student"
+      ? getAchievementLines(record.member?.achievement)
+      : [];
 
   useEffect(() => {
     const loadRecord = async () => {
@@ -160,6 +172,19 @@ export default function IdCardVerificationPage() {
                     </div>
                   ))}
                 </div>
+
+                {achievementLines.length > 0 && (
+                  <div className="mt-5 bg-black border border-white/10 rounded-2xl p-5">
+                    <p className="text-xs uppercase tracking-[0.2em] text-orange-500">
+                      Achievements
+                    </p>
+                    <ol className="mt-3 list-decimal list-inside space-y-2 text-zinc-100 font-semibold">
+                      {achievementLines.map((achievement, index) => (
+                        <li key={index}>{achievement}</li>
+                      ))}
+                    </ol>
+                  </div>
+                )}
               </div>
             </div>
           ) : (
