@@ -1323,6 +1323,20 @@ export default function DashboardPage() {
     setStudents(updated);
   };
 
+  const toggleAdminEliteAthlete = (index: number, checked: boolean) => {
+    const currentEliteCount = students.filter(
+      (student, studentIndex) =>
+        student.isEliteAthlete && studentIndex !== index
+    ).length;
+
+    if (checked && currentEliteCount >= 2) {
+      alert("Only two students can be marked as Elite Athlete.");
+      return;
+    }
+
+    updateStudent(index, "isEliteAthlete", checked);
+  };
+
   const clearOwnerPhoto = (index: number) => {
     const updated = [...owners];
     updated[index] = {
@@ -1404,6 +1418,9 @@ const toggleStudentSport = (
   };
 
   const createAdminAcademy = async () => {
+    const adminEliteCount = students.filter(
+      (student) => student.isEliteAthlete
+    ).length;
     const hasCompleteOwner = owners.some(
       (owner) =>
         owner.fullName &&
@@ -1448,6 +1465,11 @@ const toggleStudentSport = (
       alert(
         "Please fill all compulsory fields before saving: academy profile, logo, minimum 3 photos, sports, one complete owner/coach, and one complete student."
       );
+      return;
+    }
+
+    if (adminEliteCount > 2) {
+      alert("Only two students can be marked as Elite Athlete.");
       return;
     }
 
@@ -3115,6 +3137,35 @@ const toggleStudentSport = (
                         >
                           + Add Achievement Line
                         </button>
+                        <div className="flex flex-wrap gap-4">
+                          <label className="flex items-center gap-2 bg-zinc-950 border border-zinc-700 rounded-xl px-4 py-3 font-bold">
+                            <input
+                              type="checkbox"
+                              checked={student.isEliteAthlete || false}
+                              onChange={(e) =>
+                                toggleAdminEliteAthlete(
+                                  index,
+                                  e.target.checked
+                                )
+                              }
+                            />
+                            Elite Athlete
+                          </label>
+                          <label className="flex items-center gap-2 bg-zinc-950 border border-zinc-700 rounded-xl px-4 py-3 font-bold">
+                            <input
+                              type="checkbox"
+                              checked={student.isParaAthlete || false}
+                              onChange={(e) =>
+                                updateStudent(
+                                  index,
+                                  "isParaAthlete",
+                                  e.target.checked
+                                )
+                              }
+                            />
+                            Para Athlete
+                          </label>
+                        </div>
                         <div>
                           <label className="inline-flex bg-white text-black px-5 py-3 rounded-2xl font-bold cursor-pointer">
                             Upload Student Photo
