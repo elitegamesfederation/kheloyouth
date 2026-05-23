@@ -87,13 +87,24 @@ export default function AcademiesListPage() {
       ...Array.from(
         new Set(
           academies
+            .filter(
+              (academy) =>
+                selectedState === "All States" ||
+                academy.state === selectedState
+            )
             .map((academy) => academy.district)
             .filter(Boolean)
         )
       ),
     ],
-    [academies]
+    [academies, selectedState]
   );
+
+  useEffect(() => {
+    if (!districts.includes(selectedDistrict)) {
+      setSelectedDistrict("All Districts");
+    }
+  }, [districts, selectedDistrict]);
 
   const filteredAcademies = academies.filter((academy) => {
     const academySports = Array.isArray(academy.sportsConducted)
