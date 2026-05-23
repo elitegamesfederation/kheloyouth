@@ -121,6 +121,7 @@ export default function SampleAcademyPage() {
                     Coach and Owner
                   </p>
                   <p className="mt-2 text-zinc-400">Blood Group: A+</p>
+                  <p className="mt-2 text-zinc-400">Experience: 8 years</p>
                   <p className="mt-2 text-zinc-400">
                     Sports: {sampleCoachSports}
                   </p>

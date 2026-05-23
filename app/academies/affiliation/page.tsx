@@ -127,6 +127,7 @@ const [owners, setOwners] = useState([
     sports: [],
     designation: "",
     qualification: "",
+    experience: "",
     mobile: "",
     email: "",
     memberId: "",
@@ -469,6 +470,7 @@ setOwners(
     sports: [],
     designation: "",
     qualification: "",
+    experience: "",
     mobile: "",
       email: "",
       memberId: "",
@@ -1389,6 +1391,7 @@ setOwners(
       sports: [],
       designation: "",
       qualification: "",
+      experience: "",
       mobile: "",
       email: "",
       memberId: "",
@@ -1479,6 +1482,7 @@ const addOwner = () => {
       sports: [],
       designation: "",
       qualification: "",
+      experience: "",
       mobile: "",
       email: "",
       memberId: "",
@@ -1511,6 +1515,7 @@ const addCoach = () => {
       fullName: "",
       designation: "",
       qualification: "",
+      experience: "",
       mobile: "",
       email: "",
       photo: null,
@@ -3112,7 +3117,13 @@ console.log("Razorpay Loaded:", window.Razorpay);
                                 Qualification: {owner.qualification || "Not added"}
                               </p>
                               <p className="mt-2 text-zinc-400">
-                                {owner.mobile || "Mobile not added"} • {owner.email || "Email not added"}
+                                Experience: {(owner as any).experience || "Not added"}
+                              </p>
+                              <p className="mt-2 text-zinc-400">
+                                {owner.mobile || "Mobile not added"} - internal record only, not displayed publicly
+                              </p>
+                              <p className="mt-2 text-zinc-400">
+                                {owner.email || "Email not added"}
                               </p>
                               {userData?.paymentDone && (
                                 <button
@@ -4053,6 +4064,32 @@ console.log("Razorpay Loaded:", window.Razorpay);
               <tr className="border-b border-white/10">
 
                 <td className="py-5 pr-5 font-semibold">
+                  Experience
+                </td>
+
+                <td className="py-5">
+
+                  <input
+                    type="text"
+                    value={(owner as any).experience || ""}
+                    onChange={(e) =>
+                      handleOwnerChange(
+                        index,
+                        "experience",
+                        e.target.value
+                      )
+                    }
+                    placeholder="For example 5 years"
+                    className="w-full bg-black border border-zinc-700 rounded-2xl px-5 py-4"
+                  />
+
+                </td>
+
+              </tr>
+
+              <tr className="border-b border-white/10">
+
+                <td className="py-5 pr-5 font-semibold">
                   Sports
                 </td>
 
@@ -4102,11 +4139,14 @@ console.log("Razorpay Loaded:", window.Razorpay);
                       handleOwnerChange(
                         index,
                         "mobile",
-                        e.target.value.replace(/\D/g, "")
+                        e.target.value.replace(/\D/g, "").slice(0, 10)
                       )
                     }
                     className="w-full bg-black border border-zinc-700 rounded-2xl px-5 py-4"
                   />
+                  <p className="mt-2 text-zinc-400 text-sm">
+                    This contact number is for internal records only and will not be displayed publicly.
+                  </p>
 
                 </td>
 

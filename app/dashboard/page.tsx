@@ -81,6 +81,7 @@ const getDefaultOwner = () => ({
   email: "",
   designation: "",
   qualification: "",
+  experience: "",
   memberId: "",
   photoUrl: "",
 });
@@ -2236,6 +2237,7 @@ const toggleStudentSport = (
                                 <select value={owner.bloodGroup || ""} onChange={(e) => updateEditOwner(index, "bloodGroup", e.target.value)} className="bg-black border border-zinc-700 rounded-2xl px-4 py-3"><option value="">Blood Group</option>{bloodGroupOptions.map((group) => <option key={group}>{group}</option>)}</select>
                                 <input value={owner.designation || ""} onChange={(e) => updateEditOwner(index, "designation", e.target.value)} placeholder="Designation" className="bg-black border border-zinc-700 rounded-2xl px-4 py-3" />
                                 <input value={owner.qualification || ""} onChange={(e) => updateEditOwner(index, "qualification", e.target.value)} placeholder="Qualification" className="bg-black border border-zinc-700 rounded-2xl px-4 py-3" />
+                                <input value={owner.experience || ""} onChange={(e) => updateEditOwner(index, "experience", e.target.value)} placeholder="Experience (for example 5 years)" className="bg-black border border-zinc-700 rounded-2xl px-4 py-3" />
                               </div>
                               <div className="bg-black border border-zinc-700 rounded-2xl p-4">
                                 <p className="font-bold">Sports Coached / Managed</p>
@@ -2258,7 +2260,10 @@ const toggleStudentSport = (
                                   )}
                                 </div>
                               </div>
-                              <input type="tel" maxLength={10} value={owner.mobile || ""} onChange={(e) => updateEditOwner(index, "mobile", e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="Mobile Number" className="bg-black border border-zinc-700 rounded-2xl px-4 py-3" />
+                              <div>
+                                <input type="tel" maxLength={10} value={owner.mobile || ""} onChange={(e) => updateEditOwner(index, "mobile", e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="Mobile Number" className="w-full bg-black border border-zinc-700 rounded-2xl px-4 py-3" />
+                                <p className="mt-2 text-xs text-zinc-400">This contact number is for internal records only and will not be displayed publicly.</p>
+                              </div>
                               <input value={owner.email || ""} onChange={(e) => updateEditOwner(index, "email", e.target.value)} placeholder="Email (optional for coach)" className="bg-black border border-zinc-700 rounded-2xl px-4 py-3" />
                               <label className="w-fit bg-white text-black rounded-xl px-4 py-2 font-bold cursor-pointer">Upload / Change Photo<input type="file" accept="image/*" onChange={(e) => handleEditOwnerPhotoUpload(index, e.target.files?.[0])} className="hidden" /></label>
                               {owner.photoUrl && <img src={owner.photoUrl} alt={owner.fullName || "Owner"} className="w-24 h-24 object-cover rounded-xl" />}
@@ -2933,6 +2938,18 @@ const toggleStudentSport = (
                           placeholder="Qualification"
                           className="bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4"
                         />
+                        <input
+                          value={owner.experience || ""}
+                          onChange={(e) =>
+                            updateOwner(
+                              index,
+                              "experience",
+                              e.target.value
+                            )
+                          }
+                          placeholder="Experience (for example 5 years)"
+                          className="bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4"
+                        />
                         <div className="bg-zinc-950 border border-zinc-700 rounded-2xl p-4">
                           <p className="font-bold">Sports Coached / Managed</p>
                           <div className="mt-3 grid sm:grid-cols-2 gap-2">
@@ -2956,22 +2973,27 @@ const toggleStudentSport = (
                             )}
                           </div>
                         </div>
-                        <input
-                          type="tel"
-                          maxLength={10}
-                          value={owner.mobile}
-                          onChange={(e) =>
-                            updateOwner(
-                              index,
-                              "mobile",
-                              e.target.value
-                                .replace(/\D/g, "")
-                                .slice(0, 10)
-                            )
-                          }
-                          placeholder="Mobile"
-                          className="bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4"
-                        />
+                        <div>
+                          <input
+                            type="tel"
+                            maxLength={10}
+                            value={owner.mobile}
+                            onChange={(e) =>
+                              updateOwner(
+                                index,
+                                "mobile",
+                                e.target.value
+                                  .replace(/\D/g, "")
+                                  .slice(0, 10)
+                              )
+                            }
+                            placeholder="Mobile"
+                            className="w-full bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4"
+                          />
+                          <p className="mt-2 text-xs text-zinc-400">
+                            This contact number is for internal records only and will not be displayed publicly.
+                          </p>
+                        </div>
                         <input
                           value={owner.email}
                           onChange={(e) =>

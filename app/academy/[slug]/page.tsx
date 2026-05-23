@@ -395,6 +395,11 @@ export default function PublicAcademyPage() {
                               Qualification: {owner.qualification}
                             </p>
                           )}
+                          {owner.experience && (
+                            <p className="mt-2 text-zinc-400">
+                              Experience: {owner.experience}
+                            </p>
+                          )}
                           <p className="mt-2 text-zinc-400">
                             Blood Group: {owner.bloodGroup || "Not added"}
                           </p>
