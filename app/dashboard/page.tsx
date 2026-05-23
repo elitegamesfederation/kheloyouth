@@ -280,6 +280,7 @@ export default function DashboardPage() {
   });
   const [owners, setOwners] = useState<any[]>([getDefaultOwner()]);
   const [students, setStudents] = useState<any[]>([getDefaultStudent()]);
+  const [adminCreateErrors, setAdminCreateErrors] = useState<string[]>([]);
   const [newOwnerIndex, setNewOwnerIndex] = useState<number | null>(null);
   const [newStudentIndex, setNewStudentIndex] = useState<number | null>(null);
   const [newEditOwnerIndex, setNewEditOwnerIndex] = useState<number | null>(null);
@@ -1421,6 +1422,18 @@ const toggleStudentSport = (
     const adminEliteCount = students.filter(
       (student) => student.isEliteAthlete
     ).length;
+    const firstOwnerWithData =
+      owners.find((owner) =>
+        Object.values(owner || {}).some((value) =>
+          Array.isArray(value) ? value.length > 0 : Boolean(value)
+        )
+      ) || owners[0] || getDefaultOwner();
+    const firstStudentWithData =
+      students.find((student) =>
+        Object.values(student || {}).some((value) =>
+          Array.isArray(value) ? value.length > 0 : Boolean(value)
+        )
+      ) || students[0] || getDefaultStudent();
     const hasCompleteOwner = owners.some(
       (owner) =>
         owner.fullName &&
@@ -1444,27 +1457,65 @@ const toggleStudentSport = (
         student.photoUrl
     );
 
-    if (
-      !academyName ||
-      !academyDescription ||
-      !establishmentYear ||
-      !stateName ||
-      !district ||
-      pincode.length !== 6 ||
-      contactNumber.length !== 10 ||
-      !officialEmail ||
-      !fullAddress ||
-      !city ||
-      !whereDidYouHear ||
-      !academyLogoUrl ||
-      academyImageUrls.length < 3 ||
-      !sportsConducted.length ||
-      !hasCompleteOwner ||
-      !hasCompleteStudent
-    ) {
-      alert(
-        "Please fill all compulsory fields before saving: academy profile, logo, minimum 3 photos, sports, one complete owner/coach, and one complete student."
-      );
+    const missingFields = [
+      !academyName && "Academy name",
+      !academyDescription && "Academy description",
+      !establishmentYear && "Year of establishment",
+      !stateName && "State",
+      !district && "District",
+      pincode.length !== 6 && "Pincode must be 6 digits",
+      contactNumber.length !== 10 && "Academy contact number must be 10 digits",
+      !officialEmail && "Official email",
+      !fullAddress && "Full address",
+      !city && "City",
+      !whereDidYouHear && "Where did you come to know about us",
+      !academyLogoUrl && "Academy logo",
+      academyImageUrls.length < 3 && "Minimum 3 academy photos",
+      !sportsConducted.length && "At least one sport conducted",
+      !declarationAccepted && "Declaration checkbox",
+      !hasCompleteOwner &&
+        [
+          "Complete owner/coach details:",
+          !firstOwnerWithData.fullName && "full name",
+          !firstOwnerWithData.role && "role",
+          !firstOwnerWithData.sex && "sex",
+          !firstOwnerWithData.bloodGroup && "blood group",
+          !getOwnerSports(firstOwnerWithData).length && "sports coached/managed",
+          !firstOwnerWithData.designation && "designation",
+          !firstOwnerWithData.qualification && "qualification",
+          String(firstOwnerWithData.mobile || "").length !== 10 &&
+            "mobile number must be 10 digits",
+          !firstOwnerWithData.photoUrl && "photo",
+        ]
+          .filter(Boolean)
+          .join(" "),
+      !hasCompleteStudent &&
+        [
+          "Complete student details:",
+          !firstStudentWithData.name && "student name",
+          !firstStudentWithData.age && "age",
+          !firstStudentWithData.sex && "sex",
+          !firstStudentWithData.bloodGroup && "blood group",
+          !getStudentSports(firstStudentWithData).length && "sports learned",
+          !firstStudentWithData.school && "school",
+          !firstStudentWithData.photoUrl && "photo",
+        ]
+          .filter(Boolean)
+          .join(" "),
+    ].filter(Boolean) as string[];
+
+    if (missingFields.length) {
+      setAdminCreateErrors(missingFields);
+
+      if (!hasCompleteOwner) {
+        setNewOwnerIndex(0);
+        focusNewCard("admin-owner-0", () => setNewOwnerIndex(null));
+      } else if (!hasCompleteStudent) {
+        setNewStudentIndex(0);
+        focusNewCard("admin-student-0", () => setNewStudentIndex(null));
+      }
+
+      alert(`Please complete:\n- ${missingFields.join("\n- ")}`);
       return;
     }
 
@@ -1475,6 +1526,7 @@ const toggleStudentSport = (
 
     try {
       setSaving(true);
+      setAdminCreateErrors([]);
 
       const today = new Date();
       const affiliationEndDate = new Date(today);
@@ -3221,6 +3273,20 @@ const toggleStudentSport = (
                   knowledge.
                 </span>
               </label>
+
+              {adminCreateErrors.length > 0 && (
+                <div className="mt-6 rounded-2xl border border-red-500 bg-red-500/10 p-5 text-white">
+                  <h3 className="text-xl font-black text-red-300">
+                    Complete These Required Fields
+                  </h3>
+
+                  <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-red-100">
+                    {adminCreateErrors.map((error) => (
+                      <li key={error}>{error}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
               <button
                 type="button"
