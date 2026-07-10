@@ -2537,18 +2537,58 @@ const completeAffiliationWithCoupon = async () => {
     const payload = await buildAcademyPayload();
     const affiliationNumber = getAffiliationNumber();
 
+    const orderResponse = await fetch("/api/razorpay/create-order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        academyId: currentUser.uid,
+        selectedYears,
+      }),
+    });
+
+    const orderData = await orderResponse.json();
+
+    if (!orderResponse.ok) {
+      alert(orderData.error || "Could not start payment. Please try again.");
+      return;
+    }
+
     const options = {
-      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY,
+      key: orderData.keyId,
 
-      amount: payableAmount * 100,
+      amount: orderData.amount,
 
-      currency: "INR",
+      currency: orderData.currency,
+
+      order_id: orderData.orderId,
 
       name: "Elite Games Federation",
 
       description: "Academy Network Membership",
 
       handler: async function (response: any) {
+
+        const verifyResponse = await fetch(
+          "/api/razorpay/verify-payment",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            }),
+          }
+        );
+
+        const verifyData = await verifyResponse.json();
+
+        if (!verifyResponse.ok || !verifyData.verified) {
+          alert(
+            `Payment could not be verified. Please contact support with payment ID: ${response.razorpay_payment_id}`
+          );
+          return;
+        }
 
         await updateDoc(
           doc(db, "academies", currentUser.uid),
@@ -2558,6 +2598,7 @@ const completeAffiliationWithCoupon = async () => {
 
             razorpayPaymentId:
               response.razorpay_payment_id,
+            razorpayOrderId: response.razorpay_order_id,
 
             affiliationStartDate:
               userData?.paymentDone
