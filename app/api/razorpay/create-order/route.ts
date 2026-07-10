@@ -3,14 +3,9 @@ import Razorpay from "razorpay";
 import { doc, getDoc } from "firebase/firestore";
 
 import { db } from "@/app/lib/firebase";
+import { affiliationFees } from "@/app/lib/academyPricing";
 
 export const runtime = "nodejs";
-
-const affiliationFees: Record<number, number> = {
-  1: 999,
-  2: 1799,
-  3: 2499,
-};
 
 export async function POST(request: NextRequest) {
   try {

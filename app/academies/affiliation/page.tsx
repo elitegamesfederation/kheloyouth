@@ -2452,38 +2452,29 @@ const completeAffiliationWithCoupon = async () => {
   try {
     setLoading(true);
 
-    const today = new Date();
-    const endDate = new Date();
-
-    endDate.setFullYear(
-      today.getFullYear() + selectedYears
-    );
-
     const payload = await buildAcademyPayload();
-    const affiliationNumber = getAffiliationNumber();
 
     await updateDoc(
       doc(db, "academies", currentUser.uid),
-      {
-        ...payload,
-        paymentDone: true,
-        paymentMode: "coupon",
-        couponCode: appliedCoupon,
-        couponDiscountAmount: totalAmount,
-        payableAmount: 0,
-        amountPaid: 0,
-        affiliationNumber,
-        certificateVerificationId: getCertificateVerificationId(),
-        affiliationStartDate: userData?.paymentDone
-          ? userData?.affiliationStartDate
-          : today.toDateString(),
-        affiliationEndDate: userData?.paymentDone
-          ? userData?.affiliationEndDate
-          : endDate.toDateString(),
-        paidStudentsCount: students.length,
-        totalAmount,
-      }
+      payload
     );
+
+    const completeResponse = await fetch("/api/coupon/complete", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        academyId: currentUser.uid,
+        couponCode: appliedCoupon,
+        selectedYears,
+      }),
+    });
+
+    const completeData = await completeResponse.json();
+
+    if (!completeResponse.ok || !completeData.completed) {
+      alert(completeData.error || "Could not apply coupon. Please try again.");
+      return;
+    }
 
     alert("Coupon applied. Affiliation activated.");
 
@@ -2526,16 +2517,12 @@ const completeAffiliationWithCoupon = async () => {
     return;
   }
 
-    const today = new Date();
-
-    const endDate = new Date();
-
-    endDate.setFullYear(
-      today.getFullYear() + selectedYears
-    );
-
     const payload = await buildAcademyPayload();
-    const affiliationNumber = getAffiliationNumber();
+
+    await updateDoc(
+      doc(db, "academies", currentUser.uid),
+      payload
+    );
 
     const orderResponse = await fetch("/api/razorpay/create-order", {
       method: "POST",
@@ -2577,6 +2564,8 @@ const completeAffiliationWithCoupon = async () => {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
+              academyId: currentUser.uid,
+              selectedYears,
             }),
           }
         );
@@ -2589,40 +2578,6 @@ const completeAffiliationWithCoupon = async () => {
           );
           return;
         }
-
-        await updateDoc(
-          doc(db, "academies", currentUser.uid),
-          {
-            ...payload,
-            paymentDone: true,
-
-            razorpayPaymentId:
-              response.razorpay_payment_id,
-            razorpayOrderId: response.razorpay_order_id,
-
-            affiliationStartDate:
-              userData?.paymentDone
-                ? userData?.affiliationStartDate
-                : today.toDateString(),
-
-            affiliationEndDate:
-              userData?.paymentDone
-                ? userData?.affiliationEndDate
-                : endDate.toDateString(),
-
-            affiliationNumber,
-            certificateVerificationId: getCertificateVerificationId(),
-            paidStudentsCount: students.length,
-
-            paymentMode: "razorpay",
-            couponCode: appliedCoupon,
-            couponDiscountAmount,
-            payableAmount,
-            amountPaid: payableAmount,
-
-            totalAmount,
-          }
-        );
 
         alert("Payment Successful");
 

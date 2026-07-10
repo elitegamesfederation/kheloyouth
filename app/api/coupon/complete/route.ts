@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { validatePaymentVerification } from "razorpay/dist/utils/razorpay-utils";
 
 import { adminDb } from "@/app/lib/firebase-admin";
 import {
@@ -10,45 +9,48 @@ import {
 
 export const runtime = "nodejs";
 
+const academyCouponCodes = [
+  "ELITE100-01",
+  "ELITE100-02",
+  "ELITE100-03",
+  "ELITE100-04",
+  "ELITE100-05",
+];
+
 export async function POST(request: NextRequest) {
   try {
-    const {
-      razorpay_order_id,
-      razorpay_payment_id,
-      razorpay_signature,
-      academyId,
-      selectedYears,
-    } = await request.json();
+    const { academyId, couponCode, selectedYears } = await request.json();
 
-    if (
-      !razorpay_order_id ||
-      !razorpay_payment_id ||
-      !razorpay_signature ||
-      !academyId
-    ) {
+    if (!academyId || !couponCode) {
       return NextResponse.json(
-        { verified: false, error: "Missing payment details" },
+        { completed: false, error: "Missing details" },
         { status: 400 }
       );
     }
 
-    const keySecret = process.env.RAZORPAY_KEY_SECRET;
+    const normalizedCoupon = String(couponCode).trim().toUpperCase();
 
-    if (!keySecret) {
+    if (!academyCouponCodes.includes(normalizedCoupon)) {
       return NextResponse.json(
-        { verified: false, error: "Razorpay is not configured" },
-        { status: 500 }
+        { completed: false, error: "Invalid coupon code" },
+        { status: 400 }
       );
     }
 
-    const verified = validatePaymentVerification(
-      { order_id: razorpay_order_id, payment_id: razorpay_payment_id },
-      razorpay_signature,
-      keySecret
+    const existingSnap = await adminDb
+      .collection("academies")
+      .where("couponCode", "==", normalizedCoupon)
+      .get();
+
+    const usedByAnotherAcademy = existingSnap.docs.some(
+      (doc) => doc.id !== academyId && doc.data().paymentDone
     );
 
-    if (!verified) {
-      return NextResponse.json({ verified: false });
+    if (usedByAnotherAcademy) {
+      return NextResponse.json(
+        { completed: false, error: "This coupon code has already been used" },
+        { status: 400 }
+      );
     }
 
     const academyRef = adminDb.collection("academies").doc(academyId);
@@ -56,7 +58,7 @@ export async function POST(request: NextRequest) {
 
     if (!snap.exists) {
       return NextResponse.json(
-        { verified: false, error: "Academy not found" },
+        { completed: false, error: "Academy not found" },
         { status: 404 }
       );
     }
@@ -84,30 +86,28 @@ export async function POST(request: NextRequest) {
 
     await academyRef.update({
       paymentDone: true,
-      paymentMode: "razorpay",
-      razorpayPaymentId: razorpay_payment_id,
-      razorpayOrderId: razorpay_order_id,
+      paymentMode: "coupon",
+      couponCode: normalizedCoupon,
+      couponDiscountAmount: fee,
+      payableAmount: 0,
+      amountPaid: 0,
+      affiliationNumber,
+      certificateVerificationId,
       affiliationStartDate: data.paymentDone
         ? data.affiliationStartDate
         : today.toDateString(),
       affiliationEndDate: data.paymentDone
         ? data.affiliationEndDate
         : endDate.toDateString(),
-      affiliationNumber,
-      certificateVerificationId,
       paidStudentsCount: studentsCount,
-      couponCode: "",
-      couponDiscountAmount: 0,
-      payableAmount: 0,
-      amountPaid: fee,
       totalAmount: fee,
     });
 
-    return NextResponse.json({ verified: true });
+    return NextResponse.json({ completed: true });
   } catch (error: any) {
-    console.error("verify-payment failed", error);
+    console.error("coupon complete failed", error);
     return NextResponse.json(
-      { verified: false, error: error?.message || "Could not verify payment" },
+      { completed: false, error: error?.message || "Could not complete" },
       { status: 500 }
     );
   }
