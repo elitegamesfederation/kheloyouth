@@ -24,7 +24,13 @@ import {
   updateDoc,
 } from "firebase/firestore";
 
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  sendPasswordResetEmail,
+  signInWithEmailAndPassword,
+  signOut,
+} from "firebase/auth";
 import {
   getDownloadURL,
   ref,
@@ -99,7 +105,7 @@ const getDefaultStudent = () => ({
 });
 
 const adminLoginId = "jameelspeaks";
-const defaultAdminPassword = "Jameel@4121#";
+const ADMIN_EMAIL = "jameelhawati@gmail.com";
 const academyDefaultPassword = "Elite123";
 
 const bloodGroupOptions = [
@@ -205,12 +211,6 @@ export default function DashboardPage() {
   const [adminPasswordInput, setAdminPasswordInput] = useState("");
   const [showAdminPassword, setShowAdminPassword] = useState(false);
   const [showAdminReset, setShowAdminReset] = useState(false);
-  const [resetCurrentPassword, setResetCurrentPassword] = useState("");
-  const [resetNewPassword, setResetNewPassword] = useState("");
-  const [showResetCurrentPassword, setShowResetCurrentPassword] =
-    useState(false);
-  const [showResetNewPassword, setShowResetNewPassword] =
-    useState(false);
 
   const [academyName, setAcademyName] = useState("");
   const [academyDescription, setAcademyDescription] =
@@ -380,17 +380,18 @@ export default function DashboardPage() {
     }
   };
 
-  const getSavedAdminPassword = () =>
-    window.localStorage.getItem("eliteAdminPassword") ||
-    defaultAdminPassword;
-
   useEffect(() => {
-    if (window.localStorage.getItem("eliteAdminUnlocked") === "true") {
-      setAdminUnlocked(true);
-      return;
-    }
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user && user.email === ADMIN_EMAIL) {
+        setAdminUnlocked(true);
+        return;
+      }
 
-    setLoading(false);
+      setAdminUnlocked(false);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
   }, []);
 
   useEffect(() => {
@@ -550,42 +551,36 @@ export default function DashboardPage() {
     focusNewCard(`edit-student-${newIndex}`, () => setNewEditStudentIndex(null));
   };
 
-  const handleAdminLogin = () => {
-    if (
-      adminIdInput.trim() === adminLoginId &&
-      adminPasswordInput === getSavedAdminPassword()
-    ) {
-      window.localStorage.setItem("eliteAdminUnlocked", "true");
-      setAdminUnlocked(true);
-      setAdminPasswordInput("");
+  const handleAdminLogin = async () => {
+    if (adminIdInput.trim() !== adminLoginId) {
+      alert("Invalid admin login details.");
       return;
     }
 
-    alert("Invalid admin login details.");
+    try {
+      setLoading(true);
+      await signInWithEmailAndPassword(auth, ADMIN_EMAIL, adminPasswordInput);
+      setAdminPasswordInput("");
+    } catch (error: any) {
+      setLoading(false);
+      alert(error.message || "Invalid admin login details.");
+    }
   };
 
-  const handleAdminLogout = () => {
-    window.localStorage.removeItem("eliteAdminUnlocked");
+  const handleAdminLogout = async () => {
+    await signOut(auth);
     setAdminUnlocked(false);
     setAcademies([]);
   };
 
-  const handleAdminPasswordReset = () => {
-    if (resetCurrentPassword !== getSavedAdminPassword()) {
-      alert("Current admin password is incorrect.");
-      return;
+  const handleAdminPasswordReset = async () => {
+    try {
+      await sendPasswordResetEmail(auth, ADMIN_EMAIL);
+      setShowAdminReset(false);
+      alert(`Password reset link sent to ${ADMIN_EMAIL}.`);
+    } catch (error: any) {
+      alert(error.message || "Could not send reset email.");
     }
-
-    if (resetNewPassword.length < 8) {
-      alert("New password must be at least 8 characters.");
-      return;
-    }
-
-    window.localStorage.setItem("eliteAdminPassword", resetNewPassword);
-    setResetCurrentPassword("");
-    setResetNewPassword("");
-    setShowAdminReset(false);
-    alert("Admin password updated for this browser.");
   };
 
   const getFilePreviewUrl = (file: File) => URL.createObjectURL(file);
@@ -1759,58 +1754,16 @@ const toggleStudentSport = (
 
             {showAdminReset && (
               <div className="mt-8 border-t border-white/10 pt-8 space-y-5">
-                <div className="relative">
-                  <input
-                    type={
-                      showResetCurrentPassword ? "text" : "password"
-                    }
-                    value={resetCurrentPassword}
-                    onChange={(e) =>
-                      setResetCurrentPassword(e.target.value)
-                    }
-                    placeholder="Current Password"
-                    className="w-full bg-black border border-zinc-700 rounded-2xl px-5 py-4 pr-24"
-                  />
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setShowResetCurrentPassword(
-                        !showResetCurrentPassword
-                      )
-                    }
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-orange-500"
-                  >
-                    {showResetCurrentPassword ? "Hide" : "Show"}
-                  </button>
-                </div>
-
-                <div className="relative">
-                  <input
-                    type={showResetNewPassword ? "text" : "password"}
-                    value={resetNewPassword}
-                    onChange={(e) =>
-                      setResetNewPassword(e.target.value)
-                    }
-                    placeholder="New Password"
-                    className="w-full bg-black border border-zinc-700 rounded-2xl px-5 py-4 pr-24"
-                  />
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setShowResetNewPassword(!showResetNewPassword)
-                    }
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-orange-500"
-                  >
-                    {showResetNewPassword ? "Hide" : "Show"}
-                  </button>
-                </div>
+                <p className="text-zinc-400 text-sm">
+                  Sends a password reset link to {ADMIN_EMAIL}.
+                </p>
 
                 <button
                   type="button"
                   onClick={handleAdminPasswordReset}
                   className="w-full bg-white text-black rounded-2xl py-4 font-black"
                 >
-                  Save New Admin Password
+                  Send Password Reset Email
                 </button>
               </div>
             )}
