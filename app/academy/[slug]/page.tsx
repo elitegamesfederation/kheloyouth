@@ -1,29 +1,15 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { cache } from "react";
+import type { Metadata } from "next";
+import Image from "next/image";
+import Link from "next/link";
 
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 
-import { db } from "@/app/lib/firebase";
+import { adminDb } from "@/app/lib/firebase-admin";
+import { slugify } from "@/app/lib/slug";
 
-import {
-  collection,
-  getDocs,
-  query,
-  where,
-} from "firebase/firestore";
-
-const fallbackImage =
-  "https://images.unsplash.com/photo-1517649763962-0c623066013b?q=80&w=1200&auto=format&fit=crop";
-
-const slugify = (value: string) =>
-  value
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
+const fallbackImage = "/elite-logo.png";
 
 const getStudentSports = (student: any) =>
   Array.isArray(student?.sports)
@@ -67,41 +53,77 @@ const getExternalUrl = (value: string) => {
   return /^https?:\/\//i.test(url) ? url : `https://${url}`;
 };
 
-export default function PublicAcademyPage() {
-  const params = useParams();
-  const slug = String(params.slug || "");
-  const [academy, setAcademy] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+const getAcademyBySlug = cache(async (slug: string) => {
+  const bySlugSnap = await adminDb
+    .collection("academies")
+    .where("academySlug", "==", slug)
+    .where("paymentDone", "==", true)
+    .limit(1)
+    .get();
 
-  useEffect(() => {
-    const loadAcademy = async () => {
-      const academyQuery = query(
-        collection(db, "academies"),
-        where("paymentDone", "==", true)
-      );
+  if (!bySlugSnap.empty) {
+    const matchingDoc = bySlugSnap.docs[0];
+    return { id: matchingDoc.id, ...matchingDoc.data() } as any;
+  }
 
-      const snap = await getDocs(academyQuery);
-      const matchingDoc = snap.docs.find((academyDoc) => {
-        const data = academyDoc.data();
+  // Fallback for older academies saved before academySlug existed.
+  const paidAcademiesSnap = await adminDb
+    .collection("academies")
+    .where("paymentDone", "==", true)
+    .get();
 
-        return (
-          data.academySlug === slug ||
-          slugify(data.academyName || "") === slug
-        );
-      });
+  const matchingDoc = paidAcademiesSnap.docs.find(
+    (academyDoc) => slugify(academyDoc.data().academyName || "") === slug
+  );
 
-      if (matchingDoc) {
-        setAcademy({
-          id: matchingDoc.id,
-          ...matchingDoc.data(),
-        });
-      }
+  return matchingDoc ? ({ id: matchingDoc.id, ...matchingDoc.data() } as any) : null;
+});
 
-      setLoading(false);
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const academy = await getAcademyBySlug(slug);
+
+  if (!academy) {
+    return {
+      title: "Academy Not Found",
     };
+  }
 
-    loadAcademy();
-  }, [slug]);
+  const description =
+    academy.academyDescription ||
+    "Officially affiliated with Elite Games Federation inside India's growing grassroots sports network.";
+  const image =
+    academy.featuredAcademyImageUrl ||
+    (Array.isArray(academy.academyImageUrls) && academy.academyImageUrls[0]) ||
+    fallbackImage;
+
+  return {
+    title: academy.academyName,
+    description,
+    alternates: {
+      canonical: `/academy/${slug}`,
+    },
+    openGraph: {
+      title: academy.academyName,
+      description,
+      url: `https://www.kheloyouth.com/academy/${slug}`,
+      siteName: "KheloYouth",
+      images: [{ url: image, width: 1200, height: 630, alt: academy.academyName }],
+    },
+  };
+}
+
+export default async function PublicAcademyPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const academy = await getAcademyBySlug(slug);
 
   const academyStudents = Array.isArray(academy?.students)
     ? academy.students
@@ -186,13 +208,17 @@ export default function PublicAcademyPage() {
       className="bg-zinc-950 border border-white/10 rounded-2xl p-5 flex gap-5"
     >
       {student.photoUrl ? (
-        <img
-          src={student.photoUrl}
-          alt={student.name || `Student ${index + 1}`}
-          className="w-20 h-24 rounded-xl object-cover"
-        />
+        <div className="relative w-20 h-24 shrink-0 rounded-xl overflow-hidden">
+          <Image
+            src={student.photoUrl}
+            alt={student.name || `Student ${index + 1}`}
+            fill
+            className="object-cover"
+            sizes="80px"
+          />
+        </div>
       ) : (
-        <div className="w-20 h-24 rounded-xl bg-black border border-white/10 flex items-center justify-center text-2xl font-black text-orange-500">
+        <div className="w-20 h-24 shrink-0 rounded-xl bg-black border border-white/10 flex items-center justify-center text-2xl font-black text-orange-500">
           {(student.name || "S").charAt(0)}
         </div>
       )}
@@ -238,9 +264,7 @@ export default function PublicAcademyPage() {
       <Navbar />
 
       <section className="pt-44 pb-24 max-w-7xl mx-auto px-6">
-        {loading && <p className="text-zinc-400">Loading academy...</p>}
-
-        {!loading && !academy && (
+        {!academy && (
           <div className="bg-zinc-900 border border-white/10 rounded-[35px] p-10">
             <h1 className="text-5xl font-black">Academy Not Found</h1>
             <p className="mt-4 text-zinc-400">
@@ -252,19 +276,26 @@ export default function PublicAcademyPage() {
         {academy && (
           <div className="bg-zinc-900 border border-orange-500/40 rounded-[35px] overflow-hidden">
             <div className="relative min-h-[480px] p-8 md:p-14 flex items-end">
-              <img
+              <Image
                 src={coverImage}
                 alt={`${academy.academyName} banner`}
-                className="absolute inset-0 w-full h-full object-cover opacity-45"
+                fill
+                priority
+                className="object-cover opacity-45"
+                sizes="100vw"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/20" />
               <div className="relative z-10 flex flex-col md:flex-row md:items-end gap-8">
                 {logoImage ? (
-                  <img
-                    src={logoImage}
-                    alt={`${academy.academyName} logo`}
-                    className="w-36 h-36 rounded-3xl object-contain bg-black border border-white/10 p-4"
-                  />
+                  <div className="relative w-36 h-36 shrink-0 rounded-3xl overflow-hidden bg-black border border-white/10 p-4">
+                    <Image
+                      src={logoImage}
+                      alt={`${academy.academyName} logo`}
+                      fill
+                      className="object-contain"
+                      sizes="144px"
+                    />
+                  </div>
                 ) : (
                   <div className="w-36 h-36 rounded-3xl bg-black border border-white/10 flex items-center justify-center text-6xl font-black text-orange-500">
                     {(academy.academyName || "A").charAt(0)}
@@ -368,13 +399,17 @@ export default function PublicAcademyPage() {
                         className="flex gap-5 bg-zinc-950 border border-white/10 rounded-2xl p-5"
                       >
                         {owner.photoUrl ? (
-                          <img
-                            src={owner.photoUrl}
-                            alt={owner.fullName || "Owner"}
-                            className="w-20 h-24 rounded-xl object-cover"
-                          />
+                          <div className="relative w-20 h-24 shrink-0 rounded-xl overflow-hidden">
+                            <Image
+                              src={owner.photoUrl}
+                              alt={owner.fullName || "Owner"}
+                              fill
+                              className="object-cover"
+                              sizes="80px"
+                            />
+                          </div>
                         ) : (
-                          <div className="w-20 h-24 rounded-xl bg-black border border-white/10 flex items-center justify-center text-2xl font-black text-orange-500">
+                          <div className="w-20 h-24 shrink-0 rounded-xl bg-black border border-white/10 flex items-center justify-center text-2xl font-black text-orange-500">
                             {(owner.fullName || "O").charAt(0)}
                           </div>
                         )}
@@ -486,12 +521,18 @@ export default function PublicAcademyPage() {
                   <h2 className="text-4xl font-black">Academy Photos</h2>
                   <div className="mt-6 grid md:grid-cols-3 gap-5">
                     {academyGallery.map((imageUrl: string, index: number) => (
-                      <img
+                      <div
                         key={`${imageUrl}-${index}`}
-                        src={imageUrl}
-                        alt={`${academy.academyName} photo ${index + 1}`}
-                        className="w-full h-60 object-cover rounded-2xl border border-white/10"
-                      />
+                        className="relative h-60 w-full rounded-2xl overflow-hidden border border-white/10"
+                      >
+                        <Image
+                          src={imageUrl}
+                          alt={`${academy.academyName} photo ${index + 1}`}
+                          fill
+                          className="object-cover"
+                          sizes="(min-width: 768px) 33vw, 100vw"
+                        />
+                      </div>
                     ))}
                   </div>
                 </section>
@@ -516,12 +557,12 @@ export default function PublicAcademyPage() {
               </p>
             </div>
 
-            <a
-              href="https://www.kheloyouth.com/academies/affiliation"
+            <Link
+              href="/academies/affiliation"
               className="shrink-0 bg-black text-white hover:bg-zinc-900 transition px-8 py-5 rounded-2xl text-lg font-black text-center"
             >
               Get Affiliated
-            </a>
+            </Link>
           </section>
         )}
       </section>

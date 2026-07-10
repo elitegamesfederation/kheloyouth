@@ -10,6 +10,7 @@ import {
   getDistrictsForState,
   states as indiaStates,
 } from "@/app/lib/indiaLocations";
+import { slugify } from "@/app/lib/slug";
 
 import {
   collection,
@@ -62,13 +63,6 @@ const stateCodes: any = {
   Odisha: "OD",
   Assam: "AS",
 };
-
-const slugify = (value: string) =>
-  value
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
 
 const getStateCode = (value: string) =>
   stateCodes[value] ||

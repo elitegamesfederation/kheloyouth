@@ -11,6 +11,7 @@ import {
   getDistrictsForState,
   states as indiaStates,
 } from "@/app/lib/indiaLocations";
+import { slugify } from "@/app/lib/slug";
 
 import {
   createUserWithEmailAndPassword,
@@ -754,11 +755,7 @@ const prepareStudentsForSave = async (items: any[]) => {
   );
 };
 
-const academySlug = academyName
-  .trim()
-  .toLowerCase()
-  .replace(/[^a-z0-9]+/g, "-")
-  .replace(/^-+|-+$/g, "");
+const academySlug = slugify(academyName);
 
 const academyPayload = {
   academyName,

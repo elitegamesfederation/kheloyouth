@@ -1,28 +1,24 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
 
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 
 import { db } from "@/app/lib/firebase";
+import { slugify } from "@/app/lib/slug";
 
 import {
   collection,
   getDocs,
+  limit,
   query,
   where,
 } from "firebase/firestore";
 
-const fallbackImage =
-  "https://images.unsplash.com/photo-1517649763962-0c623066013b?q=80&w=1200&auto=format&fit=crop";
-
-const slugify = (value: string) =>
-  value
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
+const fallbackImage = "/elite-logo.png";
 
 export default function AcademiesListPage() {
   const [academies, setAcademies] = useState<any[]>([]);
@@ -35,7 +31,8 @@ export default function AcademiesListPage() {
     const loadAcademies = async () => {
       const academiesQuery = query(
         collection(db, "academies"),
-        where("paymentDone", "==", true)
+        where("paymentDone", "==", true),
+        limit(200)
       );
 
       const snap = await getDocs(academiesQuery);
@@ -208,21 +205,25 @@ export default function AcademiesListPage() {
               : [];
 
             return (
-              <a
+              <Link
                 key={academy.id}
                 href={`/academy/${slug}`}
                 className="bg-zinc-900 border border-white/10 rounded-[35px] overflow-hidden hover:border-orange-500 transition block"
               >
-                <img
-                  src={
-                    academy.academyLogoUrl ||
-                    academy.logoURL ||
-                    academyGallery[0] ||
-                    fallbackImage
-                  }
-                  alt={academy.academyName || "Academy"}
-                  className="w-full aspect-square object-contain bg-black p-6"
-                />
+                <div className="relative w-full aspect-square bg-black p-6">
+                  <Image
+                    src={
+                      academy.academyLogoUrl ||
+                      academy.logoURL ||
+                      academyGallery[0] ||
+                      fallbackImage
+                    }
+                    alt={academy.academyName || "Academy"}
+                    fill
+                    className="object-contain p-6"
+                    sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                  />
+                </div>
 
                 <div className="p-8">
                   <h2 className="text-3xl font-black">
@@ -243,7 +244,7 @@ export default function AcademiesListPage() {
                     </span>
                   </div>
                 </div>
-              </a>
+              </Link>
             );
           })}
         </div>
@@ -253,12 +254,12 @@ export default function AcademiesListPage() {
             <p className="text-zinc-400">
               Academy data is being uploaded. Please check back soon.
             </p>
-            <a
+            <Link
               href="/academy/sample-academy"
               className="mt-6 inline-flex bg-orange-500 text-black px-6 py-3 rounded-2xl font-black"
             >
               View Sample Academy
-            </a>
+            </Link>
           </div>
         )}
       </section>

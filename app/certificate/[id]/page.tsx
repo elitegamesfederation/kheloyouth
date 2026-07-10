@@ -1,16 +1,8 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import type { Metadata } from "next";
 
 import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
-import { db } from "@/app/lib/firebase";
-
-import {
-  collection,
-  getDocs,
-} from "firebase/firestore";
+import { adminDb } from "@/app/lib/firebase-admin";
 
 const normalizeCertificateId = (value = "") =>
   value
@@ -18,38 +10,63 @@ const normalizeCertificateId = (value = "") =>
     .replace(/^-+|-+$/g, "")
     .toUpperCase();
 
-export default function CertificateVerificationPage() {
-  const params = useParams<{ id: string }>();
-  const [academy, setAcademy] = useState<any>(null);
-  const [certificateId, setCertificateId] = useState("");
-  const [loading, setLoading] = useState(true);
+async function findCertificate(rawId: string) {
+  const normalizedId = normalizeCertificateId(decodeURIComponent(rawId));
 
-  useEffect(() => {
-    const loadCertificate = async () => {
-      const decodedId = decodeURIComponent(params.id);
-      const normalizedId = normalizeCertificateId(decodedId);
-      setCertificateId(normalizedId);
+  const byCertificateIdSnap = await adminDb
+    .collection("academies")
+    .where("certificateVerificationId", "==", normalizedId)
+    .where("paymentDone", "==", true)
+    .get();
 
-      const snap = await getDocs(collection(db, "academies"));
-      const foundAcademy = snap.docs
-        .map((academyDoc) => ({
-          id: academyDoc.id,
-          ...academyDoc.data(),
-        }))
-        .find((item: any) => {
-          const storedId = normalizeCertificateId(
-            item.certificateVerificationId || item.affiliationNumber
-          );
+  if (!byCertificateIdSnap.empty) {
+    const doc = byCertificateIdSnap.docs[0];
+    return { academy: { id: doc.id, ...doc.data() } as any, normalizedId };
+  }
 
-          return storedId === normalizedId && item.paymentDone;
-        });
+  // Fallback for older academies whose certificate ID was derived from
+  // affiliationNumber and never re-saved with certificateVerificationId.
+  const paidAcademiesSnap = await adminDb
+    .collection("academies")
+    .where("paymentDone", "==", true)
+    .get();
 
-      setAcademy(foundAcademy || null);
-      setLoading(false);
-    };
+  const matchingDoc = paidAcademiesSnap.docs.find(
+    (academyDoc) =>
+      normalizeCertificateId(academyDoc.data().affiliationNumber || "") ===
+      normalizedId
+  );
 
-    loadCertificate();
-  }, [params.id]);
+  return {
+    academy: matchingDoc
+      ? ({ id: matchingDoc.id, ...matchingDoc.data() } as any)
+      : null,
+    normalizedId,
+  };
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const { academy } = await findCertificate(id);
+
+  return {
+    title: academy
+      ? `${academy.academyName} Certificate Verification`
+      : "Certificate Verification",
+  };
+}
+
+export default async function CertificateVerificationPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const { academy, normalizedId } = await findCertificate(id);
 
   return (
     <main className="min-h-screen bg-black text-white">
@@ -64,9 +81,7 @@ export default function CertificateVerificationPage() {
         </h1>
 
         <div className="mt-10 bg-zinc-900 border border-white/10 rounded-[35px] p-8 md:p-10">
-          {loading ? (
-            <p className="text-zinc-300">Checking certificate record...</p>
-          ) : academy ? (
+          {academy ? (
             <>
               <span className="bg-green-500 text-black px-4 py-2 rounded-full font-black">
                 Authentic Certificate
@@ -80,7 +95,7 @@ export default function CertificateVerificationPage() {
 
               <div className="mt-8 grid sm:grid-cols-2 gap-4">
                 {[
-                  ["Certificate ID", certificateId],
+                  ["Certificate ID", normalizedId],
                   ["Affiliation Number", academy.affiliationNumber],
                   ["State", academy.state],
                   ["District", academy.district],

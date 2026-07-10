@@ -1,17 +1,10 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import type { Metadata } from "next";
+import Image from "next/image";
 import QRCode from "qrcode";
 
 import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
-import { db } from "@/app/lib/firebase";
-
-import {
-  collection,
-  getDocs,
-} from "firebase/firestore";
+import { adminDb } from "@/app/lib/firebase-admin";
 
 const findMember = (academy: any, memberId: string) => {
   const owners = Array.isArray(academy.owners) ? academy.owners : [];
@@ -51,56 +44,70 @@ const getAchievementLines = (achievement: string) =>
     .map((line) => line.replace(/^[-*\d.)\s]+/, "").trim())
     .filter(Boolean);
 
-export default function IdCardVerificationPage() {
-  const params = useParams<{ id: string }>();
-  const [record, setRecord] = useState<any>(null);
-  const [memberId, setMemberId] = useState("");
-  const [qrCode, setQrCode] = useState("");
-  const [loading, setLoading] = useState(true);
+async function findIdCardRecord(rawId: string) {
+  const memberId = decodeURIComponent(rawId);
+
+  // Only paid academies ever get member IDs handed out, so this narrows
+  // the scan considerably even though memberId itself isn't indexable
+  // (it lives inside the owners/students arrays).
+  const snap = await adminDb
+    .collection("academies")
+    .where("paymentDone", "==", true)
+    .get();
+
+  let foundRecord: any = null;
+
+  snap.docs.some((academyDoc) => {
+    const academy = { id: academyDoc.id, ...academyDoc.data() };
+    const result = findMember(academy, memberId);
+
+    if (result) {
+      foundRecord = { academy, ...result };
+      return true;
+    }
+
+    return false;
+  });
+
+  return { record: foundRecord, memberId };
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const { record } = await findIdCardRecord(id);
+
+  return {
+    title: record
+      ? `${record.name} Federation ID`
+      : "ID Card Verification",
+  };
+}
+
+export default async function IdCardVerificationPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const { record, memberId } = await findIdCardRecord(id);
+
   const achievementLines =
     record?.type === "Student"
       ? getAchievementLines(record.member?.achievement)
       : [];
 
-  useEffect(() => {
-    const loadRecord = async () => {
-      const decodedId = decodeURIComponent(params.id);
-      setMemberId(decodedId);
-
-      const snap = await getDocs(collection(db, "academies"));
-      let foundRecord: any = null;
-
-      snap.docs.some((academyDoc) => {
-        const academy = {
-          id: academyDoc.id,
-          ...academyDoc.data(),
-        };
-        const result = findMember(academy, decodedId);
-
-        if (result) {
-          foundRecord = {
-            academy,
-            ...result,
-          };
-          return true;
-        }
-
-        return false;
-      });
-
-      setRecord(foundRecord);
-      setQrCode(
-        await QRCode.toDataURL(window.location.href, {
-          errorCorrectionLevel: "H",
-          margin: 1,
-          width: 220,
-        })
-      );
-      setLoading(false);
-    };
-
-    loadRecord();
-  }, [params.id]);
+  const qrCode = await QRCode.toDataURL(
+    `https://www.kheloyouth.com/id-card/${encodeURIComponent(memberId)}`,
+    {
+      errorCorrectionLevel: "H",
+      margin: 1,
+      width: 220,
+    }
+  );
 
   return (
     <main className="min-h-screen bg-black text-white">
@@ -115,29 +122,29 @@ export default function IdCardVerificationPage() {
         </h1>
 
         <div className="mt-10 bg-zinc-900 border border-white/10 rounded-[35px] p-8 md:p-10">
-          {loading ? (
-            <p className="text-zinc-300">Checking federation record...</p>
-          ) : record ? (
+          {record ? (
             <div className="grid md:grid-cols-[220px_1fr] gap-8 items-start">
               <div>
                 {record.photo ? (
-                  <img
-                    src={record.photo}
-                    alt={record.name || "Member"}
-                    className="w-full aspect-[4/5] object-cover rounded-3xl border border-white/10"
-                  />
+                  <div className="relative w-full aspect-[4/5] rounded-3xl overflow-hidden border border-white/10">
+                    <Image
+                      src={record.photo}
+                      alt={record.name || "Member"}
+                      fill
+                      className="object-cover"
+                      sizes="220px"
+                    />
+                  </div>
                 ) : (
                   <div className="w-full aspect-[4/5] bg-black rounded-3xl flex items-center justify-center text-6xl font-black text-orange-500">
                     {(record.name || "E").charAt(0)}
                   </div>
                 )}
-                {qrCode && (
-                  <img
-                    src={qrCode}
-                    alt="Verification QR"
-                    className="mt-5 w-40 h-40 bg-white p-2 rounded-2xl"
-                  />
-                )}
+                <img
+                  src={qrCode}
+                  alt="Verification QR"
+                  className="mt-5 w-40 h-40 bg-white p-2 rounded-2xl"
+                />
               </div>
 
               <div>

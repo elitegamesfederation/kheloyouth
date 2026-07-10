@@ -10,19 +10,58 @@ service firebase.storage {
         );
     }
 
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.email == "jameelhawati@gmail.com";
+    }
+
+    function isOwner(academyId) {
+      return isSignedIn() && request.auth.uid == academyId;
+    }
+
+    // Admin dashboard uploads on behalf of an academy.
     match /academies/{academyId}/{allAcademyFiles=**} {
       allow read: if true;
-      allow write: if isAllowedUpload();
+      allow write: if (isOwner(academyId) || isAdmin()) && isAllowedUpload();
+    }
+
+    // Academy self-service uploads from the affiliation form.
+    match /academy-logos/{academyId}/{allFiles=**} {
+      allow read: if true;
+      allow write: if (isOwner(academyId) || isAdmin()) && isAllowedUpload();
+    }
+
+    match /academy-photos/{academyId}/{allFiles=**} {
+      allow read: if true;
+      allow write: if (isOwner(academyId) || isAdmin()) && isAllowedUpload();
+    }
+
+    match /academy-owners/{academyId}/{allFiles=**} {
+      allow read: if true;
+      allow write: if (isOwner(academyId) || isAdmin()) && isAllowedUpload();
+    }
+
+    match /academy-coaches/{academyId}/{allFiles=**} {
+      allow read: if true;
+      allow write: if (isOwner(academyId) || isAdmin()) && isAllowedUpload();
+    }
+
+    match /academy-students/{academyId}/{allFiles=**} {
+      allow read: if true;
+      allow write: if (isOwner(academyId) || isAdmin()) && isAllowedUpload();
     }
 
     match /academy-banners/{allBannerFiles=**} {
       allow read: if true;
-      allow write: if isAllowedUpload();
+      allow write: if isAdmin();
     }
 
     match /{allPaths=**} {
       allow read: if true;
-      allow write: if request.auth != null && isAllowedUpload();
+      allow write: if isAdmin();
     }
   }
 }

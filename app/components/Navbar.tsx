@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -23,11 +24,16 @@ export default function Navbar() {
           {/* LOGO */}
           <Link href="/" className="flex items-center gap-3 md:gap-5 z-50">
 
-            <img
-              src="/elite-logo.png"
-              alt="Elite Games Federation"
-              className="w-12 h-12 md:w-16 md:h-16 object-contain drop-shadow-[0_0_30px_rgba(255,115,0,0.8)]"
-            />
+            <div className="relative w-12 h-12 md:w-16 md:h-16 shrink-0 drop-shadow-[0_0_30px_rgba(255,115,0,0.8)]">
+              <Image
+                src="/elite-logo.png"
+                alt="Elite Games Federation"
+                fill
+                priority
+                className="object-contain"
+                sizes="64px"
+              />
+            </div>
 
             <div className="flex flex-col items-center text-center">
 
