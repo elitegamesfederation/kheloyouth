@@ -1,0 +1,29 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /academies/{academyId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update, delete: if true;
+    }
+
+    match /siteSettings/{settingId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    match /contactMessages/{messageId} {
+      allow create: if true;
+      allow read, update, delete: if true;
+    }
+
+    match /pageViews/{viewId} {
+      allow read, create, update, delete: if true;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

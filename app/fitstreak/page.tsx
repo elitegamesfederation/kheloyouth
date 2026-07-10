@@ -1,423 +1,346 @@
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import type { Metadata } from "next";
+import Script from "next/script";
+
+import Footer from "../components/Footer";
+import Navbar from "../components/Navbar";
+
+const fitStreakDownloadUrl = "/fitstreak/download";
+const fitStreakInstagramUrl = "https://www.instagram.com/fitstreakofficial/";
+const qrTargetUrl = "https://www.kheloyouth.com/fitstreak/download";
+const qrCodeUrl =
+  "https://api.qrserver.com/v1/create-qr-code/?size=420x420&margin=16&data=" +
+  encodeURIComponent(qrTargetUrl);
+
+const features = [
+  {
+    number: "01",
+    title: "Challenges",
+    text: "Complete discipline challenges and unlock rewards.",
+  },
+  {
+    number: "02",
+    title: "Daily Streaks",
+    text: "Stay accountable with streak tracking and progress monitoring.",
+  },
+  {
+    number: "03",
+    title: "Analytics",
+    text: "Measure workouts, calories, steps, and transformation insights.",
+  },
+  {
+    number: "04",
+    title: "Motivation",
+    text: "Turn discipline into a lifestyle with community-driven fitness.",
+  },
+];
 
 export const metadata: Metadata = {
-  title: "FitStreak",
+  title: "FitStreak App | Download on Google Play",
   description:
-    "FitStreak is a fitness and challenge tracking platform by Elite Games Federation for workouts, steps, calories, streaks, and performance.",
+    "Download FitStreak on Google Play. Track workouts, daily streaks, steps, calories, challenges, and build discipline while supporting grassroots sports.",
   alternates: {
     canonical: "/fitstreak",
+  },
+  openGraph: {
+    title: "FitStreak App | Elite Games Federation",
+    description:
+      "FitStreak is now live on Google Play. Scan the QR code, install the app, and start building your daily fitness streak.",
+    url: "https://www.kheloyouth.com/fitstreak",
+    siteName: "KheloYouth",
+    images: [
+      {
+        url: "/fitstreaklogo.png",
+        width: 1200,
+        height: 630,
+        alt: "FitStreak App",
+      },
+    ],
   },
 };
 
 export default function FitStreakPage() {
   return (
     <main className="min-h-screen pt-40 md:pt-0 bg-black text-white overflow-hidden">
-
       <Navbar />
 
-      {/* HERO SECTION */}
-      <section className="relative pt-52 pb-28 overflow-hidden">
+      <section className="relative pt-36 md:pt-52 pb-20 md:pb-28 overflow-hidden">
+        <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-orange-500/10 blur-[140px] rounded-full" />
+        <div className="absolute top-20 right-0 w-[450px] h-[450px] bg-orange-500/10 blur-[130px] rounded-full" />
 
-        {/* GLOW EFFECTS */}
-        <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-orange-500/10 blur-[140px] rounded-full"></div>
-
-        <div className="absolute top-20 right-0 w-[450px] h-[450px] bg-orange-500/10 blur-[130px] rounded-full"></div>
-
-        <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-20 items-center relative z-10">
-
-          {/* LEFT CONTENT */}
+        <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-12 lg:gap-20 items-center relative z-10">
           <div>
-
-            <p className="uppercase tracking-[0.4em] text-white-500 font-semibold">
+            <p className="uppercase tracking-[0.4em] text-white font-semibold">
               Inspired By
             </p>
 
-<p className="uppercase tracking-[0.4em] text-orange-500 font-bold text-2xl">
+            <p className="uppercase tracking-[0.4em] text-orange-500 font-bold text-2xl">
               Fit India Movement
             </p>
 
-
             <h1 className="mt-6 text-6xl md:text-8xl font-black leading-none">
-              LET’S MAKE
-              <span className="block text-orange-500 mt-2">
-                INDIA FIT
-              </span>
+              LET'S MAKE
+              <span className="block text-orange-500 mt-2">INDIA FIT</span>
             </h1>
 
             <div className="mt-6 space-y-5">
+              <p className="text-xl text-gray-300 leading-relaxed">
+                FitStreak is more than just a fitness app. It's a movement built
+                around discipline, consistency, self-growth, and transformation.
+              </p>
 
-  <p className="text-xl text-gray-300 leading-relaxed">
-    FitStreak is more than just a fitness app. It’s a movement built
-    around discipline, consistency, self-growth, and transformation.
-  </p>
-
-  {/* HIGHLIGHT BOX */}
-  <div className="relative overflow-hidden rounded-3xl border border-orange-500/20 bg-orange-500/10 backdrop-blur-xl p-6">
-
-    {/* GLOW */}
-    <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/20 blur-3xl rounded-full"></div>
-
-    <p className="relative z-10 text-orange-400 uppercase tracking-[0.3em] text-xs font-semibold">
-      Purpose Driven Movement
-    </p>
-
-    <h3 className="relative z-10 mt-3 text-2xl font-black leading-tight text-white">
-      Every Challenge Accepted
-      <span className="text-orange-500"> Helps Someone Rise</span>
-    </h3>
-
-    <p className="relative z-10 mt-4 text-gray-300 leading-relaxed">
-
-      FitStreak is also a fundraising initiative dedicated to supporting
-      para-athletes and grassroots sports development across India.
-
-    </p>
-
-    <p className="relative z-10 mt-4 text-gray-400 leading-relaxed">
-
-      Every workout completed, every challenge accepted, and every streak
-      maintained contributes towards empowering athletes who continue to
-      fight against limitations to achieve their dreams and inspire millions.
-
-    </p>
-
-  </div>
-
-</div>
-
-            {/* BUTTONS */}
-            <div className="mt-10 flex flex-wrap gap-5">
-
-              <button className="bg-orange-500 hover:bg-orange-600 transition px-8 py-4 rounded-2xl text-lg font-bold shadow-[0_0_40px_rgba(255,115,0,0.35)]">
-                Download App
-              </button>
-
-              <button className="border border-white/20 hover:border-orange-500 hover:bg-orange-500/10 transition px-8 py-4 rounded-2xl text-lg font-semibold">
-                Explore Features
-              </button>
-
+              <div className="relative overflow-hidden rounded-3xl border border-orange-500/20 bg-orange-500/10 backdrop-blur-xl p-6">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/20 blur-3xl rounded-full" />
+                <p className="relative z-10 text-orange-400 uppercase tracking-[0.3em] text-xs font-semibold">
+                  Purpose Driven Movement
+                </p>
+                <h3 className="relative z-10 mt-3 text-2xl font-black leading-tight text-white">
+                  Every Challenge Accepted
+                  <span className="text-orange-500"> Helps Someone Rise</span>
+                </h3>
+                <p className="relative z-10 mt-4 text-gray-300 leading-relaxed">
+                  FitStreak is also a fundraising initiative dedicated to
+                  supporting para-athletes and grassroots sports development
+                  across India.
+                </p>
+                <p className="relative z-10 mt-4 text-gray-400 leading-relaxed">
+                  Every workout completed, every challenge accepted, and every
+                  streak maintained contributes towards empowering athletes who
+                  continue to fight against limitations to achieve their dreams
+                  and inspire millions.
+                </p>
+              </div>
             </div>
 
-            
+            <div className="mt-10 flex flex-col sm:flex-row gap-5">
+              <a
+                href={fitStreakDownloadUrl}
+                className="inline-flex justify-center bg-orange-500 hover:bg-orange-600 transition px-8 py-4 rounded-2xl text-lg font-bold text-black shadow-[0_0_40px_rgba(255,115,0,0.35)]"
+              >
+                Download on Google Play
+              </a>
 
+              <a
+                href="#fitstreak-download"
+                className="inline-flex justify-center border border-white/20 hover:border-orange-500 hover:bg-orange-500/10 transition px-8 py-4 rounded-2xl text-lg font-semibold"
+              >
+                Scan QR Code
+              </a>
+            </div>
           </div>
 
-          {/* RIGHT SIDE */}
           <div className="relative flex justify-center">
-
-            {/* MAIN CARD */}
-            <div className="relative w-full max-w-xl h-[680px] rounded-[40px] overflow-hidden border border-white/10 bg-zinc-900 shadow-[0_0_80px_rgba(255,115,0,0.15)]">
-
+            <div className="relative w-full max-w-xl h-[520px] md:h-[680px] rounded-[40px] overflow-hidden border border-white/10 bg-zinc-900 shadow-[0_0_80px_rgba(255,115,0,0.15)]">
               <img
                 src="/lets-make-india-fit.png"
-                alt="FitStreak"
+                alt="FitStreak fitness movement"
                 className="w-full h-full object-cover opacity-90"
               />
 
-              {/* OVERLAY */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-transparent"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-transparent" />
 
-              {/* FLOATING CARD */}
-              <div className="absolute bottom-8 left-8 right-8 bg-black/50 backdrop-blur-xl border border-white/10 rounded-3xl p-6">
-
+              <div className="absolute bottom-6 left-6 right-6 md:bottom-8 md:left-8 md:right-8 bg-black/50 backdrop-blur-xl border border-white/10 rounded-3xl p-5 md:p-6">
                 <p className="text-orange-400 uppercase tracking-[0.25em] text-sm font-semibold">
                   FitStreak Movement
                 </p>
 
-                <h3 className="mt-3 text-3xl font-black">
+                <h3 className="mt-3 text-2xl md:text-3xl font-black">
                   Discipline Creates Champions
                 </h3>
 
                 <p className="mt-4 text-gray-300 leading-relaxed">
-                  Every streak, every step, and every workout
-                  pushes you closer to your strongest version.
+                  Every streak, every step, and every workout pushes you closer
+                  to your strongest version.
                 </p>
-
               </div>
-
             </div>
-
           </div>
-
         </div>
-
       </section>
 
-      {/* FEATURES SECTION */}
+      <section
+        id="fitstreak-download"
+        className="max-w-7xl mx-auto px-6 pb-24 md:pb-28"
+      >
+        <div className="grid lg:grid-cols-[1.2fr_0.8fr] gap-8 items-stretch rounded-[40px] border border-orange-500/30 bg-gradient-to-br from-orange-500/15 via-zinc-950 to-black p-6 md:p-10 shadow-[0_0_80px_rgba(255,115,0,0.12)]">
+          <div className="flex flex-col justify-center">
+            <p className="text-orange-500 uppercase tracking-[0.35em] text-sm font-bold">
+              Google Play Launch
+            </p>
+
+            <h2 className="mt-5 text-4xl md:text-6xl font-black leading-tight">
+              FitStreak is live.
+              <span className="block text-orange-500">Scan and install.</span>
+            </h2>
+
+            <div className="mt-8 flex flex-col sm:flex-row gap-4">
+              <a
+                href={fitStreakDownloadUrl}
+                className="inline-flex justify-center bg-orange-500 hover:bg-orange-600 transition px-8 py-4 rounded-2xl text-lg font-bold text-black shadow-[0_0_40px_rgba(255,115,0,0.3)]"
+              >
+                Click To Download
+              </a>
+
+              <span className="inline-flex items-center justify-center border border-white/15 rounded-2xl px-6 py-4 text-gray-200">
+                Android app now available
+              </span>
+            </div>
+          </div>
+
+          <div className="flex flex-col items-center justify-center rounded-[32px] border border-white/10 bg-black/50 p-6">
+            <div className="rounded-3xl bg-white p-4 shadow-[0_0_45px_rgba(255,255,255,0.12)]">
+              <img
+                src={qrCodeUrl}
+                alt="QR code to download FitStreak app"
+                className="w-56 h-56 md:w-72 md:h-72 object-contain"
+              />
+            </div>
+
+            <h3 className="mt-6 text-3xl font-black">Scan To Download</h3>
+
+            <p className="mt-3 text-center text-gray-400 leading-relaxed">
+              Point your phone camera at this QR code to open the FitStreak
+              download page.
+            </p>
+          </div>
+        </div>
+      </section>
+
       <section className="max-w-7xl mx-auto px-6 pb-28">
-
         <div className="text-center">
-
           <p className="text-orange-500 uppercase tracking-[0.4em] font-semibold">
             Why FitStreak?
           </p>
 
-          <h2 className="mt-5 text-6xl font-black">
+          <h2 className="mt-5 text-5xl md:text-6xl font-black">
             BUILT FOR CONSISTENCY
           </h2>
-
         </div>
 
         <div className="mt-16 grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {features.map((feature) => (
+            <div
+              key={feature.title}
+              className="bg-zinc-900 border border-white/10 rounded-[32px] p-8 hover:border-orange-500 hover:-translate-y-2 transition duration-300"
+            >
+              <div className="w-16 h-16 rounded-2xl bg-orange-500/20 flex items-center justify-center text-orange-500 text-2xl font-black">
+                {feature.number}
+              </div>
 
-          {/* CARD 1 */}
-          <div className="bg-zinc-900 border border-white/10 rounded-[32px] p-8 hover:border-orange-500 hover:-translate-y-2 transition duration-300">
+              <h3 className="mt-8 text-3xl font-black">{feature.title}</h3>
 
-            <div className="w-16 h-16 rounded-2xl bg-orange-500/20 flex items-center justify-center text-3xl">
-              🏆
+              <p className="mt-5 text-gray-400 leading-relaxed">
+                {feature.text}
+              </p>
             </div>
-
-            <h3 className="mt-8 text-3xl font-black">
-              Challenges
-            </h3>
-
-            <p className="mt-5 text-gray-400 leading-relaxed">
-              Complete the ultimate discipline challenges and unlock rewards.
-            </p>
-
-          </div>
-
-          {/* CARD 2 */}
-          <div className="bg-zinc-900 border border-white/10 rounded-[32px] p-8 hover:border-orange-500 hover:-translate-y-2 transition duration-300">
-
-            <div className="w-16 h-16 rounded-2xl bg-orange-500/20 flex items-center justify-center text-3xl">
-              🔥
-            </div>
-
-            <h3 className="mt-8 text-3xl font-black">
-              Daily Streaks
-            </h3>
-
-            <p className="mt-5 text-gray-400 leading-relaxed">
-              Stay accountable with streak tracking and progress monitoring.
-            </p>
-
-          </div>
-
-          {/* CARD 3 */}
-          <div className="bg-zinc-900 border border-white/10 rounded-[32px] p-8 hover:border-orange-500 hover:-translate-y-2 transition duration-300">
-
-            <div className="w-16 h-16 rounded-2xl bg-orange-500/20 flex items-center justify-center text-3xl">
-              📈
-            </div>
-
-            <h3 className="mt-8 text-3xl font-black">
-              Analytics
-            </h3>
-
-            <p className="mt-5 text-gray-400 leading-relaxed">
-              Measure workouts, calories, steps, and transformation insights.
-            </p>
-
-          </div>
-
-          {/* CARD 4 */}
-          <div className="bg-zinc-900 border border-white/10 rounded-[32px] p-8 hover:border-orange-500 hover:-translate-y-2 transition duration-300">
-
-            <div className="w-16 h-16 rounded-2xl bg-orange-500/20 flex items-center justify-center text-3xl">
-              💪
-            </div>
-
-            <h3 className="mt-8 text-3xl font-black">
-              Motivation
-            </h3>
-
-            <p className="mt-5 text-gray-400 leading-relaxed">
-              Transform discipline into lifestyle with community-driven fitness.
-            </p>
-
-          </div>
-
+          ))}
         </div>
-
       </section>
 
-      {/* COMING SOON SECTION */}
-      <section className="relative py-28 border-y border-white/10 overflow-hidden">
-
-        <div className="absolute inset-0 bg-orange-500/5 blur-3xl"></div>
-
-        <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-20 items-center relative z-10">
-
-          {/* LEFT IMAGE */}
-          <div className="flex justify-center">
-
-            <div className="rounded-[40px] overflow-hidden border border-white/10 shadow-[0_0_60px_rgba(255,115,0,0.15)]">
-
-              <img
-                src="/comingsoon.png"
-                alt="Coming Soon"
-                className="w-full max-w-[500px] object-cover"
-              />
-
-            </div>
-
-          </div>
-
-          {/* RIGHT CONTENT */}
-          <div>
-
-            <p className="text-orange-500 uppercase tracking-[0.4em] font-semibold">
-              Coming Soon
-            </p>
-
-            <h2 className="mt-6 text-6xl font-black leading-tight">
-              THE
-              <span className="text-orange-500"> 45/75 HARD</span>
-              <br />
-              CHALLENGE
-            </h2>
-
-            <p className="mt-8 text-xl text-gray-300 leading-relaxed">
-              Push your limits mentally and physically through
-              India’s most disciplined transformation movement.
-            </p>
-
-            <div className="mt-10 space-y-6">
-
-              <div className="flex gap-4">
-                <div className="w-3 h-3 bg-orange-500 rounded-full mt-2"></div>
-
-                <p className="text-gray-300">
-                  Daily fitness and mindset tasks.
-                </p>
-              </div>
-
-              <div className="flex gap-4">
-                <div className="w-3 h-3 bg-orange-500 rounded-full mt-2"></div>
-
-                <p className="text-gray-300">
-                  Build discipline and consistency.
-                </p>
-              </div>
-
-              <div className="flex gap-4">
-                <div className="w-3 h-3 bg-orange-500 rounded-full mt-2"></div>
-
-                <p className="text-gray-300">
-                  Earn trophies, badges, and transformation recognition.
-                </p>
-              </div>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      </section>
-
-      {/* APP PREVIEW */}
       <section className="max-w-7xl mx-auto px-6 py-28">
-
         <div className="text-center">
-
           <p className="text-orange-500 uppercase tracking-[0.4em] font-semibold">
             Smart Tracking
           </p>
 
-          <h2 className="mt-5 text-6xl font-black">
+          <h2 className="mt-5 text-5xl md:text-6xl font-black">
             APP EXPERIENCE
           </h2>
-
         </div>
 
         <div className="mt-20 flex justify-center">
-
           <div className="w-[340px] h-[680px] rounded-[50px] border border-white/10 bg-zinc-900 p-4 shadow-[0_0_80px_rgba(255,115,0,0.18)]">
-
             <div className="w-full h-full rounded-[40px] bg-black overflow-hidden relative p-6 flex flex-col">
-
-              {/* TOP */}
               <div className="flex items-center justify-between">
-
                 <div>
-                  <p className="text-gray-400 text-sm">
-                    Welcome Back
-                  </p>
-
-                  <h3 className="text-3xl font-black mt-1">
-                    FitStreak
-                  </h3>
+                  <p className="text-gray-400 text-sm">Welcome Back</p>
+                  <h3 className="text-3xl font-black mt-1">FitStreak</h3>
                 </div>
 
                 <div className="relative flex items-center justify-center">
-  {/* GLOW */}
-  <div className="absolute w-20 h-20 bg-orange-500/30 blur-2xl rounded-full"></div>
-
-  {/* LOGO */}
-  <img
-    src="/fitstreaklogo.png"
-    alt="FitStreak Logo"
-    className="relative w-18 h-18 object-contain drop-shadow-[0_0_25px_rgba(255,115,0,0.9)] animate-pulse"
-  />
-</div>
-
+                  <div className="absolute w-20 h-20 bg-orange-500/30 blur-2xl rounded-full" />
+                  <img
+                    src="/fitstreaklogo.png"
+                    alt="FitStreak Logo"
+                    className="relative w-20 h-20 object-contain drop-shadow-[0_0_25px_rgba(255,115,0,0.9)] animate-pulse"
+                  />
+                </div>
               </div>
 
-              {/* STEPS */}
               <div className="mt-14">
-
-                <p className="text-gray-400">
-                  Today Steps
-                </p>
-
-                <h2 className="text-6xl font-black mt-3">
-                  12,846
-                </h2>
-
+                <p className="text-gray-400">Today Steps</p>
+                <h2 className="text-6xl font-black mt-3">12,846</h2>
               </div>
 
-              {/* CARDS */}
               <div className="mt-10 space-y-5">
-
                 <div className="bg-zinc-900 rounded-3xl p-6 border border-white/5">
-
-                  <p className="text-gray-400">
-                    Calories Burned
-                  </p>
-
-                  <h3 className="text-4xl font-black mt-2">
-                    742 kcal
-                  </h3>
-
+                  <p className="text-gray-400">Calories Burned</p>
+                  <h3 className="text-4xl font-black mt-2">742 kcal</h3>
                 </div>
 
                 <div className="bg-zinc-900 rounded-3xl p-6 border border-white/5">
-
-                  <p className="text-gray-400">
-                    Workout Time
-                  </p>
-
-                  <h3 className="text-4xl font-black mt-2">
-                    1h 32m
-                  </h3>
-
+                  <p className="text-gray-400">Workout Time</p>
+                  <h3 className="text-4xl font-black mt-2">1h 32m</h3>
                 </div>
-
               </div>
 
-              {/* BUTTON */}
               <div className="mt-auto">
-
-                <button className="w-full bg-orange-500 hover:bg-orange-600 transition py-5 rounded-2xl text-lg font-bold shadow-[0_0_35px_rgba(255,115,0,0.35)]">
-                  Start Workout
-                </button>
-
+                <a
+                  href={fitStreakDownloadUrl}
+                  className="block w-full text-center bg-orange-500 hover:bg-orange-600 transition py-5 rounded-2xl text-lg font-bold text-black shadow-[0_0_35px_rgba(255,115,0,0.35)]"
+                >
+                  Download FitStreak
+                </a>
               </div>
-
             </div>
-
+          </div>
+        </div>
+      </section>
+      <section className="max-w-7xl mx-auto px-6 pb-28">
+        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
+          <div>
+            <p className="text-orange-500 uppercase tracking-[0.4em] font-semibold">
+              Instagram
+            </p>
+            <h2 className="mt-5 text-4xl md:text-6xl font-black leading-tight">
+              Follow <span className="text-orange-500">FitStreak Official</span>
+            </h2>
+            <p className="mt-5 max-w-2xl text-gray-400 leading-relaxed">
+              Watch app updates, fitness challenges, transformation stories, and
+              daily motivation from the official FitStreak page.
+            </p>
           </div>
 
+          <a
+            href={fitStreakInstagramUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex justify-center bg-orange-500 hover:bg-orange-600 transition px-8 py-4 rounded-2xl text-lg font-bold text-black"
+          >
+            Open Instagram
+          </a>
         </div>
 
+        <div className="mt-12 rounded-[32px] border border-white/10 bg-zinc-900 p-4 md:p-8 overflow-hidden">
+          <blockquote
+            className="instagram-media mx-auto"
+            data-instgrm-permalink={fitStreakInstagramUrl}
+            data-instgrm-version="14"
+            style={{
+              background: "#fff",
+              border: 0,
+              borderRadius: "12px",
+              boxShadow: "none",
+              margin: "0 auto",
+              maxWidth: "540px",
+              minWidth: "280px",
+              width: "100%",
+            }}
+          ></blockquote>
+        </div>
+
+        <Script src="https://www.instagram.com/embed.js" strategy="lazyOnload" />
       </section>
-
       <Footer />
-
     </main>
   );
 }

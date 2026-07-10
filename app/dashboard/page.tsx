@@ -32,8 +32,6 @@ import {
   uploadString,
 } from "firebase/storage";
 
-const yearlyStudentFee = 99;
-
 const affiliationFees: any = {
   1: 999,
   2: 1799,
@@ -282,6 +280,7 @@ export default function DashboardPage() {
   const [owners, setOwners] = useState<any[]>([getDefaultOwner()]);
   const [students, setStudents] = useState<any[]>([getDefaultStudent()]);
   const [adminCreateErrors, setAdminCreateErrors] = useState<string[]>([]);
+  const [adminLoadError, setAdminLoadError] = useState("");
   const [newOwnerIndex, setNewOwnerIndex] = useState<number | null>(null);
   const [newStudentIndex, setNewStudentIndex] = useState<number | null>(null);
   const [newEditOwnerIndex, setNewEditOwnerIndex] = useState<number | null>(null);
@@ -299,17 +298,24 @@ export default function DashboardPage() {
 
   const loadAcademies = async () => {
     setLoading(true);
+    setAdminLoadError("");
 
-    const snap = await getDocs(collection(db, "academies"));
+    try {
+      const snap = await getDocs(collection(db, "academies"));
 
-    setAcademies(
-      snap.docs.map((academyDoc) => ({
-        id: academyDoc.id,
-        ...academyDoc.data(),
-      }))
-    );
-
-    setLoading(false);
+      setAcademies(
+        snap.docs.map((academyDoc) => ({
+          id: academyDoc.id,
+          ...academyDoc.data(),
+        }))
+      );
+    } catch (error: any) {
+      const message = error?.message || "Unable to load admin data.";
+      setAdminLoadError(message);
+      alert(message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const loadAdminSports = async () => {
@@ -1531,7 +1537,6 @@ const toggleStudentSport = (
 
       const today = new Date();
       const affiliationEndDate = new Date(today);
-      const studentFeeEndDate = new Date(today);
       const slug = slugify(academyName);
       const randomId = Math.random()
         .toString(36)
@@ -1564,7 +1569,6 @@ const toggleStudentSport = (
       affiliationEndDate.setFullYear(
         today.getFullYear() + Number(selectedYears)
       );
-      studentFeeEndDate.setFullYear(today.getFullYear() + 1);
 
       const userCredential = await createUserWithEmailAndPassword(
         auth,
@@ -1638,16 +1642,12 @@ const toggleStudentSport = (
           .toUpperCase(),
         affiliationStartDate: today.toDateString(),
         affiliationEndDate: affiliationEndDate.toDateString(),
-        studentFeeStartDate: today.toDateString(),
-        studentFeeEndDate: studentFeeEndDate.toDateString(),
         couponCode: "ELITENETWORK",
         paymentMode: "admin-coupon",
         paymentDone: true,
         verified: true,
         profileCompleted: true,
-        totalAmount:
-          (affiliationFees[selectedYears] || 0) +
-          students.length * yearlyStudentFee,
+        totalAmount: affiliationFees[selectedYears] || 0,
         payableAmount: 0,
         amountPaid: 0,
         createdByAdmin: true,
@@ -1842,6 +1842,12 @@ const toggleStudentSport = (
         >
           Admin Logout
         </button>
+
+        {adminLoadError && (
+          <div className="mt-10 rounded-2xl border border-red-500 bg-red-500/10 p-5 text-red-100">
+            {adminLoadError}
+          </div>
+        )}
 
         {loading ? (
           <p className="mt-10 text-zinc-400">
