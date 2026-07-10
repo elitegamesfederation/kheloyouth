@@ -9,7 +9,7 @@ import {
 
 export default function Footer() {
   return (
-    <footer className="relative border-t border-white/10 bg-black overflow-hidden">
+    <footer className="relative border-t border-white/10 bg-black text-white overflow-hidden">
 
       {/* BACKGROUND GLOW */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom,rgba(255,115,0,0.12),transparent_55%)]"></div>
