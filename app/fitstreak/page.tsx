@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Script from "next/script";
+import { FaInstagram } from "react-icons/fa6";
 
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
@@ -295,47 +296,57 @@ export default function FitStreakPage() {
           </div>
         </div>
       </section>
-      <section className="max-w-7xl mx-auto px-6 pb-28">
-        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
-          <div>
-            <p className="text-orange-500 uppercase tracking-[0.4em] font-semibold">
-              Instagram
-            </p>
-            <h2 className="mt-5 text-4xl md:text-6xl font-black leading-tight">
-              Follow <span className="text-orange-500">FitStreak Official</span>
-            </h2>
-            <p className="mt-5 max-w-2xl text-gray-400 leading-relaxed">
-              Watch app updates, fitness challenges, transformation stories, and
-              daily motivation from the official FitStreak page.
-            </p>
+      <section className="relative py-8 md:py-12 pb-28 overflow-hidden">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[560px] h-[560px] bg-orange-500/10 blur-[150px] rounded-full" />
+
+        <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
+          <div className="inline-flex items-center gap-2 text-orange-500 uppercase tracking-[0.4em] font-semibold">
+            <FaInstagram size={18} />
+            Instagram
           </div>
+          <h2 className="mt-5 text-4xl md:text-6xl font-black leading-tight">
+            Follow <span className="text-orange-500">FitStreak Official</span>
+          </h2>
+          <p className="mt-6 max-w-2xl mx-auto text-gray-400 text-lg leading-relaxed">
+            Watch app updates, fitness challenges, transformation stories, and
+            daily motivation from the official FitStreak page.
+          </p>
 
           <a
             href={fitStreakInstagramUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex justify-center bg-orange-500 hover:bg-orange-600 transition px-8 py-4 rounded-2xl text-lg font-bold text-black"
+            className="mt-8 inline-flex items-center gap-3 bg-gradient-to-r from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] hover:opacity-90 transition px-8 py-4 rounded-2xl text-lg font-bold text-white shadow-[0_0_40px_rgba(238,42,123,0.35)]"
           >
+            <FaInstagram size={22} />
             Open Instagram
           </a>
-        </div>
 
-        <div className="mt-12 rounded-[32px] border border-white/10 bg-zinc-900 p-4 md:p-8 overflow-hidden">
-          <blockquote
-            className="instagram-media mx-auto"
-            data-instgrm-permalink={fitStreakInstagramUrl}
-            data-instgrm-version="14"
-            style={{
-              background: "#fff",
-              border: 0,
-              borderRadius: "12px",
-              boxShadow: "none",
-              margin: "0 auto",
-              maxWidth: "540px",
-              minWidth: "280px",
-              width: "100%",
-            }}
-          ></blockquote>
+          <div className="mt-12 rounded-[36px] border border-white/10 bg-zinc-900/70 backdrop-blur-xl p-4 md:p-8 overflow-hidden">
+            <blockquote
+              className="instagram-media mx-auto"
+              data-instgrm-permalink={fitStreakInstagramUrl}
+              data-instgrm-version="14"
+              style={{
+                background: "#000",
+                border: 0,
+                borderRadius: "28px",
+                margin: "0 auto",
+                maxWidth: "920px",
+                minWidth: "326px",
+                width: "100%",
+              }}
+            >
+              <a
+                href={fitStreakInstagramUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block text-center text-orange-500 font-bold py-16"
+              >
+                View @fitstreakofficial on Instagram
+              </a>
+            </blockquote>
+          </div>
         </div>
 
         <Script src="https://www.instagram.com/embed.js" strategy="lazyOnload" />

@@ -3,6 +3,7 @@ import Footer from "./components/Footer";
 import Link from "next/link";
 import Script from "next/script";
 import type { Metadata } from "next";
+import { FaInstagram } from "react-icons/fa6";
 
 export const metadata: Metadata = {
   title: "India's Growing Grassroots Sports Network",
@@ -678,46 +679,40 @@ export default function Home() {
 </section>
 
 {/* INSTAGRAM FEED */}
-<section className="relative py-20 md:py-24 overflow-hidden border-t border-white/10">
+<section className="relative py-20 md:py-28 overflow-hidden border-t border-white/10">
 
-  <div className="absolute top-0 right-0 w-[420px] h-[420px] bg-orange-500/10 blur-[140px] rounded-full"></div>
+  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[560px] h-[560px] bg-orange-500/10 blur-[150px] rounded-full"></div>
 
-  <div className="relative z-10 max-w-7xl mx-auto px-5 md:px-6">
+  <div className="relative z-10 max-w-4xl mx-auto px-5 md:px-6 text-center">
 
-    <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
-
-      <div>
-
-        <p className="text-orange-500 uppercase tracking-[0.35em] text-sm font-semibold">
-          Instagram
-        </p>
-
-        <h2 className="mt-5 text-4xl md:text-6xl font-black leading-tight">
-          Follow
-          <span className="text-orange-500"> Elite Games Federation</span>
-        </h2>
-
-        <p className="mt-6 text-gray-400 text-lg leading-relaxed max-w-3xl">
-          Watch academy updates, athlete stories, tournaments, and federation
-          moments from our official Instagram page.
-        </p>
-
-      </div>
-
-      <a
-        href="https://www.instagram.com/elitegamesfederation/"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="w-fit bg-orange-500 hover:bg-orange-600 transition px-8 py-4 rounded-2xl text-lg font-bold shadow-[0_0_40px_rgba(255,115,0,0.35)]"
-      >
-        Open Instagram
-      </a>
-
+    <div className="inline-flex items-center gap-2 text-orange-500 uppercase tracking-[0.35em] text-sm font-semibold">
+      <FaInstagram size={18} />
+      Instagram
     </div>
+
+    <h2 className="mt-5 text-4xl md:text-6xl font-black leading-tight">
+      Follow
+      <span className="text-orange-500"> Elite Games Federation</span>
+    </h2>
+
+    <p className="mt-6 text-gray-400 text-lg leading-relaxed max-w-2xl mx-auto">
+      Watch academy updates, athlete stories, tournaments, and federation
+      moments from our official Instagram page.
+    </p>
+
+    <a
+      href="https://www.instagram.com/elitegamesfederation/"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="mt-8 inline-flex items-center gap-3 bg-gradient-to-r from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] hover:opacity-90 transition px-8 py-4 rounded-2xl text-lg font-bold text-white shadow-[0_0_40px_rgba(238,42,123,0.35)]"
+    >
+      <FaInstagram size={22} />
+      Open Instagram
+    </a>
 
     <div className="mt-12 rounded-[36px] border border-white/10 bg-zinc-900/70 backdrop-blur-xl p-4 md:p-8 overflow-hidden">
       <blockquote
-        className="instagram-media"
+        className="instagram-media mx-auto"
         data-instgrm-permalink="https://www.instagram.com/elitegamesfederation/"
         data-instgrm-version="14"
         style={{
