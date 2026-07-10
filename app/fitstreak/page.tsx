@@ -35,6 +35,37 @@ const features = [
   },
 ];
 
+const faqs = [
+  {
+    question: "How do I start a challenge?",
+    answer: "Download the FitStreak app, register, and start your challenge right away.",
+    showDownloadLink: true,
+  },
+  {
+    question: "Is FitStreak free?",
+    answer:
+      "Downloading the app is completely free. Challenge registration starts from just ₹129.",
+    showDownloadLink: false,
+  },
+  {
+    question: "What challenges are available?",
+    answer:
+      "🏃 5 KM – 30 Days Challenge\n🚶 2 KM – 30 Days Challenge\n💪 45 Hard Challenge\n🔥 75 Hard Challenge\n\nComplete your daily challenge and earn a digital certificate, performance report, and an exclusive medal on successful completion. 🏅",
+    showDownloadLink: false,
+  },
+  {
+    question: "How do I track my progress?",
+    answer: "The FitStreak app automatically tracks your daily progress throughout the challenge.",
+    showDownloadLink: false,
+  },
+  {
+    question: "Can I earn multiple medals?",
+    answer:
+      "Yes! Take on as many challenges as you like — just one challenge, and one medal, at a time.",
+    showDownloadLink: false,
+  },
+];
+
 export const metadata: Metadata = {
   title: "FitStreak App | Download on Google Play",
   description:
@@ -296,6 +327,56 @@ export default function FitStreakPage() {
           </div>
         </div>
       </section>
+
+      <section className="max-w-4xl mx-auto px-6 pb-28">
+        <div className="text-center">
+          <p className="text-orange-500 uppercase tracking-[0.4em] font-semibold">
+            FAQ
+          </p>
+          <h2 className="mt-5 text-4xl md:text-6xl font-black">
+            Frequently Asked Questions
+          </h2>
+        </div>
+
+        <div className="mt-14 space-y-5">
+          {faqs.map((faq) => (
+            <details
+              key={faq.question}
+              className="group bg-zinc-900 border border-white/10 rounded-3xl p-6 md:p-8 open:border-orange-500/40"
+            >
+              <summary className="flex items-center justify-between gap-4 cursor-pointer list-none text-xl md:text-2xl font-bold">
+                {faq.question}
+                <span className="shrink-0 text-orange-500 text-2xl transition group-open:rotate-45">
+                  +
+                </span>
+              </summary>
+              <div className="mt-5 text-gray-400 text-lg leading-relaxed whitespace-pre-line">
+                {faq.answer}
+              </div>
+              {faq.showDownloadLink && (
+                <a
+                  href={fitStreakDownloadUrl}
+                  className="mt-5 inline-flex bg-orange-500 hover:bg-orange-600 transition px-6 py-3 rounded-xl font-bold text-black"
+                >
+                  Download FitStreak
+                </a>
+              )}
+            </details>
+          ))}
+        </div>
+
+        <p className="mt-10 text-center text-gray-500">
+          Read our{" "}
+          <a
+            href="/form-privacy-policy"
+            className="text-orange-500 hover:text-orange-400 underline underline-offset-4"
+          >
+            Privacy Policy
+          </a>
+          .
+        </p>
+      </section>
+
       <section className="relative py-8 md:py-12 pb-28 overflow-hidden">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[560px] h-[560px] bg-orange-500/10 blur-[150px] rounded-full" />
 
