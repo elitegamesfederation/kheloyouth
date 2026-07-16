@@ -17,7 +17,7 @@ export default function AcademiesPage() {
 
       <Navbar />
 
-      <section className="relative pt-52 pb-40 overflow-hidden">
+      <section className="relative pt-52 md:pt-44 pb-40 overflow-hidden">
 
         <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-orange-500/10 blur-[150px] rounded-full"></div>
 

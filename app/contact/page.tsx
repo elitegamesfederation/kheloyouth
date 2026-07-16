@@ -48,7 +48,7 @@ export default function ContactPage() {
     <main className="min-h-screen pt-40 md:pt-0 bg-black text-white">
       <Navbar />
 
-      <section className="relative pt-52 pb-24 overflow-hidden">
+      <section className="relative pt-52 md:pt-44 pb-24 overflow-hidden">
         <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-orange-500/10 blur-[140px] rounded-full"></div>
         <div className="absolute top-20 right-0 w-[400px] h-[400px] bg-orange-500/10 blur-[120px] rounded-full"></div>
 

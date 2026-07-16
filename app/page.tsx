@@ -355,14 +355,14 @@ export default function Home() {
 
     <div className="text-center lg:text-left">
 
-      <div className="flex items-center justify-center lg:justify-start gap-3">
-        <div className="relative w-10 h-10 shrink-0">
+      <div className="flex items-center justify-center lg:justify-start gap-3 md:gap-4">
+        <div className="relative w-10 h-10 md:w-16 md:h-16 shrink-0">
           <Image
             src="/fitstreaklogo.png"
             alt="FitStreak Logo"
             fill
             className="object-contain drop-shadow-[0_0_20px_rgba(255,115,0,0.7)]"
-            sizes="40px"
+            sizes="(min-width: 768px) 64px, 40px"
           />
         </div>
         <p className="text-orange-500 font-semibold tracking-[0.3em] uppercase">

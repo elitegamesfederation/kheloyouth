@@ -96,20 +96,20 @@ export default function FitStreakPage() {
     <main className="min-h-screen pt-40 md:pt-0 bg-black text-white overflow-hidden">
       <Navbar />
 
-      <section className="relative pt-36 md:pt-52 pb-20 md:pb-28 overflow-hidden">
+      <section className="relative pt-36 md:pt-44 pb-20 md:pb-28 overflow-hidden">
         <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-orange-500/10 blur-[140px] rounded-full" />
         <div className="absolute top-20 right-0 w-[450px] h-[450px] bg-orange-500/10 blur-[130px] rounded-full" />
 
         <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-12 lg:gap-20 items-center relative z-10">
           <div>
-            <div className="relative w-16 h-16 mb-6">
+            <div className="relative w-16 h-16 md:w-28 md:h-28 mb-6">
               <Image
                 src="/fitstreaklogo.png"
                 alt="FitStreak Logo"
                 fill
                 priority
                 className="object-contain drop-shadow-[0_0_25px_rgba(255,115,0,0.7)]"
-                sizes="64px"
+                sizes="(min-width: 768px) 112px, 64px"
               />
             </div>
 
