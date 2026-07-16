@@ -1,5 +1,6 @@
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import Image from "next/image";
 import Link from "next/link";
 import Script from "next/script";
 import type { Metadata } from "next";
@@ -354,11 +355,22 @@ export default function Home() {
 
     <div className="text-center lg:text-left">
 
-      <p className="text-orange-500 font-semibold tracking-[0.3em] uppercase">
-        FitStreak
-      </p>
+      <div className="flex items-center justify-center lg:justify-start gap-3">
+        <div className="relative w-10 h-10 shrink-0">
+          <Image
+            src="/fitstreaklogo.png"
+            alt="FitStreak Logo"
+            fill
+            className="object-contain drop-shadow-[0_0_20px_rgba(255,115,0,0.7)]"
+            sizes="40px"
+          />
+        </div>
+        <p className="text-orange-500 font-semibold tracking-[0.3em] uppercase">
+          FitStreak
+        </p>
+      </div>
 
-      <p className="text-orange-500 uppercase tracking-[0.4em] text-sm font-semibold mb-6">
+      <p className="mt-4 text-orange-500 uppercase tracking-[0.4em] text-sm font-semibold mb-6">
         Inspired by the Fit India Movement
       </p>
 

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Script from "next/script";
 import { FaInstagram } from "react-icons/fa6";
 
@@ -101,6 +102,17 @@ export default function FitStreakPage() {
 
         <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-12 lg:gap-20 items-center relative z-10">
           <div>
+            <div className="relative w-16 h-16 mb-6">
+              <Image
+                src="/fitstreaklogo.png"
+                alt="FitStreak Logo"
+                fill
+                priority
+                className="object-contain drop-shadow-[0_0_25px_rgba(255,115,0,0.7)]"
+                sizes="64px"
+              />
+            </div>
+
             <p className="uppercase tracking-[0.4em] text-white font-semibold">
               Inspired By
             </p>
@@ -290,11 +302,15 @@ export default function FitStreakPage() {
 
                 <div className="relative flex items-center justify-center">
                   <div className="absolute w-20 h-20 bg-orange-500/30 blur-2xl rounded-full" />
-                  <img
-                    src="/fitstreaklogo.png"
-                    alt="FitStreak Logo"
-                    className="relative w-20 h-20 object-contain drop-shadow-[0_0_25px_rgba(255,115,0,0.9)] animate-pulse"
-                  />
+                  <div className="relative w-20 h-20 animate-pulse">
+                    <Image
+                      src="/fitstreaklogo.png"
+                      alt="FitStreak Logo"
+                      fill
+                      className="object-contain drop-shadow-[0_0_25px_rgba(255,115,0,0.9)]"
+                      sizes="80px"
+                    />
+                  </div>
                 </div>
               </div>
 
