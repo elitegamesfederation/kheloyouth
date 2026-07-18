@@ -405,19 +405,13 @@ export default function FitStreakPage() {
           {challenges.map((challenge) => (
             <div
               key={challenge.slug}
-              className={`relative rounded-3xl border p-6 md:p-8 flex gap-6 ${
+              className={`rounded-3xl border p-6 md:p-8 flex flex-col md:flex-row gap-6 ${
                 challenge.popular
                   ? "bg-orange-500 border-orange-500 text-black"
                   : "bg-zinc-900 border-white/10"
               }`}
             >
-              {challenge.popular && (
-                <span className="absolute top-6 right-6 bg-black text-orange-500 text-xs font-black uppercase tracking-[0.2em] px-3 py-2 rounded-full">
-                  Most Popular
-                </span>
-              )}
-
-              <div className="relative w-20 h-20 md:w-24 md:h-24 shrink-0">
+              <div className="relative w-20 h-20 md:w-24 md:h-24 shrink-0 mx-auto md:mx-0">
                 <Image
                   src={challenge.image}
                   alt={challenge.title}
@@ -427,7 +421,13 @@ export default function FitStreakPage() {
                 />
               </div>
 
-              <div className="flex-1">
+              <div className="flex-1 text-center md:text-left">
+                {challenge.popular && (
+                  <span className="inline-block mb-3 bg-black text-orange-500 text-xs font-black uppercase tracking-[0.2em] px-3 py-2 rounded-full">
+                    Most Popular
+                  </span>
+                )}
+
                 <h3 className="text-2xl md:text-3xl font-black">
                   {challenge.title}
                 </h3>
@@ -455,12 +455,12 @@ export default function FitStreakPage() {
                   Medal · Certificate · Performance Summary
                 </p>
 
-                <div className="mt-6 flex items-center justify-between gap-4">
+                <div className="mt-6 flex flex-col sm:flex-row items-center gap-4 sm:justify-between">
                   <p className="text-3xl font-black">₹{challenge.price}</p>
 
                   <a
                     href={fitStreakDownloadUrl}
-                    className={`px-6 py-3 rounded-xl font-bold transition ${
+                    className={`w-full sm:w-auto text-center px-6 py-3 rounded-xl font-bold transition ${
                       challenge.popular
                         ? "bg-black text-white hover:bg-zinc-900"
                         : "bg-orange-500 text-black hover:bg-orange-600"
