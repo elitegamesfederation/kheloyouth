@@ -13,6 +13,49 @@ const qrCodeUrl =
   "https://api.qrserver.com/v1/create-qr-code/?size=420x420&margin=16&data=" +
   encodeURIComponent(qrTargetUrl);
 
+const challenges = [
+  {
+    slug: "5km",
+    image: "/challenge-5km.png",
+    title: "5 KM – 30 Days",
+    meta: "30 Days · Walk / Run",
+    description:
+      "Walk or run 5 km every day for 30 days with honesty and discipline. GPS-tracked distance, a daily progress selfie, and a small daily donation keep you accountable.",
+    price: 129,
+    popular: false,
+  },
+  {
+    slug: "2km",
+    image: "/challenge-2km.png",
+    title: "2 KM – 30 Days",
+    meta: "30 Days · Walk / Run",
+    description:
+      "A lighter entry point into daily movement — walk or run 2 km every day for 30 days, with the same GPS tracking and daily accountability as the 5 KM challenge.",
+    price: 129,
+    popular: false,
+  },
+  {
+    slug: "45hard",
+    image: "/challenge-45hard.png",
+    title: "45 Hard Challenge",
+    meta: "45 Days · High Intensity",
+    description:
+      "Two 45-minute workouts a day (at least one outdoors), a strict no-cheat-meal diet, 4 litres of water, 10 pages of reading, and a daily progress selfie — every single day for 45 days.",
+    price: 129,
+    popular: false,
+  },
+  {
+    slug: "75hard",
+    image: "/challenge-75hard.png",
+    title: "75 Hard Challenge",
+    meta: "75 Days · High Intensity",
+    description:
+      "The full mental toughness test. The same non-negotiable daily rules as 45 Hard — two workouts, strict diet, water, reading, and a progress selfie — sustained for 75 consecutive days.",
+    price: 149,
+    popular: true,
+  },
+];
+
 const features = [
   {
     number: "01",
@@ -45,7 +88,7 @@ const faqs = [
   {
     question: "Is FitStreak free?",
     answer:
-      "Downloading the app is completely free. Challenge registration starts from just ₹129.",
+      "Downloading the app is completely free. Challenge registration is ₹129 for the 5 KM, 2 KM, and 45 Hard challenges, and ₹149 for the 75 Hard challenge.",
     showDownloadLink: false,
   },
   {
@@ -342,6 +385,99 @@ export default function FitStreakPage() {
             </div>
           </div>
         </div>
+      </section>
+
+      <section className="max-w-7xl mx-auto px-6 pb-28">
+        <div className="text-center">
+          <p className="text-orange-500 uppercase tracking-[0.4em] font-semibold">
+            Challenges
+          </p>
+          <h2 className="mt-5 text-4xl md:text-6xl font-black">
+            Ongoing Challenges
+          </h2>
+          <p className="mt-6 max-w-2xl mx-auto text-gray-400 text-lg leading-relaxed">
+            Pick your challenge, stay honest and consistent, and walk away with a
+            medal, a certificate, and a full performance summary.
+          </p>
+        </div>
+
+        <div className="mt-14 grid md:grid-cols-2 gap-6">
+          {challenges.map((challenge) => (
+            <div
+              key={challenge.slug}
+              className={`relative rounded-3xl border p-6 md:p-8 flex gap-6 ${
+                challenge.popular
+                  ? "bg-orange-500 border-orange-500 text-black"
+                  : "bg-zinc-900 border-white/10"
+              }`}
+            >
+              {challenge.popular && (
+                <span className="absolute top-6 right-6 bg-black text-orange-500 text-xs font-black uppercase tracking-[0.2em] px-3 py-2 rounded-full">
+                  Most Popular
+                </span>
+              )}
+
+              <div className="relative w-20 h-20 md:w-24 md:h-24 shrink-0">
+                <Image
+                  src={challenge.image}
+                  alt={challenge.title}
+                  fill
+                  className="object-contain"
+                  sizes="96px"
+                />
+              </div>
+
+              <div className="flex-1">
+                <h3 className="text-2xl md:text-3xl font-black">
+                  {challenge.title}
+                </h3>
+                <p
+                  className={`mt-1 text-sm font-bold uppercase tracking-[0.15em] ${
+                    challenge.popular ? "text-black/70" : "text-orange-500"
+                  }`}
+                >
+                  {challenge.meta}
+                </p>
+
+                <p
+                  className={`mt-4 leading-relaxed ${
+                    challenge.popular ? "text-black/80" : "text-gray-400"
+                  }`}
+                >
+                  {challenge.description}
+                </p>
+
+                <p
+                  className={`mt-4 text-sm font-semibold ${
+                    challenge.popular ? "text-black/70" : "text-gray-400"
+                  }`}
+                >
+                  Medal · Certificate · Performance Summary
+                </p>
+
+                <div className="mt-6 flex items-center justify-between gap-4">
+                  <p className="text-3xl font-black">₹{challenge.price}</p>
+
+                  <a
+                    href={fitStreakDownloadUrl}
+                    className={`px-6 py-3 rounded-xl font-bold transition ${
+                      challenge.popular
+                        ? "bg-black text-white hover:bg-zinc-900"
+                        : "bg-orange-500 text-black hover:bg-orange-600"
+                    }`}
+                  >
+                    Start Challenge
+                  </a>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <p className="mt-10 text-center text-gray-500 text-sm max-w-2xl mx-auto">
+          Every challenge includes a GPS honesty check and a 2-lifeline safety
+          net — full rules are shown inside the app before you join.
+        </p>
       </section>
 
       <section className="max-w-4xl mx-auto px-6 pb-28">
