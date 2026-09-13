@@ -26,7 +26,6 @@ import {
 } from "firebase/firestore";
 
 import {
-  createUserWithEmailAndPassword,
   onAuthStateChanged,
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
@@ -1559,12 +1558,35 @@ const toggleStudentSport = (
         today.getFullYear() + Number(selectedYears)
       );
 
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        officialEmail,
-        academyDefaultPassword
+      const idToken = await auth.currentUser?.getIdToken();
+
+      if (!idToken) {
+        throw new Error("Admin session expired. Please log in again.");
+      }
+
+      const createUserResponse = await fetch(
+        "/api/admin/create-academy-user",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${idToken}`,
+          },
+          body: JSON.stringify({
+            email: officialEmail,
+            password: academyDefaultPassword,
+          }),
+        }
       );
-      const academyId = userCredential.user.uid;
+      const createUserResult = await createUserResponse.json();
+
+      if (!createUserResponse.ok) {
+        throw new Error(
+          createUserResult.error || "Could not create academy login."
+        );
+      }
+
+      const academyId = createUserResult.uid;
       const uploadedLogoUrl = academyLogoFile
         ? await uploadAdminFile(academyId, academyLogoFile, "logo")
         : academyLogoUrl.startsWith("data:image/")
@@ -1620,6 +1642,7 @@ const toggleStudentSport = (
         featuredAcademyImageUrl: savedFeaturedAcademyImageUrl,
         sportsConducted,
         owners: savedOwners,
+        coaches: [],
         students: savedStudents,
         studentsCount: students.length,
         paidStudentsCount: students.length,
