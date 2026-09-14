@@ -321,6 +321,16 @@ export default function FitStreakPage() {
             </div>
           ))}
         </div>
+
+        <div className="mt-8 bg-zinc-900 border border-dashed border-orange-500/40 rounded-[32px] p-8 flex flex-col md:flex-row md:items-center gap-4 md:gap-6">
+          <span className="shrink-0 bg-orange-500/20 text-orange-500 text-xs font-black uppercase tracking-[0.2em] px-4 py-2 rounded-full w-fit">
+            Coming Soon
+          </span>
+          <p className="text-gray-300 font-semibold">
+            FitStreak Store — shop fitness and sports gear right inside the
+            app.
+          </p>
+        </div>
       </section>
 
       <section className="max-w-7xl mx-auto px-6 py-28">

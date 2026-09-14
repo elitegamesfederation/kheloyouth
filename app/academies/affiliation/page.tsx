@@ -13,6 +13,7 @@ import {
 } from "@/app/lib/indiaLocations";
 import { slugify } from "@/app/lib/slug";
 import { resizeImageFile } from "@/app/lib/imageResize";
+import { affiliationFees, originalAffiliationFees } from "@/app/lib/academyPricing";
 
 import {
   createUserWithEmailAndPassword,
@@ -188,12 +189,6 @@ const focusNewCard = (elementId: string, clearHighlight: () => void) => {
   // FEES
   // =========================
 
-  const affiliationFees: any = {
-    1: 999,
-    2: 1799,
-    3: 2499,
-  };
-
   const academyCouponCodes = [
     "ELITE100-01",
     "ELITE100-02",
@@ -206,6 +201,7 @@ const focusNewCard = (elementId: string, clearHighlight: () => void) => {
     "Dedicated Academy Webpage",
     "Official Affiliation Certificate",
     "Federation ID",
+    "Featured On FitStreak App",
     "Social Media Promotion",
     "PAN India Listing",
     "Event Access",
@@ -1183,7 +1179,7 @@ students,
           studentsCount: 1,
           selectedYears: 1,
 
-          totalAmount: 999,
+          totalAmount: affiliationFees[1],
 
           paymentDone: false,
           verified: false,
@@ -4504,6 +4500,16 @@ const completeAffiliationWithCoupon = async () => {
                   }`}
                 >
 
+                  {originalAffiliationFees[year] && (
+                    <p
+                      className={`text-lg font-bold line-through ${
+                        selectedYears === year ? "opacity-70" : "text-zinc-500"
+                      }`}
+                    >
+                      ₹{originalAffiliationFees[year]}
+                    </p>
+                  )}
+
                   <h3 className="text-4xl font-black">
                     ₹{affiliationFees[year]}
                   </h3>
@@ -4724,8 +4730,16 @@ const completeAffiliationWithCoupon = async () => {
               <p className="text-sm uppercase tracking-[0.2em] font-black">
                 Starts As Low As
               </p>
-              <p className="mt-2 text-4xl font-black">
-                999/- per year
+              <p className="mt-2 flex items-baseline gap-3">
+                <span className="text-lg font-bold line-through opacity-60">
+                  ₹{originalAffiliationFees[1]}
+                </span>
+                <span className="text-4xl font-black">
+                  ₹{affiliationFees[1]}/- per year
+                </span>
+              </p>
+              <p className="mt-1 text-xs font-bold uppercase tracking-[0.15em]">
+                Limited-time launch price
               </p>
             </div>
           </div>
@@ -4739,6 +4753,31 @@ const completeAffiliationWithCoupon = async () => {
                 {benefit}
               </div>
             ))}
+          </div>
+
+          <div className="mt-10 bg-gradient-to-r from-orange-500 to-orange-600 text-black rounded-3xl p-8 flex flex-col md:flex-row md:items-center gap-6">
+            <div className="flex-1">
+              <p className="uppercase tracking-[0.25em] text-xs font-black">
+                New — Only With KheloYouth
+              </p>
+              <h3 className="mt-3 text-3xl md:text-4xl font-black">
+                Get Discovered On The FitStreak App
+              </h3>
+              <p className="mt-3 text-black/80 font-semibold leading-relaxed max-w-2xl">
+                Every affiliated academy gets a live profile inside FitStreak —
+                the fitness app parents and athletes already use to find
+                academies near them, see your students, and follow your
+                achievements. It's free exposure no certificate alone can give
+                you.
+              </p>
+            </div>
+
+            <div className="bg-black text-white rounded-2xl px-6 py-5 text-center shrink-0">
+              <p className="text-4xl font-black">📱</p>
+              <p className="mt-2 font-black text-sm uppercase tracking-[0.15em]">
+                On FitStreak
+              </p>
+            </div>
           </div>
 
           <div className="mt-10 grid lg:grid-cols-2 gap-6">

@@ -1,7 +1,13 @@
 export const affiliationFees: Record<number, number> = {
-  1: 999,
+  1: 499,
   2: 1799,
   3: 2499,
+};
+
+// Reference (pre-discount) prices, shown struck through next to the current
+// price above. Only the 1-year plan has an active promo right now.
+export const originalAffiliationFees: Record<number, number> = {
+  1: 999,
 };
 
 const stateCodes: Record<string, string> = {

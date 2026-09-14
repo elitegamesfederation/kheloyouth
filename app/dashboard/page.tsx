@@ -12,6 +12,7 @@ import {
 } from "@/app/lib/indiaLocations";
 import { slugify } from "@/app/lib/slug";
 import { resizeImageFile } from "@/app/lib/imageResize";
+import { affiliationFees } from "@/app/lib/academyPricing";
 
 import {
   collection,
@@ -38,12 +39,6 @@ import {
   uploadBytes,
   uploadString,
 } from "firebase/storage";
-
-const affiliationFees: any = {
-  1: 999,
-  2: 1799,
-  3: 2499,
-};
 
 const stateCodes: any = {
   Delhi: "DL",
