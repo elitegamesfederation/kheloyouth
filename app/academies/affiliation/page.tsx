@@ -4773,7 +4773,11 @@ const completeAffiliationWithCoupon = async () => {
             </div>
 
             <div className="bg-black text-white rounded-2xl px-6 py-5 text-center shrink-0">
-              <p className="text-4xl font-black">📱</p>
+              <img
+                src="/fitstreaklogo.png"
+                alt="FitStreak"
+                className="h-12 w-12 mx-auto object-contain"
+              />
               <p className="mt-2 font-black text-sm uppercase tracking-[0.15em]">
                 On FitStreak
               </p>

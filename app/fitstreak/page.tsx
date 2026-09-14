@@ -322,14 +322,22 @@ export default function FitStreakPage() {
           ))}
         </div>
 
-        <div className="mt-8 bg-zinc-900 border border-dashed border-orange-500/40 rounded-[32px] p-8 flex flex-col md:flex-row md:items-center gap-4 md:gap-6">
-          <span className="shrink-0 bg-orange-500/20 text-orange-500 text-xs font-black uppercase tracking-[0.2em] px-4 py-2 rounded-full w-fit">
-            Coming Soon
-          </span>
-          <p className="text-gray-300 font-semibold">
-            FitStreak Store — shop fitness and sports gear right inside the
-            app.
-          </p>
+        <div className="mt-8 bg-gradient-to-r from-orange-500 to-orange-600 text-black rounded-[32px] p-8 flex flex-col md:flex-row md:items-center gap-6">
+          <div className="shrink-0 w-16 h-16 rounded-2xl bg-black text-orange-500 flex items-center justify-center text-3xl">
+            🛍️
+          </div>
+
+          <div className="flex-1">
+            <span className="inline-block bg-black text-white text-xs font-black uppercase tracking-[0.2em] px-4 py-2 rounded-full w-fit">
+              Coming Soon
+            </span>
+            <h3 className="mt-3 text-2xl md:text-3xl font-black">
+              FitStreak Store
+            </h3>
+            <p className="mt-2 font-semibold text-black/80">
+              Shop fitness and sports gear right inside the app.
+            </p>
+          </div>
         </div>
       </section>
 
