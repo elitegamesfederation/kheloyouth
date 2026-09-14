@@ -279,6 +279,13 @@ export default function DashboardPage() {
   const [newStudentIndex, setNewStudentIndex] = useState<number | null>(null);
   const [newEditOwnerIndex, setNewEditOwnerIndex] = useState<number | null>(null);
   const [newEditStudentIndex, setNewEditStudentIndex] = useState<number | null>(null);
+  const [optimizeRunning, setOptimizeRunning] = useState(false);
+  const [optimizeResult, setOptimizeResult] = useState<{
+    changedCount: number;
+    totalBeforeKB: number;
+    totalAfterKB: number;
+    log: string[];
+  } | null>(null);
 
   const focusNewCard = (elementId: string, clearHighlight: () => void) => {
     window.setTimeout(() => {
@@ -565,6 +572,67 @@ export default function DashboardPage() {
     await signOut(auth);
     setAdminUnlocked(false);
     setAcademies([]);
+  };
+
+  const handleOptimizeExistingImages = async () => {
+    const idToken = await auth.currentUser?.getIdToken();
+
+    if (!idToken) {
+      alert("Admin session expired. Please log in again.");
+      return;
+    }
+
+    setOptimizeRunning(true);
+    setOptimizeResult(null);
+
+    let offset = 0;
+    let done = false;
+    let changedCount = 0;
+    let totalBeforeKB = 0;
+    let totalAfterKB = 0;
+    const log: string[] = [];
+
+    try {
+      while (!done) {
+        const response = await fetch(
+          "/api/admin/optimize-existing-images",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${idToken}`,
+            },
+            body: JSON.stringify({ offset }),
+          }
+        );
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.error || "Optimization failed.");
+        }
+
+        changedCount += result.changedCount;
+        totalBeforeKB += result.totalBeforeKB;
+        totalAfterKB += result.totalAfterKB;
+        log.push(...result.log);
+
+        setOptimizeResult({
+          changedCount,
+          totalBeforeKB,
+          totalAfterKB,
+          log: [...log],
+        });
+
+        offset = result.nextOffset;
+        done = result.done;
+      }
+
+      alert(`Done. ${changedCount} images optimized.`);
+    } catch (error: any) {
+      alert(error.message || "Optimization failed.");
+    } finally {
+      setOptimizeRunning(false);
+    }
   };
 
   const handleAdminPasswordReset = async () => {
@@ -1841,6 +1909,40 @@ const toggleStudentSport = (
         >
           Admin Logout
         </button>
+
+        <div className="mt-8 bg-zinc-900 border border-white/10 rounded-3xl p-8">
+          <h2 className="text-3xl font-black">Storage Maintenance</h2>
+          <p className="mt-2 text-zinc-400">
+            Re-compresses already-uploaded academy logos, photos, and
+            headshots that were saved before automatic resizing was added.
+            Safe to run more than once — already-optimized images are
+            skipped.
+          </p>
+
+          <button
+            type="button"
+            onClick={handleOptimizeExistingImages}
+            disabled={optimizeRunning}
+            className="mt-5 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-black px-6 py-3 rounded-2xl font-bold"
+          >
+            {optimizeRunning ? "Optimizing..." : "Optimize Existing Images"}
+          </button>
+
+          {optimizeResult && (
+            <div className="mt-5 space-y-3">
+              <p className="text-zinc-300 font-bold">
+                {optimizeResult.changedCount} images optimized ·{" "}
+                {optimizeResult.totalBeforeKB}KB →{" "}
+                {optimizeResult.totalAfterKB}KB
+              </p>
+              <div className="max-h-56 overflow-y-auto bg-black rounded-xl p-4 font-mono text-xs text-zinc-400 space-y-1">
+                {optimizeResult.log.map((line, index) => (
+                  <p key={index}>{line}</p>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
 
         {adminLoadError && (
           <div className="mt-10 rounded-2xl border border-red-500 bg-red-500/10 p-5 text-red-100">
