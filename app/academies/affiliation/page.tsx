@@ -11,6 +11,7 @@ import {
   getDistrictsForState,
   states as indiaStates,
 } from "@/app/lib/indiaLocations";
+import Link from "next/link";
 import { slugify } from "@/app/lib/slug";
 import { resizeImageFile } from "@/app/lib/imageResize";
 import { affiliationFees, originalAffiliationFees } from "@/app/lib/academyPricing";
@@ -4704,6 +4705,14 @@ const completeAffiliationWithCoupon = async () => {
             federation opportunities, and become part of India's growing
             grassroots sports network.
           </p>
+
+          <Link
+            href="/academies/list"
+            className="mt-8 inline-flex items-center gap-2 border border-white/20 hover:border-orange-500 hover:bg-orange-500/10 transition px-6 py-3 rounded-2xl font-bold"
+          >
+            View List Of Affiliated Academies
+            <span aria-hidden="true">→</span>
+          </Link>
 
         </div>
 
