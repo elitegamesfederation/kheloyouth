@@ -12,6 +12,7 @@ import {
   states as indiaStates,
 } from "@/app/lib/indiaLocations";
 import { slugify } from "@/app/lib/slug";
+import { resizeImageFile } from "@/app/lib/imageResize";
 
 import {
   createUserWithEmailAndPassword,
@@ -1001,6 +1002,29 @@ const formatCertificateDate = (value: Date | string | null | undefined) => {
   return `${String(day).padStart(2, "0")}${suffix} ${month} ${date.getFullYear()}`;
 };
 
+const getAcademyFileResizeOptions = (folder: string) => {
+  if (folder === "logo") {
+    return { maxWidth: 800, maxHeight: 800, quality: 0.85 };
+  }
+
+  if (folder === "photos") {
+    return {
+      maxWidth: 1600,
+      maxHeight: 1600,
+      quality: 0.82,
+      mimeType: "image/jpeg",
+    };
+  }
+
+  // Owner/coach/student headshots.
+  return {
+    maxWidth: 520,
+    maxHeight: 680,
+    quality: 0.78,
+    mimeType: "image/jpeg",
+  };
+};
+
 const uploadAcademyFile = async (
   file: File,
   folder: string
@@ -1014,12 +1038,17 @@ const uploadAcademyFile = async (
       ? "academy-photos"
       : `academy-${folder}`;
 
-  const storageRef = ref(
-    storage,
-    `${storageFolder}/${currentUser.uid}/${Date.now()}-${file.name}`
+  const resizedFile = await resizeImageFile(
+    file,
+    getAcademyFileResizeOptions(folder)
   );
 
-  await uploadBytes(storageRef, file);
+  const storageRef = ref(
+    storage,
+    `${storageFolder}/${currentUser.uid}/${Date.now()}-${resizedFile.name}`
+  );
+
+  await uploadBytes(storageRef, resizedFile);
 
   return getDownloadURL(storageRef);
 };

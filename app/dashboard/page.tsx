@@ -11,6 +11,7 @@ import {
   states as indiaStates,
 } from "@/app/lib/indiaLocations";
 import { slugify } from "@/app/lib/slug";
+import { resizeImageFile } from "@/app/lib/imageResize";
 
 import {
   collection,
@@ -581,19 +582,47 @@ export default function DashboardPage() {
   const sanitizeFileName = (fileName: string) =>
     fileName.replace(/[^a-z0-9._-]+/gi, "-").toLowerCase();
 
+  const getAdminFileResizeOptions = (folder: string) => {
+    if (folder === "logo") {
+      return { maxWidth: 800, maxHeight: 800, quality: 0.85 };
+    }
+
+    if (folder.startsWith("academy-photos")) {
+      return {
+        maxWidth: 1600,
+        maxHeight: 1600,
+        quality: 0.82,
+        mimeType: "image/jpeg",
+      };
+    }
+
+    // Owner/coach/student headshots.
+    return {
+      maxWidth: 520,
+      maxHeight: 680,
+      quality: 0.78,
+      mimeType: "image/jpeg",
+    };
+  };
+
   const uploadAdminFile = async (
     academyId: string,
     file: File,
     folder: string
   ) => {
+    const resizedFile = await resizeImageFile(
+      file,
+      getAdminFileResizeOptions(folder)
+    );
+
     const storageRef = ref(
       storage,
       `academies/${academyId}/${folder}/${Date.now()}-${sanitizeFileName(
-        file.name
+        resizedFile.name
       )}`
     );
 
-    await uploadBytes(storageRef, file);
+    await uploadBytes(storageRef, resizedFile);
 
     return getDownloadURL(storageRef);
   };
