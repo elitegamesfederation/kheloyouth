@@ -204,33 +204,53 @@ async function VirtualRunWalkathonSection() {
       className="max-w-7xl mx-auto px-6 pb-24 md:pb-28"
     >
       <div className="rounded-[40px] border border-orange-500/30 bg-gradient-to-br from-orange-500/15 via-zinc-950 to-black p-6 md:p-10 shadow-[0_0_80px_rgba(255,115,0,0.12)]">
-        <div className="flex flex-wrap items-center gap-3">
-          {event && (
-            <span
-              className={`text-xs font-black uppercase tracking-[0.2em] px-4 py-2 rounded-full ${
-                isOpen ? "bg-orange-500 text-black" : "bg-white/10 text-gray-300"
-              }`}
-            >
-              {isOpen ? "Registration Open" : "Registration Not Open Right Now"}
-            </span>
-          )}
-          {eventDate && (
-            <span className="text-xs font-black uppercase tracking-[0.2em] px-4 py-2 rounded-full border border-white/20">
-              {eventDate}
-            </span>
-          )}
+        <div className="grid lg:grid-cols-[1.3fr_0.7fr] gap-10 items-center">
+          <div>
+            <div className="flex flex-wrap items-center gap-3">
+              {event && (
+                <span
+                  className={`text-xs font-black uppercase tracking-[0.2em] px-4 py-2 rounded-full ${
+                    isOpen ? "bg-orange-500 text-black" : "bg-white/10 text-gray-300"
+                  }`}
+                >
+                  {isOpen ? "Registration Open" : "Registration Not Open Right Now"}
+                </span>
+              )}
+              {eventDate && (
+                <span className="text-xs font-black uppercase tracking-[0.2em] px-4 py-2 rounded-full border border-white/20">
+                  {eventDate}
+                </span>
+              )}
+            </div>
+
+            <h2 className="mt-6 text-4xl md:text-6xl font-black leading-tight">
+              FitStreak Virtual Run
+              <span className="block text-orange-500">&amp; Walkathon 2026</span>
+            </h2>
+
+            <p className="mt-5 text-xl text-gray-300 max-w-3xl leading-relaxed">
+              Running for a cause: Say No To Drugs, Yes To Sports! Run or walk
+              your chosen distance from anywhere in India, track it in the
+              FitStreak app, and be part of a nationwide virtual event.
+            </p>
+          </div>
+
+          <div className="mx-auto w-full max-w-sm">
+            <div className="relative overflow-hidden rounded-[32px] border border-orange-500/30 shadow-[0_0_60px_rgba(255,115,0,0.25)]">
+              <Image
+                src="/virtual-run-walkathon-medal.jpg"
+                alt="FitStreak Virtual Run & Walkathon 2026 finisher medal"
+                width={840}
+                height={920}
+                sizes="(min-width: 1024px) 384px, 90vw"
+                className="w-full h-auto"
+              />
+            </div>
+            <p className="mt-4 text-center text-xs font-black uppercase tracking-[0.25em] text-orange-500">
+              The Finisher Medal
+            </p>
+          </div>
         </div>
-
-        <h2 className="mt-6 text-4xl md:text-6xl font-black leading-tight">
-          FitStreak Virtual Run
-          <span className="block text-orange-500">&amp; Walkathon 2026</span>
-        </h2>
-
-        <p className="mt-5 text-xl text-gray-300 max-w-3xl leading-relaxed">
-          Running for a cause: Say No To Drugs, Yes To Sports! Run or walk your
-          chosen distance from anywhere in India, track it in the FitStreak
-          app, and be part of a nationwide virtual event.
-        </p>
 
         {bands.length > 0 && (
           <div className="mt-10 grid md:grid-cols-2 lg:grid-cols-4 gap-6">
