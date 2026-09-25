@@ -134,6 +134,171 @@ export const metadata: Metadata = {
   },
 };
 
+// Same public endpoint the FitStreak app reads, so fees, categories and
+// registration status here can't drift from what the app actually charges.
+const eventApiUrl =
+  "https://us-central1-fitstreak-kheloyouth.cloudfunctions.net/getEventCategories";
+
+type EventCategory = {
+  id: string;
+  type: string;
+  ageBand: string;
+  distanceKm: number;
+  feePaise: number;
+};
+
+type EventData = {
+  status: string;
+  windowStart: number | null;
+  categories: EventCategory[];
+};
+
+const eventBands = [
+  { ageBand: "junior", title: "Run Junior", detail: "Under 18" },
+  { ageBand: "open", title: "Run Open", detail: "Ages 18–39" },
+  { ageBand: "masters", title: "Run Masters", detail: "Ages 40 and above" },
+  { ageBand: "60plus", title: "Walkathon 60+", detail: "Ages 60 and above · walking pace" },
+];
+
+async function getEventData(): Promise<EventData | null> {
+  try {
+    const response = await fetch(eventApiUrl, {
+      next: { revalidate: 300 },
+      signal: AbortSignal.timeout(5000),
+    });
+    if (!response.ok) return null;
+    return (await response.json()) as EventData;
+  } catch {
+    return null;
+  }
+}
+
+async function VirtualRunWalkathonSection() {
+  const event = await getEventData();
+  const categories = event?.categories ?? [];
+  const isOpen = event?.status === "registration_open";
+
+  // Only the date is shown, not the run window's hours: the app's stored
+  // window and the official rules text currently give different hours.
+  const eventDate = event?.windowStart
+    ? new Intl.DateTimeFormat("en-IN", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+        timeZone: "Asia/Kolkata",
+      }).format(new Date(event.windowStart))
+    : null;
+
+  const bands = eventBands
+    .map((band) => ({
+      ...band,
+      options: categories
+        .filter((category) => category.ageBand === band.ageBand)
+        .sort((a, b) => a.distanceKm - b.distanceKm),
+    }))
+    .filter((band) => band.options.length > 0);
+
+  return (
+    <section
+      id="virtual-run-walkathon"
+      className="max-w-7xl mx-auto px-6 pb-24 md:pb-28"
+    >
+      <div className="rounded-[40px] border border-orange-500/30 bg-gradient-to-br from-orange-500/15 via-zinc-950 to-black p-6 md:p-10 shadow-[0_0_80px_rgba(255,115,0,0.12)]">
+        <div className="flex flex-wrap items-center gap-3">
+          {event && (
+            <span
+              className={`text-xs font-black uppercase tracking-[0.2em] px-4 py-2 rounded-full ${
+                isOpen ? "bg-orange-500 text-black" : "bg-white/10 text-gray-300"
+              }`}
+            >
+              {isOpen ? "Registration Open" : "Registration Not Open Right Now"}
+            </span>
+          )}
+          {eventDate && (
+            <span className="text-xs font-black uppercase tracking-[0.2em] px-4 py-2 rounded-full border border-white/20">
+              {eventDate}
+            </span>
+          )}
+        </div>
+
+        <h2 className="mt-6 text-4xl md:text-6xl font-black leading-tight">
+          FitStreak Virtual Run
+          <span className="block text-orange-500">&amp; Walkathon 2026</span>
+        </h2>
+
+        <p className="mt-5 text-xl text-gray-300 max-w-3xl leading-relaxed">
+          Running for a cause: Say No To Drugs, Yes To Sports! Run or walk your
+          chosen distance from anywhere in India, track it in the FitStreak
+          app, and be part of a nationwide virtual event.
+        </p>
+
+        {bands.length > 0 && (
+          <div className="mt-10 grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {bands.map((band) => (
+              <div
+                key={band.ageBand}
+                className="bg-zinc-900 border border-white/10 rounded-[28px] p-6"
+              >
+                <h3 className="text-2xl font-black">{band.title}</h3>
+                <p className="mt-1 text-sm text-gray-400">{band.detail}</p>
+
+                <div className="mt-5 space-y-3">
+                  {band.options.map((option) => (
+                    <div
+                      key={option.id}
+                      className="flex items-center justify-between bg-black border border-white/10 rounded-2xl px-4 py-3"
+                    >
+                      <span className="font-bold">{option.distanceKm} KM</span>
+                      <span className="text-orange-500 font-black">
+                        ₹{Math.round(option.feePaise / 100).toLocaleString("en-IN")}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="mt-10 grid md:grid-cols-2 gap-6">
+          <div className="bg-black border border-white/10 rounded-[28px] p-6">
+            <p className="text-orange-500 uppercase tracking-[0.25em] text-xs font-black">
+              How It Works
+            </p>
+            <ul className="mt-4 space-y-3 text-gray-300 leading-relaxed">
+              <li>Register and pay for your category inside the FitStreak app.</li>
+              <li>Run or walk your chosen distance anywhere, on your own route.</li>
+              <li>Track and submit your activity through the app.</li>
+              <li>Runs are 5 KM or 10 KM; the 60+ Walkathon is 3 KM or 5 KM.</li>
+            </ul>
+          </div>
+
+          <div className="bg-black border border-white/10 rounded-[28px] p-6">
+            <p className="text-orange-500 uppercase tracking-[0.25em] text-xs font-black">
+              Good To Know
+            </p>
+            <ul className="mt-4 space-y-3 text-gray-300 leading-relaxed">
+              <li>Pick the category matching your age as of 6 December 2026.</li>
+              <li>One registration per person, and slots are limited per category.</li>
+              <li>Results must reflect your own effort. Falsified or GPS-manipulated submissions are disqualified.</li>
+              <li>Fees are non-transferable and non-refundable, except an automatic refund if your category sells out after you pay.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="mt-10 flex flex-col sm:flex-row gap-5">
+          <a
+            href={fitStreakDownloadUrl}
+            className="inline-flex justify-center bg-orange-500 hover:bg-orange-600 transition px-8 py-4 rounded-2xl text-lg font-bold text-black shadow-[0_0_40px_rgba(255,115,0,0.35)]"
+          >
+            {isOpen ? "Register In The FitStreak App" : "Get The FitStreak App"}
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function FitStreakPage() {
   return (
     <main className="min-h-screen pt-40 md:pt-0 bg-black text-white overflow-hidden">
@@ -263,6 +428,8 @@ export default function FitStreakPage() {
           </div>
         </div>
       </section>
+
+      <VirtualRunWalkathonSection />
 
       <section
         id="fitstreak-download"
