@@ -178,8 +178,11 @@ async function VirtualRunWalkathonSection() {
   const categories = event?.categories ?? [];
   const isOpen = event?.status === "registration_open";
 
-  // Only the date is shown, not the run window's hours: the app's stored
-  // window and the official rules text currently give different hours.
+  // The date comes live from the event record, but the hours are set by
+  // hand: the record's stored window and the rules text both still give
+  // different hours than the confirmed 6 AM to 10 PM. Once the record is
+  // corrected, derive this from windowStart/windowEnd instead.
+  const eventHours = "6:00 AM to 10:00 PM IST";
   const eventDate = event?.windowStart
     ? new Intl.DateTimeFormat("en-IN", {
         day: "numeric",
@@ -218,7 +221,7 @@ async function VirtualRunWalkathonSection() {
               )}
               {eventDate && (
                 <span className="text-xs font-black uppercase tracking-[0.2em] px-4 py-2 rounded-full border border-white/20">
-                  {eventDate}
+                  {eventDate} · {eventHours}
                 </span>
               )}
             </div>
@@ -287,7 +290,10 @@ async function VirtualRunWalkathonSection() {
             </p>
             <ul className="mt-4 space-y-3 text-gray-300 leading-relaxed">
               <li>Register and pay for your category inside the FitStreak app.</li>
-              <li>Run or walk your chosen distance anywhere, on your own route.</li>
+              <li>
+                Run or walk your chosen distance anywhere, on your own route,
+                {eventDate ? ` on ${eventDate}` : ""}, from {eventHours}.
+              </li>
               <li>Track and submit your activity through the app.</li>
               <li>Runs are 5 KM or 10 KM; the 60+ Walkathon is 3 KM or 5 KM.</li>
             </ul>
