@@ -99,12 +99,6 @@ export default function ShopPage() {
           <div className="mt-10">
             <ShopCatalog products={products} categories={categories} />
           </div>
-
-          <p className="mt-12 text-xs md:text-sm text-gray-400 max-w-3xl leading-relaxed">
-            Images marked &apos;AI-styled look&apos; are AI-generated and show
-            how the product may be styled; the actual product may vary
-            slightly.
-          </p>
         </div>
       </section>
 
