@@ -1,0 +1,44 @@
+[
+  {
+    "id": "look-001",
+    "lookNumber": 1,
+    "title": "Lavender 3-Piece Gym Set",
+    "description": "Zip jacket, sports bra and high-waist leggings.",
+    "category": "Women's Activewear",
+    "priceLabel": "Under ₹1K",
+    "creatorImage": "/shop/images/look-001-meera.jpg",
+    "productImage": "/shop/images/look-001-product.jpg",
+    "affiliateUrl": "https://link.amazon/B048zJNOm",
+    "isAiImage": true,
+    "active": true,
+    "addedOn": "2026-10-24"
+  },
+  {
+    "id": "look-002",
+    "lookNumber": 2,
+    "title": "PLACEHOLDER - replace with the product title",
+    "description": "PLACEHOLDER - replace with a one-line description.",
+    "category": "Women's Activewear",
+    "priceLabel": "Under ₹1K",
+    "creatorImage": "/shop/images/look-002-meera.jpg",
+    "productImage": "/shop/images/look-002-product.jpg",
+    "affiliateUrl": "REPLACE-WITH-YOUR-AMAZON-AFFILIATE-LINK",
+    "isAiImage": true,
+    "active": false,
+    "addedOn": "2026-10-24"
+  },
+  {
+    "id": "look-003",
+    "lookNumber": 3,
+    "title": "PLACEHOLDER - replace with the product title",
+    "description": "PLACEHOLDER - replace with a one-line description.",
+    "category": "Gym Equipment",
+    "priceLabel": "Under ₹1K",
+    "creatorImage": "/shop/images/look-003-meera.jpg",
+    "productImage": "/shop/images/look-003-product.jpg",
+    "affiliateUrl": "REPLACE-WITH-YOUR-AMAZON-AFFILIATE-LINK",
+    "isAiImage": true,
+    "active": false,
+    "addedOn": "2026-10-24"
+  }
+]

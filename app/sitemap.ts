@@ -10,6 +10,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/academies/affiliation",
     "/donation",
     "/fitstreak",
+    "/shop",
     "/contact",
     "/fitstreakprivacypolicy",
   ];

@@ -126,6 +126,18 @@ export default function Navbar() {
               FitStreak
             </Link>
 
+            {/* SHOP */}
+            <Link
+              href="/shop"
+              className={`px-7 py-3 rounded-full text-sm font-semibold transition-all duration-300 ${
+                pathname === "/shop"
+                  ? "bg-orange-500 text-white shadow-[0_0_30px_rgba(255,115,0,0.55)]"
+                  : "text-gray-300 hover:text-white hover:bg-white/5"
+              }`}
+            >
+              Shop
+            </Link>
+
             {/* CONTACT */}
             <Link
               href="/contact"
@@ -286,6 +298,18 @@ export default function Navbar() {
               }`}
             >
               FitStreak
+            </Link>
+
+            <Link
+              href="/shop"
+              onClick={() => setMenuOpen(false)}
+              className={`block px-5 py-4 rounded-2xl font-semibold transition ${
+                pathname === "/shop"
+                  ? "bg-orange-500 text-white"
+                  : "text-gray-300 bg-white/5"
+              }`}
+            >
+              Shop
             </Link>
 
             <Link

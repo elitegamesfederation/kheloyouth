@@ -5,7 +5,7 @@ import Footer from "../components/Footer";
 export const metadata: Metadata = {
   title: "Privacy Policy",
   description:
-    "Privacy Policy for Elite Games Federation academy affiliation forms and Meta lead forms.",
+    "Privacy Policy for Elite Games Federation academy affiliation forms and Meta and LinkedIn lead forms.",
   alternates: {
     canonical: "/form-privacy-policy",
   },
@@ -60,8 +60,8 @@ export default function FormPrivacyPolicy() {
 
               <p className="mt-5">
                 When you submit your information through our website, social
-                media platforms, or Meta lead forms, we may collect details
-                including:
+                media platforms, Meta or LinkedIn lead forms, we may collect
+                details including:
               </p>
 
               <ul className="mt-5 list-disc space-y-2 pl-6">
