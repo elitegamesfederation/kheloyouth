@@ -57,6 +57,7 @@ export async function generateMetadata({
     title: academy
       ? `${academy.academyName} Certificate Verification`
       : "Certificate Verification",
+    robots: { index: false, follow: false },
   };
 }
 

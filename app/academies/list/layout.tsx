@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "List Of Affiliated Sports Academies",
+  title: "List of Sports Academies in India by State & Sport",
   description:
-    "Browse verified academies in the Elite Games Federation grassroots sports network by sport, state, and district on KheloYouth.",
+    "Browse affiliated sports academies across India. Filter by sport, state and district to see students, coaches, photos and contact details.",
   alternates: {
     canonical: "/academies/list",
   },

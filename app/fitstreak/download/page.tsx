@@ -2,6 +2,7 @@
 
 import Footer from "../../components/Footer";
 import Navbar from "../../components/Navbar";
+import { absoluteUrl } from "../../lib/site";
 import RedirectClient from "./RedirectClient";
 
 const playStoreUrl =
@@ -11,26 +12,21 @@ const qrCodeUrl =
   encodeURIComponent(playStoreUrl);
 
 export const metadata: Metadata = {
-  title: "Download FitStreak App | KheloYouth",
+  title: "Download FitStreak App",
   description:
     "Install FitStreak from Google Play and start tracking your fitness streak.",
   alternates: {
     canonical: "/fitstreak/download",
   },
+  // This page only forwards visitors to Google Play (the QR code points
+  // here), so it is kept out of search results. The /fitstreak page ranks.
+  robots: { index: false, follow: true },
   openGraph: {
     title: "Download FitStreak App",
     description:
       "FitStreak is live on Google Play. Start tracking workouts, streaks, and fitness challenges.",
-    url: "https://www.kheloyouth.com/fitstreak/download",
+    url: absoluteUrl("/fitstreak/download"),
     siteName: "KheloYouth",
-    images: [
-      {
-        url: "/fitstreaklogo.png",
-        width: 1200,
-        height: 630,
-        alt: "FitStreak App",
-      },
-    ],
   },
 };
 

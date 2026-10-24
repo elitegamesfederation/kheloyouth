@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 
 export const metadata: Metadata = {
-  title: "Join India's Grassroots Sports Network",
+  title: "Affiliate Your Sports Academy in India",
   description:
-    "Join KheloYouth, India's growing grassroots sports network for academy webpages, athlete features, federation ID, social promotion, PAN India listing, events, and collaboration.",
+    "Affiliate your sports academy with Elite Games Federation: academy webpage, athlete features, federation ID cards, PAN India listing and promotion.",
   alternates: {
     canonical: "/academies/affiliation",
   },
@@ -14,5 +15,14 @@ export default function AcademyAffiliationLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return children;
+  return (
+    <>
+      {/* Razorpay checkout is only used on this page, so it is not loaded site-wide. */}
+      <Script
+        src="https://checkout.razorpay.com/v1/checkout.js"
+        strategy="afterInteractive"
+      />
+      {children}
+    </>
+  );
 }

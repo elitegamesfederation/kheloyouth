@@ -1,11 +1,23 @@
-"use client";
-
+import Link from "next/link";
 import {
   FaInstagram,
   FaLinkedin,
   FaXTwitter,
   FaFacebookF,
 } from "react-icons/fa6";
+
+const footerLinks = [
+  { href: "/", label: "Home" },
+  { href: "/academies", label: "Academies" },
+  { href: "/academies/list", label: "List Of Academies" },
+  { href: "/academies/affiliation", label: "Join The Network" },
+  { href: "/fitstreak", label: "FitStreak App" },
+  { href: "/shop", label: "Shop" },
+  { href: "/donation", label: "Donate" },
+  { href: "/contact", label: "Contact" },
+  { href: "/form-privacy-policy", label: "Privacy Policy" },
+  { href: "/fitstreakprivacypolicy", label: "FitStreak Privacy Policy" },
+];
 
 export default function Footer() {
   return (
@@ -42,8 +54,24 @@ export default function Footer() {
 
           </div>
 
+          {/* SITE LINKS */}
+          <nav
+            aria-label="Footer"
+            className="mt-12 flex flex-wrap justify-center gap-x-8 gap-y-3 text-sm md:text-base"
+          >
+            {footerLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-gray-300 transition hover:text-orange-500"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+
           {/* SOCIAL CARDS */}
-          <div className="mt-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
 
             {/* INSTAGRAM */}
             <a

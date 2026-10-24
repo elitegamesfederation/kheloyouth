@@ -2,11 +2,14 @@ import { cache } from "react";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
+import JsonLd, { breadcrumbSchema } from "../../components/JsonLd";
 
 import { adminDb } from "@/app/lib/firebase-admin";
+import { absoluteUrl } from "@/app/lib/site";
 import { slugify } from "@/app/lib/slug";
 
 const fallbackImage = "/elite-logo.png";
@@ -90,27 +93,65 @@ export async function generateMetadata({
   if (!academy) {
     return {
       title: "Academy Not Found",
+      robots: { index: false, follow: false },
     };
   }
 
-  const description =
-    academy.academyDescription ||
-    "Officially affiliated with Elite Games Federation inside India's growing grassroots sports network.";
+  const sports = (
+    Array.isArray(academy.sportsConducted) ? academy.sportsConducted : []
+  )
+    .filter(Boolean)
+    .slice(0, 2)
+    .join(" & ");
+  const place = [academy.city, academy.state].filter(Boolean).join(", ");
+  const name = String(academy.academyName);
+  // Short enough to show in full in search results (about 60 characters):
+  //   "Unique Badminton Academy in Eluru"
+  //   "Star Academy - Karate & Judo in Pune"
+  const nameMentionsSport = sports
+    ? sports
+        .split(" & ")
+        .some((sport: string) =>
+          name.toLowerCase().includes(sport.toLowerCase())
+        )
+    : false;
+  const title = academy.city
+    ? sports && !nameMentionsSport
+      ? `${name} - ${sports} in ${academy.city}`
+      : `${name} in ${academy.city}`
+    : name;
+
+  const fallbackDescription = [
+    `${academy.academyName}`,
+    sports ? `is a ${sports} academy` : "is a sports academy",
+    place ? `in ${place}` : "",
+    "affiliated with Elite Games Federation. See students, coaches, photos and contact details.",
+  ]
+    .filter(Boolean)
+    .join(" ");
+  const rawDescription = String(academy.academyDescription || "").trim();
+  // Search results cut descriptions at about 155 characters.
+  const description = rawDescription
+    ? rawDescription.length > 155
+      ? `${rawDescription.slice(0, 152).trimEnd()}...`
+      : rawDescription
+    : fallbackDescription;
   const image =
     academy.featuredAcademyImageUrl ||
     (Array.isArray(academy.academyImageUrls) && academy.academyImageUrls[0]) ||
     fallbackImage;
 
   return {
-    title: academy.academyName,
+    title,
     description,
     alternates: {
       canonical: `/academy/${slug}`,
     },
     openGraph: {
-      title: academy.academyName,
+      type: "website",
+      title,
       description,
-      url: `https://www.kheloyouth.com/academy/${slug}`,
+      url: absoluteUrl(`/academy/${slug}`),
       siteName: "KheloYouth",
       images: [{ url: image, width: 1200, height: 630, alt: academy.academyName }],
     },
@@ -124,6 +165,9 @@ export default async function PublicAcademyPage({
 }) {
   const { slug } = await params;
   const academy = await getAcademyBySlug(slug);
+
+  // A real 404 (not a 200 page saying "not found") so Google drops stale URLs.
+  if (!academy) notFound();
 
   const academyStudents = Array.isArray(academy?.students)
     ? academy.students
@@ -259,20 +303,49 @@ export default async function PublicAcademyPage({
     </div>
   );
 
+  const academySchema = {
+    "@context": "https://schema.org",
+    "@type": "SportsActivityLocation",
+    name: academy.academyName,
+    url: publicAcademyUrl,
+    description: profileDescription,
+    image: coverImage.startsWith("/") ? absoluteUrl(coverImage) : coverImage,
+    ...(logoImage ? { logo: logoImage } : {}),
+    address: {
+      "@type": "PostalAddress",
+      ...(academy.fullAddress ? { streetAddress: academy.fullAddress } : {}),
+      ...(academy.city ? { addressLocality: academy.city } : {}),
+      ...(academy.state ? { addressRegion: academy.state } : {}),
+      addressCountry: "IN",
+    },
+    ...(googleMapUrl ? { hasMap: googleMapUrl } : {}),
+    ...(academySports.length ? { sport: academySports } : {}),
+    sameAs: [
+      getExternalUrl(academy.websiteLink),
+      getExternalUrl(academy.instagramLink),
+    ].filter(Boolean),
+    parentOrganization: {
+      "@type": "SportsOrganization",
+      name: "Elite Games Federation",
+      url: absoluteUrl("/"),
+    },
+  };
+
   return (
     <main className="min-h-screen bg-black text-white">
+      <JsonLd
+        data={[
+          academySchema,
+          breadcrumbSchema([
+            { name: "Home", path: "/" },
+            { name: "Academies", path: "/academies/list" },
+            { name: academy.academyName, path: `/academy/${slug}` },
+          ]),
+        ]}
+      />
       <Navbar />
 
       <section className="pt-44 pb-24 max-w-7xl mx-auto px-6">
-        {!academy && (
-          <div className="bg-zinc-900 border border-white/10 rounded-[35px] p-10">
-            <h1 className="text-5xl font-black">Academy Not Found</h1>
-            <p className="mt-4 text-zinc-400">
-              This academy is not live yet or payment is pending.
-            </p>
-          </div>
-        )}
-
         {academy && (
           <div className="bg-zinc-900 border border-orange-500/40 rounded-[35px] overflow-hidden">
             <div className="relative min-h-[480px] p-8 md:p-14 flex items-end">

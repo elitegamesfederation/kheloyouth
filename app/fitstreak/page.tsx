@@ -4,7 +4,9 @@ import Script from "next/script";
 import { FaInstagram } from "react-icons/fa6";
 
 import Footer from "../components/Footer";
+import JsonLd, { breadcrumbSchema } from "../components/JsonLd";
 import Navbar from "../components/Navbar";
+import { absoluteUrl } from "../lib/site";
 
 const fitStreakDownloadUrl = "/fitstreak/download";
 const fitStreakInstagramUrl = "https://www.instagram.com/fitstreakofficial/";
@@ -111,26 +113,40 @@ const faqs = [
 ];
 
 export const metadata: Metadata = {
-  title: "FitStreak App | Download on Google Play",
+  title: "FitStreak App: 75 Hard, 45 Hard & 5 KM Challenges",
   description:
-    "Download FitStreak on Google Play. Track workouts, daily streaks, steps, calories, challenges, and build discipline while supporting grassroots sports.",
+    "Download the free FitStreak app. Track workouts and daily streaks, take the 75 Hard, 45 Hard, 5 KM or 2 KM challenge and earn medals.",
   alternates: {
     canonical: "/fitstreak",
   },
   openGraph: {
+    type: "website",
     title: "FitStreak App | Elite Games Federation",
     description:
       "FitStreak is now live on Google Play. Scan the QR code, install the app, and start building your daily fitness streak.",
-    url: "https://www.kheloyouth.com/fitstreak",
+    url: absoluteUrl("/fitstreak"),
     siteName: "KheloYouth",
-    images: [
-      {
-        url: "/fitstreaklogo.png",
-        width: 1200,
-        height: 630,
-        alt: "FitStreak App",
-      },
-    ],
+    // The share image comes from app/fitstreak/opengraph-image.tsx.
+  },
+};
+
+const fitStreakAppSchema = {
+  "@context": "https://schema.org",
+  "@type": "MobileApplication",
+  name: "FitStreak",
+  operatingSystem: "ANDROID",
+  applicationCategory: "HealthApplication",
+  description:
+    "Fitness app with daily streaks, GPS-tracked walk and run challenges, 45 Hard and 75 Hard challenges, step and calorie tracking, certificates and medals.",
+  url: absoluteUrl("/fitstreak"),
+  image: absoluteUrl("/fitstreaklogo.png"),
+  downloadUrl:
+    "https://play.google.com/store/apps/details?id=com.kheloyouth.fitstreakofficial",
+  offers: { "@type": "Offer", price: "0", priceCurrency: "INR" },
+  publisher: {
+    "@type": "SportsOrganization",
+    name: "Elite Games Federation",
+    url: absoluteUrl("/"),
   },
 };
 
@@ -328,6 +344,15 @@ async function VirtualRunWalkathonSection() {
 export default function FitStreakPage() {
   return (
     <main className="min-h-screen pt-40 md:pt-0 bg-black text-white overflow-hidden">
+      <JsonLd
+        data={[
+          fitStreakAppSchema,
+          breadcrumbSchema([
+            { name: "Home", path: "/" },
+            { name: "FitStreak", path: "/fitstreak" },
+          ]),
+        ]}
+      />
       <Navbar />
 
       <section className="relative pt-36 md:pt-44 pb-20 md:pb-28 overflow-hidden">
@@ -408,10 +433,12 @@ export default function FitStreakPage() {
 
           <div className="relative flex justify-center">
             <div className="relative w-full max-w-xl h-[520px] md:h-[680px] rounded-[40px] overflow-hidden border border-white/10 bg-zinc-900 shadow-[0_0_80px_rgba(255,115,0,0.15)]">
-              <img
-                src="/lets-make-india-fit.png"
+              <Image
+                src="/lets-make-india-fit.webp"
                 alt="FitStreak fitness movement"
-                className="w-full h-full object-cover opacity-90"
+                fill
+                sizes="(min-width: 1024px) 576px, 100vw"
+                className="object-cover opacity-90"
               />
 
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-transparent" />

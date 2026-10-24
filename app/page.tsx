@@ -7,9 +7,11 @@ import type { Metadata } from "next";
 import { FaInstagram } from "react-icons/fa6";
 
 export const metadata: Metadata = {
-  title: "India's Growing Grassroots Sports Network",
+  title: {
+    absolute: "KheloYouth: Grassroots Sports Network for Academies in India",
+  },
   description:
-    "KheloYouth by Elite Games Federation is India's growing grassroots sports network for academies, athletes, events, visibility, donations, and FitStreak.",
+    "Find sports academies, join India's grassroots sports network, support young athletes and download the FitStreak fitness app. By Elite Games Federation.",
   alternates: {
     canonical: "/",
   },
@@ -108,10 +110,12 @@ export default function Home() {
             {/* MAIN IMAGE CARD */}
             <div className="relative w-full max-w-xl h-[420px] sm:h-[520px] md:h-[650px] rounded-[40px] overflow-hidden border border-white/10 bg-zinc-900">
 
-              <img
-                src="indiafuture.png"
-                alt="Indias Sports Future"
-                className="w-full h-full object-cover opacity-80"
+              <Image
+                src="/indiafuture.webp"
+                alt="Young athletes training at a grassroots sports academy in India"
+                fill
+                sizes="(min-width: 768px) 576px, 100vw"
+                className="object-cover opacity-80"
               />
 
               {/* OVERLAY */}
@@ -184,10 +188,12 @@ export default function Home() {
       {/* IMAGE CARD */}
       <div className="relative overflow-hidden rounded-[40px] border border-white/10 bg-zinc-900 h-[620px] group">
 
-        <img
-          src="/surajpodcast.png"
-          alt="Suraj Gaywal Podcast"
-          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-700"
+        <Image
+          src="/surajpodcast.webp"
+          alt="Suraj Gaywal on the Elite Games Federation podcast"
+          fill
+          sizes="(min-width: 1024px) 50vw, 100vw"
+          className="object-cover group-hover:scale-105 transition duration-700"
         />
 
         {/* OVERLAY */}
@@ -422,9 +428,12 @@ export default function Home() {
       </div>
 
       {/* PHONE IMAGE */}
-      <img
-        src="/mockupphone.png"
-        alt="FitStreak Phone Mockup"
+      <Image
+        src="/mockupphone.webp"
+        alt="FitStreak fitness app shown on a phone"
+        width={800}
+        height={1423}
+        sizes="(min-width: 768px) 390px, (min-width: 640px) 300px, 250px"
         className="
           relative z-10
           w-[250px]
@@ -511,10 +520,12 @@ export default function Home() {
       {/* IMAGE 1 */}
       <div className="group relative overflow-hidden rounded-[32px] h-[320px] border border-white/10">
 
-        <img
-          src="/littlefeet1.png"
-          alt="Little Feet Preschool"
-          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-700"
+        <Image
+          src="/littlefeet1.webp"
+          alt="Little Feet Preschool children playing sports"
+          fill
+          sizes="(min-width: 1024px) 33vw, 100vw"
+          className="object-cover group-hover:scale-105 transition duration-700"
         />
 
       </div>
@@ -522,10 +533,12 @@ export default function Home() {
       {/* IMAGE 2 */}
       <div className="group relative overflow-hidden rounded-[32px] h-[320px] border border-white/10">
 
-        <img
-          src="/littlefeet2.png"
-          alt="Little Feet Preschool"
-          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-700"
+        <Image
+          src="/littlefeet2.webp"
+          alt="Little Feet Preschool children playing sports"
+          fill
+          sizes="(min-width: 1024px) 33vw, 100vw"
+          className="object-cover group-hover:scale-105 transition duration-700"
         />
 
       </div>
@@ -533,10 +546,12 @@ export default function Home() {
       {/* IMAGE 3 */}
       <div className="group relative overflow-hidden rounded-[32px] h-[320px] border border-white/10">
 
-        <img
-          src="/littlefeet3.png"
-          alt="Little Feet Preschool"
-          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-700"
+        <Image
+          src="/littlefeet3.webp"
+          alt="Little Feet Preschool children playing sports"
+          fill
+          sizes="(min-width: 1024px) 33vw, 100vw"
+          className="object-cover group-hover:scale-105 transition duration-700"
         />
 
       </div>
@@ -587,10 +602,12 @@ export default function Home() {
       {/* IMAGE 1 */}
       <div className="group relative overflow-hidden rounded-[32px] h-[300px] border border-white/10">
 
-        <img
-          src="/navdeepsingh.jpg"
+        <Image
+          src="/navdeepsingh.webp"
           alt="Navdeep Singh"
-          className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition duration-700"
+          fill
+          sizes="(min-width: 1024px) 25vw, (min-width: 768px) 50vw, 100vw"
+          className="object-cover group-hover:scale-110 transition duration-700"
         />
 
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
@@ -612,10 +629,12 @@ export default function Home() {
       {/* IMAGE 2 */}
       <div className="group relative overflow-hidden rounded-[32px] h-[300px] border border-white/10">
 
-        <img
-          src="/arjunmeghwal.png"
+        <Image
+          src="/arjunmeghwal.webp"
           alt="Arjun Meghwal"
-          className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition duration-700"
+          fill
+          sizes="(min-width: 1024px) 25vw, (min-width: 768px) 50vw, 100vw"
+          className="object-cover group-hover:scale-110 transition duration-700"
         />
 
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
@@ -637,10 +656,12 @@ export default function Home() {
       {/* IMAGE 3 */}
       <div className="group relative overflow-hidden rounded-[32px] h-[300px] border border-white/10">
 
-        <img
-          src="/paraathletes.png"
+        <Image
+          src="/paraathletes.webp"
           alt="Para-Athletes"
-          className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition duration-700"
+          fill
+          sizes="(min-width: 1024px) 25vw, (min-width: 768px) 50vw, 100vw"
+          className="object-cover group-hover:scale-110 transition duration-700"
         />
 
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
@@ -662,10 +683,12 @@ export default function Home() {
       {/* IMAGE 4 */}
       <div className="group relative overflow-hidden rounded-[32px] h-[300px] border border-white/10">
 
-        <img
-          src="/ruralsports.png"
+        <Image
+          src="/ruralsports.webp"
           alt="Rural Sports"
-          className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition duration-700"
+          fill
+          sizes="(min-width: 1024px) 25vw, (min-width: 768px) 50vw, 100vw"
+          className="object-cover group-hover:scale-110 transition duration-700"
         />
 
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>

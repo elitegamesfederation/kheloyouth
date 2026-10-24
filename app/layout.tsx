@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Script from "next/script";
+import JsonLd from "./components/JsonLd";
 import VisitorTracker from "./components/VisitorTracker";
+import { absoluteUrl, siteUrl } from "./lib/site";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,16 +15,15 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const siteUrl = "https://kheloyouth.com";
-
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
+  applicationName: "KheloYouth",
   title: {
-    default: "KheloYouth | Elite Games Federation",
+    default: "KheloYouth | Elite Games Federation - India's Grassroots Sports Network",
     template: "%s | KheloYouth",
   },
   description:
-    "KheloYouth by Elite Games Federation is India's growing grassroots sports network connecting academies, athletes, donors, events, fitness communities, and sports opportunities.",
+    "KheloYouth by Elite Games Federation is India's grassroots sports network connecting sports academies, athletes, donors, events, the FitStreak fitness app, and sports opportunities.",
   keywords: [
     "KheloYouth",
     "Elite Games Federation",
@@ -38,32 +38,22 @@ export const metadata: Metadata = {
   authors: [{ name: "Elite Games Federation" }],
   creator: "Elite Games Federation",
   publisher: "Elite Games Federation",
-  alternates: {
-    canonical: siteUrl,
-  },
   openGraph: {
     type: "website",
     locale: "en_IN",
     url: siteUrl,
     siteName: "KheloYouth",
-    title: "KheloYouth | Elite Games Federation",
+    title: "KheloYouth | Elite Games Federation - India's Grassroots Sports Network",
     description:
-      "India's growing grassroots sports network for academies, athlete visibility, donations, FitStreak, events, and elite opportunities.",
-    images: [
-      {
-        url: "/elite-logo.png",
-        width: 512,
-        height: 512,
-        alt: "Elite Games Federation logo",
-      },
-    ],
+      "India's grassroots sports network for sports academies, athlete visibility, donations, the FitStreak app, events, and elite opportunities.",
+    // The share image comes from app/opengraph-image.tsx.
   },
   twitter: {
     card: "summary_large_image",
-    title: "KheloYouth | Elite Games Federation",
+    title: "KheloYouth | Elite Games Federation - India's Grassroots Sports Network",
     description:
-      "India's growing grassroots sports network for academies, athlete visibility, donations, FitStreak, events, and elite opportunities.",
-    images: ["/elite-logo.png"],
+      "India's grassroots sports network for sports academies, athlete visibility, donations, the FitStreak app, events, and elite opportunities.",
+    // The share image comes from app/twitter-image.tsx.
   },
   robots: {
     index: true,
@@ -93,7 +83,11 @@ export default function RootLayout({
     name: "Elite Games Federation",
     alternateName: "KheloYouth",
     url: siteUrl,
-    logo: `${siteUrl}/elite-logo.png`,
+    logo: absoluteUrl("/elite-logo.png"),
+    image: absoluteUrl("/elite-logo.png"),
+    description:
+      "Elite Games Federation runs KheloYouth, India's grassroots sports network for sports academies, athletes, donors and the FitStreak fitness app.",
+    areaServed: { "@type": "Country", name: "India" },
     email: "contact@elitegamesfederation.com",
     sameAs: [
       "https://www.instagram.com/elitegamesfederation/",
@@ -107,7 +101,9 @@ export default function RootLayout({
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: "KheloYouth",
+    alternateName: "Elite Games Federation",
     url: siteUrl,
+    inLanguage: "en-IN",
     publisher: {
       "@type": "SportsOrganization",
       name: "Elite Games Federation",
@@ -116,23 +112,11 @@ export default function RootLayout({
 
   return (
     <html
-      lang="en"
+      lang="en-IN"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <Script
-          src="https://checkout.razorpay.com/v1/checkout.js"
-          strategy="beforeInteractive"
-        />
-
-        <Script
-          id="kheloyouth-structured-data"
-          type="application/ld+json"
-          strategy="beforeInteractive"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify([organizationSchema, websiteSchema]),
-          }}
-        />
+        <JsonLd data={[organizationSchema, websiteSchema]} />
 
         <VisitorTracker />
 

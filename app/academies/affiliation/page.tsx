@@ -4799,8 +4799,10 @@ const completeAffiliationWithCoupon = async () => {
                 Certificate Preview
               </p>
               <img
-                src="/unique-badminton-academy-affiliation-certificate.png"
+                src="/unique-badminton-academy-affiliation-certificate.webp"
                 alt="Unique Badminton Academy sample affiliation certificate"
+                loading="lazy"
+                decoding="async"
                 className="mt-5 w-full max-h-[360px] object-contain rounded-2xl bg-white"
               />
             </div>
@@ -4810,8 +4812,10 @@ const completeAffiliationWithCoupon = async () => {
                 Federation ID Preview
               </p>
               <img
-                src="/sai-teja-varma-elite-id-card.png"
+                src="/sai-teja-varma-elite-id-card.webp"
                 alt="Unique Badminton Academy sample federation ID card"
+                loading="lazy"
+                decoding="async"
                 className="mt-5 w-full max-h-[360px] object-contain rounded-2xl bg-white"
               />
             </div>

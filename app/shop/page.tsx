@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { FaInstagram } from "react-icons/fa6";
 
 import Footer from "../components/Footer";
+import JsonLd, { breadcrumbSchema } from "../components/JsonLd";
 import Navbar from "../components/Navbar";
 import { getShopCategories, getShopProducts } from "@/app/lib/shopProducts";
 
@@ -11,7 +12,7 @@ const instagramUrl = "https://www.instagram.com/elite.meera";
 
 const pageTitle = "Meera's Picks | Elite Games Federation Shop";
 const pageDescription =
-  "Budget activewear and gym gear under ₹1K recommended by Meera, linked to Amazon.in. Elite Games Federation earns from qualifying purchases, which support grassroots sports in India.";
+  "Budget activewear and gym gear under ₹1K picked by Meera, linked to Amazon.in. We earn from qualifying purchases, which support grassroots sports.";
 
 export const metadata: Metadata = {
   // absolute: skips the site-wide " | KheloYouth" title template so the
@@ -28,20 +29,12 @@ export const metadata: Metadata = {
     siteName: "KheloYouth",
     title: pageTitle,
     description: pageDescription,
-    images: [
-      {
-        url: "/elite-logo.png",
-        width: 512,
-        height: 512,
-        alt: "Elite Games Federation logo",
-      },
-    ],
+    // The share image comes from app/shop/opengraph-image.tsx.
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: pageTitle,
     description: pageDescription,
-    images: ["/elite-logo.png"],
   },
 };
 
@@ -51,6 +44,12 @@ export default function ShopPage() {
 
   return (
     <main className="min-h-screen bg-black text-white overflow-hidden">
+      <JsonLd
+        data={breadcrumbSchema([
+          { name: "Home", path: "/" },
+          { name: "Shop", path: "/shop" },
+        ])}
+      />
       <Navbar />
 
       <section className="relative pt-32 md:pt-44 pb-20 md:pb-28 overflow-hidden">

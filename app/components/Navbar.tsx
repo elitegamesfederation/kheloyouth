@@ -14,7 +14,7 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 w-full z-50 border-b border-white/10 bg-black/80 backdrop-blur-2xl">
+      <nav aria-label="Main" className="fixed top-0 left-0 w-full z-50 border-b border-white/10 bg-black/80 backdrop-blur-2xl">
 
         {/* ORANGE GLOW */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,115,0,0.15),transparent_60%)]"></div>
@@ -37,9 +37,9 @@ export default function Navbar() {
 
             <div className="flex flex-col items-center text-center">
 
-              <h1 className="text-3xl md:text-5xl font-black tracking-[0.18em] text-orange-500 uppercase leading-none">
+              <p className="text-3xl md:text-5xl font-black tracking-[0.18em] text-orange-500 uppercase leading-none">
                 Elite
-              </h1>
+              </p>
 
               <p className="text-[10px] md:text-sm tracking-[0.28em] md:tracking-[0.35em] text-white uppercase mt-1">
                 Games Federation
@@ -197,9 +197,9 @@ export default function Navbar() {
 
             <div>
 
-              <h1 className="text-3xl font-black text-orange-500 tracking-[0.18em]">
+              <p className="text-3xl font-black text-orange-500 tracking-[0.18em]">
                 ELITE
-              </h1>
+              </p>
 
               <p className="text-[10px] tracking-[0.3em] text-gray-400 uppercase">
                 Games Federation

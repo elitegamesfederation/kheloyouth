@@ -1,11 +1,12 @@
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import type { Metadata } from "next";
+import Image from "next/image";
 
 export const metadata: Metadata = {
-  title: "Donation",
+  title: "Donate to Grassroots Sports in India (80G)",
   description:
-    "Support Elite Games Federation through one-time donations or monthly contributions. Contributions are exempted U/s 80G of Income Tax Act 1961.",
+    "Support young athletes and grassroots sports in India with a one-time or monthly donation. Contributions are exempted U/s 80G of Income Tax Act 1961.",
   alternates: {
     canonical: "/donation",
   },
@@ -96,10 +97,12 @@ export default function DonationPage() {
 
           <div className="relative flex justify-center">
             <div className="relative w-full max-w-xl h-[650px] rounded-[40px] overflow-hidden border border-white/10 bg-zinc-900">
-              <img
-                src="uttarpradeshsports.png"
+              <Image
+                src="/uttarpradeshsports.webp"
                 alt="Athletes supported by Elite Games Federation"
-                className="w-full h-full object-cover opacity-70"
+                fill
+                sizes="(min-width: 1024px) 576px, 100vw"
+                className="object-cover opacity-70"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent"></div>
               <div className="absolute bottom-8 left-8 right-8 bg-black/50 backdrop-blur-xl border border-white/10 rounded-3xl p-6">
@@ -185,11 +188,13 @@ export default function DonationPage() {
       <section className="relative py-24 border-y border-white/10 overflow-hidden">
         <div className="absolute inset-0 bg-orange-500/5 blur-3xl"></div>
         <div className="max-w-7xl mx-auto px-6 relative z-10 grid lg:grid-cols-2 gap-16 items-center">
-          <div className="rounded-[40px] overflow-hidden border border-white/10">
-            <img
-              src="karateseminar.png"
-              alt="Elite Games Federation sports initiative"
-              className="w-full h-[560px] object-cover"
+          <div className="relative h-[560px] rounded-[40px] overflow-hidden border border-white/10">
+            <Image
+              src="/karateseminar.webp"
+              alt="Karate seminar organised by Elite Games Federation"
+              fill
+              sizes="(min-width: 1024px) 576px, 100vw"
+              className="object-cover"
             />
           </div>
 

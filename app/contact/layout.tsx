@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Contact",
+  title: "Contact Elite Games Federation",
   description:
-    "Contact Elite Games Federation for grassroots sports network partnerships, academy support, sponsorships, athlete support, events, media collaborations, and CSR queries.",
+    "Contact Elite Games Federation for partnerships, academy support, sponsorships, athlete support, events, media and CSR queries.",
   alternates: {
     canonical: "/contact",
   },

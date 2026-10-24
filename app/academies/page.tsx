@@ -3,9 +3,9 @@ import Footer from "../components/Footer";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Academies",
+  title: "Sports Academies in India: Find & Join",
   description:
-    "Explore India's growing grassroots sports network of academies, athletes, coaches, events, and collaboration opportunities through KheloYouth.",
+    "Explore India's grassroots sports academy network. Find affiliated academies by sport, state and district, or affiliate your own academy.",
   alternates: {
     canonical: "/academies",
   },

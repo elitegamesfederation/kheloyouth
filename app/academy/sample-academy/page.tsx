@@ -1,5 +1,13 @@
+import type { Metadata } from "next";
+
 import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
+
+// Demo content shown to prospective academies, not a real academy page.
+export const metadata: Metadata = {
+  title: "Sample Academy Page",
+  robots: { index: false, follow: true },
+};
 
 const sampleSports = [
   "Athletics",
@@ -16,7 +24,7 @@ const sampleStudents = [
     bloodGroup: "O+",
     sports: "Athletics, Football",
     achievement: ["District Gold Medalist", "Elite Athlete Feature"],
-    photo: "/navdeepsingh.jpg",
+    photo: "/navdeepsingh.webp",
   },
   {
     name: "Meera Nair",
@@ -25,7 +33,7 @@ const sampleStudents = [
     bloodGroup: "B+",
     sports: "Taekwondo, Fitness Training",
     achievement: ["State Championship Finalist", "School Sports Captain"],
-    photo: "/buildingindia.png",
+    photo: "/buildingindia.webp",
   },
 ];
 
@@ -40,7 +48,7 @@ export default function SampleAcademyPage() {
         <div className="bg-zinc-900 border border-orange-500/40 rounded-[35px] overflow-hidden">
           <div className="relative min-h-[480px] p-8 md:p-14 flex items-end">
             <img
-              src="/paraathletes.png"
+              src="/paraathletes.webp"
               alt="Sample Academy banner"
               className="absolute inset-0 w-full h-full object-cover opacity-45"
             />
@@ -111,7 +119,7 @@ export default function SampleAcademyPage() {
               <h2 className="text-4xl font-black">Owner / Coach</h2>
               <div className="mt-6 flex gap-5 bg-zinc-950 border border-white/10 rounded-2xl p-5">
                 <img
-                  src="/surajpodcast.png"
+                  src="/surajpodcast.webp"
                   alt="Sample coach"
                   className="w-20 h-24 rounded-xl object-cover"
                 />

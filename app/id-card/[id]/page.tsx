@@ -81,6 +81,7 @@ export async function generateMetadata({
   const { record } = await findIdCardRecord(id);
 
   return {
+    robots: { index: false, follow: false },
     title: record
       ? `${record.name} Federation ID`
       : "ID Card Verification",
