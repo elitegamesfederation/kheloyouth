@@ -16,29 +16,29 @@
   {
     "id": "look-002",
     "lookNumber": 2,
-    "title": "PLACEHOLDER - replace with the product title",
-    "description": "PLACEHOLDER - replace with a one-line description.",
+    "title": "Black Colour-Block Gym Set",
+    "description": "Crop tee and high-waist leggings with coral and green stripes.",
     "category": "Women's Activewear",
     "priceLabel": "Under ₹1K",
     "creatorImage": "/shop/images/look-002-meera.jpg",
     "productImage": "/shop/images/look-002-product.jpg",
-    "affiliateUrl": "REPLACE-WITH-YOUR-AMAZON-AFFILIATE-LINK",
+    "affiliateUrl": "https://link.amazon/B06t3Jeti",
     "isAiImage": true,
-    "active": false,
-    "addedOn": "2026-10-24"
+    "active": true,
+    "addedOn": "2026-10-27"
   },
   {
     "id": "look-003",
     "lookNumber": 3,
-    "title": "PLACEHOLDER - replace with the product title",
-    "description": "PLACEHOLDER - replace with a one-line description.",
+    "title": "Pedal Resistance Puller (4 Tubes)",
+    "description": "Pull-string trainer for arms, abs and legs, no gym needed.",
     "category": "Gym Equipment",
     "priceLabel": "Under ₹1K",
     "creatorImage": "/shop/images/look-003-meera.jpg",
     "productImage": "/shop/images/look-003-product.jpg",
-    "affiliateUrl": "REPLACE-WITH-YOUR-AMAZON-AFFILIATE-LINK",
+    "affiliateUrl": "https://link.amazon/B04zm8yAQ",
     "isAiImage": true,
-    "active": false,
-    "addedOn": "2026-10-24"
+    "active": true,
+    "addedOn": "2026-10-27"
   }
 ]
